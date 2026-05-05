@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "question": "How do I book a listing?",
+    "answer": "To book a listing, search for your desired destination, select a property, choose your check-in and check-out dates, confirm the number of guests, and click 'Reserve'. You'll be asked to review the total cost including cleaning fees and service charges before confirming payment.",
+    "category": "booking",
+    "keywords": ["book", "reserve", "how to book", "booking process"]
+  },
+  {
+    "id": 2,
+    "question": "What is the cancellation policy?",
+    "answer": "Cancellation policies vary by listing. There are typically four types: Flexible (full refund up to 24 hours before check-in), Moderate (full refund up to 5 days before check-in), Strict (50% refund up to 7 days before check-in), and Non-refundable (no refund after booking). Always check the specific listing's policy before booking.",
+    "category": "cancellation",
+    "keywords": ["cancel", "cancellation", "refund", "policy"]
+  },
+  {
+    "id": 3,
+    "question": "How do refunds work?",
+    "answer": "Refunds depend on the listing's cancellation policy and when you cancel. If you cancel within the allowed window, refunds are typically processed within 5-10 business days back to your original payment method. Service fees are usually non-refundable. If a host cancels, you receive a full refund automatically.",
+    "category": "refund",
+    "keywords": ["refund", "money back", "get refund", "refund process"]
+  },
+  {
+    "id": 4,
+    "question": "What happens if the host cancels my booking?",
+    "answer": "If a host cancels your booking, you'll receive a full refund including all fees. We'll also help you find a similar listing in the same area. Hosts who cancel frequently face penalties including reduced search visibility and potential account suspension.",
+    "category": "cancellation",
+    "keywords": ["host cancel", "host cancels", "cancelled by host"]
+  },
+  {
+    "id": 5,
+    "question": "How does guest verification work?",
+    "answer": "Guest verification involves confirming your identity through email verification, phone number verification, and optionally uploading a government-issued ID. Some hosts require full ID verification before accepting bookings. This helps ensure safety and trust for both guests and hosts.",
+    "category": "verification",
+    "keywords": ["verify", "verification", "identity", "ID check"]
+  },
+  {
+    "id": 6,
+    "question": "How can I contact a host?",
+    "answer": "You can message a host directly through the platform's messaging system before or after booking. Go to the listing page and click 'Contact Host'. For urgent matters after check-in, use the messaging system or the emergency contact number provided by the host.",
+    "category": "communication",
+    "keywords": ["contact host", "message host", "talk to host", "reach host"]
+  },
+  {
+    "id": 7,
+    "question": "Are pets allowed in listings?",
+    "answer": "Pet policies vary by listing. Some properties welcome pets, others allow only small pets, and some don't allow pets at all. Check the listing's house rules section for specific pet policies. If pets are allowed, there may be an additional pet cleaning fee. Always inform the host about your pet before booking.",
+    "category": "pets",
+    "keywords": ["pets", "dog", "cat", "pet friendly", "animals"]
+  },
+  {
+    "id": 8,
+    "question": "Are there extra guest fees?",
+    "answer": "Some listings charge extra guest fees for guests beyond a certain number. This is typically $10-50 per additional guest per night. The extra guest fee will be shown in the price breakdown before you confirm your booking. Check the listing details for the exact policy.",
+    "category": "pricing",
+    "keywords": ["extra guest", "additional guest", "extra person", "guest fee"]
+  },
+  {
+    "id": 9,
+    "question": "What is included in the total price?",
+    "answer": "The total price typically includes: base price per night × number of nights, a one-time cleaning fee, a service fee (usually 12-15% of the subtotal), and applicable local taxes. Some listings may also charge extra guest fees. All charges are displayed in the price breakdown before you confirm your booking.",
+    "category": "pricing",
+    "keywords": ["total price", "cost breakdown", "fees", "charges", "how much"]
+  },
+  {
+    "id": 10,
+    "question": "What are the check-in and check-out times?",
+    "answer": "Check-in and check-out times vary by listing. Typical check-in times are between 2:00 PM and 4:00 PM, and check-out times between 10:00 AM and 12:00 PM. Specific times are listed in each property's house rules. Contact the host if you need early check-in or late check-out — some hosts offer flexibility.",
+    "category": "booking",
+    "keywords": ["check-in", "check-out", "check in time", "check out time", "arrival"]
+  },
+  {
+    "id": 11,
+    "question": "Is smoking allowed in listings?",
+    "answer": "Most listings do not allow smoking indoors. Some properties permit smoking in designated outdoor areas. The smoking policy is specified in each listing's house rules. Violating the no-smoking policy may result in additional cleaning fees or loss of your security deposit.",
+    "category": "rules",
+    "keywords": ["smoking", "smoke", "cigarette", "vaping"]
+  },
+  {
+    "id": 12,
+    "question": "Can I host parties or events at the listing?",
+    "answer": "Most listings do not allow parties or events. Some larger properties may permit gatherings with prior host approval. The party policy is clearly stated in the house rules. Unauthorized parties can result in immediate removal, loss of deposit, and account penalties.",
+    "category": "rules",
+    "keywords": ["party", "event", "gathering", "celebration"]
+  },
+  {
+    "id": 13,
+    "question": "What should I do if something is wrong with the listing?",
+    "answer": "If the listing doesn't match its description or there's an issue (cleanliness, missing amenities, safety concerns), contact the host immediately through the messaging system. If the issue can't be resolved, report it within 24 hours of check-in for possible rebooking assistance or refund under the Guest Refund Policy.",
+    "category": "issues",
+    "keywords": ["problem", "issue", "complaint", "wrong", "not as described"]
+  },
+  {
+    "id": 14,
+    "question": "How do I leave a review?",
+    "answer": "After your stay, you have 14 days to leave a review. Go to your trips section and find the completed booking. You can rate the property on categories like cleanliness, communication, location, and value. Your review helps future guests make informed decisions and helps hosts improve their service.",
+    "category": "reviews",
+    "keywords": ["review", "rate", "feedback", "rating"]
+  },
+  {
+    "id": 15,
+    "question": "What amenities are typically included?",
+    "answer": "Common amenities include WiFi, kitchen access, air conditioning/heating, washer/dryer, TV, and basic toiletries. Premium amenities may include pool, hot tub, gym, parking, and workspace. Each listing clearly shows its available amenities. Use amenity filters when searching to find properties with your must-haves.",
+    "category": "amenities",
+    "keywords": ["amenities", "wifi", "kitchen", "pool", "facilities", "what's included"]
+  },
+  {
+    "id": 16,
+    "question": "Is there a minimum stay requirement?",
+    "answer": "Many listings have a minimum stay requirement, typically 1-3 nights. Some properties, especially during peak seasons or in certain neighborhoods, may require longer minimum stays (7+ nights). The minimum stay is shown on each listing page.",
+    "category": "booking",
+    "keywords": ["minimum stay", "minimum nights", "how many nights", "shortest stay"]
+  },
+  {
+    "id": 17,
+    "question": "How does the pricing work during peak seasons?",
+    "answer": "Hosts can set dynamic pricing that varies by season, day of week, and local events. Prices during holidays, festivals, and peak travel seasons are typically higher. Some hosts also offer weekly and monthly discounts for longer stays. The exact price for your dates is always shown before booking.",
+    "category": "pricing",
+    "keywords": ["peak season", "high season", "holiday pricing", "price changes", "dynamic pricing"]
+  },
+  {
+    "id": 18,
+    "question": "What types of properties are available?",
+    "answer": "Available property types include entire apartments, private rooms in shared spaces, hotel rooms, villas, cottages, cabins, treehouses, boats, and more. You can filter by property type when searching. 'Entire place' means you have the whole property to yourself, while 'Private room' means you have your own room in a shared space.",
+    "category": "listings",
+    "keywords": ["property type", "apartment", "villa", "room type", "entire place", "private room"]
+  },
+  {
+    "id": 19,
+    "question": "How do I know if a listing is safe?",
+    "answer": "Look for: verified host badges, Superhost status (experienced hosts with high ratings), detailed reviews from previous guests, clear house rules, and accurate listing photos. Properties should have working smoke detectors, fire extinguishers, and first aid kits. You can also check the neighborhood safety information.",
+    "category": "safety",
+    "keywords": ["safe", "safety", "secure", "trustworthy", "reliable"]
+  },
+  {
+    "id": 20,
+    "question": "What is a Superhost?",
+    "answer": "A Superhost is an experienced host who has earned a special badge by meeting high standards: maintaining a 4.8+ overall rating, completing at least 10 stays in the past year, maintaining a 90%+ response rate, and having less than 1% cancellation rate. Superhosts are known for providing exceptional hospitality.",
+    "category": "hosts",
+    "keywords": ["superhost", "super host", "best host", "top host"]
+  },
+  {
+    "id": 21,
+    "question": "Can I modify my booking after confirmation?",
+    "answer": "You can request booking modifications (date changes, guest count updates) through the platform. The host must approve any changes. Depending on the modification, pricing may be adjusted. If the host declines, you may need to cancel the original booking and make a new one, subject to the cancellation policy.",
+    "category": "booking",
+    "keywords": ["modify booking", "change dates", "change booking", "update reservation"]
+  },
+  {
+    "id": 22,
+    "question": "What payment methods are accepted?",
+    "answer": "We accept major credit cards (Visa, Mastercard, American Express), debit cards, PayPal, and in some regions, Apple Pay and Google Pay. Payment is processed when the host confirms your booking. The total amount is charged upfront, though some long-term bookings may offer monthly payment options.",
+    "category": "payment",
+    "keywords": ["payment", "pay", "credit card", "payment method", "how to pay"]
+  },
+  {
+    "id": 23,
+    "question": "Is there a security deposit?",
+    "answer": "Some hosts set a security deposit to cover potential damages. This is not charged upfront but may be claimed within 14 days after checkout if there's damage. The deposit amount is shown on the listing page. If no damage occurs, no amount is charged.",
+    "category": "payment",
+    "keywords": ["security deposit", "deposit", "damage", "damage deposit"]
+  },
+  {
+    "id": 24,
+    "question": "How do I find listings near a specific landmark?",
+    "answer": "You can search by entering the landmark name in the search bar, and results will show nearby listings. You can also use the map view to browse listings near your desired location. Some listings mention nearby landmarks in their description — try asking me about specific areas!",
+    "category": "search",
+    "keywords": ["near", "landmark", "location", "close to", "nearby"]
+  },
+  {
+    "id": 25,
+    "question": "What if I need to check in late at night?",
+    "answer": "Many listings offer self check-in options (lockbox, smart lock, or keypad) that allow 24/7 access. Contact your host before booking to confirm late check-in availability. Some hosts charge extra for late check-in handling. Always communicate your expected arrival time in advance.",
+    "category": "booking",
+    "keywords": ["late check-in", "late arrival", "night check-in", "self check-in", "key"]
+  },
+  {
+    "id": 26,
+    "question": "Are there accessible listings for people with disabilities?",
+    "answer": "Many listings offer accessibility features such as step-free access, wide doorways, accessible bathrooms, and elevator access. You can filter search results by accessibility features. Check the listing description for specific accessibility details or contact the host directly to confirm.",
+    "category": "accessibility",
+    "keywords": ["accessible", "disability", "wheelchair", "accessibility", "step-free"]
+  },
+  {
+    "id": 27,
+    "question": "How do weekly and monthly discounts work?",
+    "answer": "Some hosts offer automatic discounts for longer stays — typically 10-20% off for weekly bookings (7+ nights) and 20-40% off for monthly bookings (28+ nights). These discounts are automatically applied to the price breakdown when you select eligible dates.",
+    "category": "pricing",
+    "keywords": ["weekly discount", "monthly discount", "long stay", "long term", "discount"]
+  },
+  {
+    "id": 28,
+    "question": "Can I book a listing for someone else?",
+    "answer": "Yes, you can book a listing for a guest other than yourself. Make sure to inform the host about who will be staying. The guest's name and contact information should be provided. Note that the person who books is responsible for the reservation, including any damage or rule violations.",
+    "category": "booking",
+    "keywords": ["book for someone", "book for friend", "third party booking", "someone else"]
+  },
+  {
+    "id": 29,
+    "question": "What should I bring to my stay?",
+    "answer": "Most listings provide basic essentials like towels, bed linens, soap, and toilet paper. Check the amenities list for specifics. You should typically bring personal toiletries, medications, chargers, and any specialized items you need. For kitchen-equipped listings, basic cooking supplies are usually provided but specialty ingredients are not.",
+    "category": "general",
+    "keywords": ["what to bring", "pack", "essentials", "toiletries", "provided"]
+  },
+  {
+    "id": 30,
+    "question": "How is the platform different from hotels?",
+    "answer": "Unlike hotels, our platform offers unique, locally-owned properties that give you a more authentic travel experience. Benefits include full kitchens, more space, local neighborhood immersion, and often better value for groups. Hosts provide personalized tips about the area. However, services like daily housekeeping are typically not included.",
+    "category": "general",
+    "keywords": ["vs hotel", "different from hotel", "why not hotel", "hotel comparison"]
+  }
+]
