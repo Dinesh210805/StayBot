@@ -17,14 +17,26 @@ from sqlalchemy import (
     Boolean,
     Text,
     ForeignKey,
+    BigInteger,
+    Date,
+    DateTime,
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from datetime import datetime
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data", "staybot.db")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    engine = create_engine(DATABASE_URL, echo=False)
+else:
+    engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
@@ -35,7 +47,7 @@ Base = declarative_base()
 class Listing(Base):
     __tablename__ = "listings"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(Text)
     neighborhood_overview = Column(Text)
@@ -53,7 +65,7 @@ class Listing(Base):
     bathrooms = Column(Float)
     beds = Column(Integer)
     amenities = Column(Text)  # JSON array string
-    host_id = Column(Integer)
+    host_id = Column(BigInteger)
     host_name = Column(String)
     host_response_rate = Column(String)
     host_is_superhost = Column(String)
@@ -77,8 +89,8 @@ class Listing(Base):
 class Review(Base):
     __tablename__ = "reviews"
 
-    id = Column(Integer, primary_key=True)
-    listing_id = Column(Integer, ForeignKey("listings.id"), index=True)
+    id = Column(BigInteger, primary_key=True)
+    listing_id = Column(BigInteger, ForeignKey("listings.id"), index=True)
     reviewer_name = Column(String)
     date = Column(String)
     rating = Column(Float)
@@ -87,6 +99,46 @@ class Review(Base):
     location = Column(Float)
     comment_text = Column(Text)
     sentiment_score = Column(Float)
+
+
+class User(Base):
+    """Persistent user profile for long-term memory across sessions."""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False, unique=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_active = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # JSON string storing user preferences:
+    # {"favorite_cities": [], "budget_range": [min, max], "pet_friendly": bool, ...}
+    preferences = Column(Text, default="{}")
+    # JSON string storing conversation summaries for long-term context
+    memory_summary = Column(Text, default="")
+
+
+class Booking(Base):
+    """Stateful booking records created by the AI agent."""
+    __tablename__ = "bookings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    reference = Column(String, unique=True, nullable=False)  # e.g. "STB-2026-0042"
+    user_name = Column(String, nullable=False)
+    listing_id = Column(BigInteger, ForeignKey("listings.id"), index=True)
+    check_in = Column(Date, nullable=False)
+    check_out = Column(Date, nullable=False)
+    guests = Column(Integer, default=1)
+    total_price = Column(Float)
+    status = Column(String, default="confirmed")  # confirmed, cancelled
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class BlockedDate(Base):
+    """Simulated calendar — randomly blocked dates per listing."""
+    __tablename__ = "blocked_dates"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column(BigInteger, ForeignKey("listings.id"), index=True)
+    blocked_date = Column(Date, nullable=False, index=True)
 
 
 # ── Database Initialization ────────────────────────────────────────────────────
@@ -109,17 +161,42 @@ def init_db():
             print("[DB] No listings.csv found. Run scripts/download_and_process.py first.")
             return
 
-        print("[DB] Loading listings into SQLite...")
+        print("[DB] Loading listings into Database...")
         listings_df = pd.read_csv(listings_path)
-        listings_df.to_sql("listings", engine, if_exists="replace", index=False)
+        
+        if "postgres" in engine.url.drivername:
+            # Use execute_values for very fast bulk insert
+            import psycopg2
+            from psycopg2.extras import execute_values
+            
+            # Ensure tables exist
+            Base.metadata.create_all(engine)
+            
+            conn = engine.raw_connection()
+            try:
+                cur = conn.cursor()
+                # Empty the table first
+                cur.execute("TRUNCATE TABLE listings CASCADE;")
+                
+                # Get columns
+                cols = list(listings_df.columns)
+                # Ensure id is first or handled correctly, but we'll just insert dictionaries
+                
+                # We'll fall back to Pandas to_sql with very small chunksize
+                listings_df.to_sql("listings", engine, if_exists="replace", index=False, chunksize=10, method="multi")
+            finally:
+                conn.close()
+        else:
+            listings_df.to_sql("listings", engine, if_exists="replace", index=False)
+            
         print(f"[DB] Loaded {len(listings_df)} listings")
 
         # Load reviews CSV
         reviews_path = os.path.join(DATA_DIR, "reviews.csv")
         if os.path.exists(reviews_path):
-            print("[DB] Loading reviews into SQLite...")
+            print("[DB] Loading reviews into Database...")
             reviews_df = pd.read_csv(reviews_path)
-            reviews_df.to_sql("reviews", engine, if_exists="replace", index=False)
+            reviews_df.to_sql("reviews", engine, if_exists="replace", index=False, chunksize=50)
             print(f"[DB] Loaded {len(reviews_df)} reviews")
 
     finally:

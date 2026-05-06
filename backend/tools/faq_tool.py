@@ -7,13 +7,12 @@ Uses ChromaDB to search through FAQ entries for platform-related questions.
 import os
 from langchain_core.tools import tool
 from sentence_transformers import SentenceTransformer
-import chromadb
+from pinecone import Pinecone
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-CHROMA_DIR = os.path.join(BASE_DIR, "embeddings", "chroma_db")
 
 _model = None
-_collection = None
+_index = None
 
 
 def _get_model():
@@ -23,12 +22,12 @@ def _get_model():
     return _model
 
 
-def _get_collection():
-    global _collection
-    if _collection is None:
-        client = chromadb.PersistentClient(path=CHROMA_DIR)
-        _collection = client.get_collection("faqs")
-    return _collection
+def _get_index():
+    global _index
+    if _index is None:
+        pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+        _index = pc.Index(os.getenv("PINECONE_INDEX_NAME", "staybot"))
+    return _index
 
 
 @tool
@@ -44,17 +43,18 @@ def search_faqs(question: str) -> str:
         The most relevant FAQ answer
     """
     model = _get_model()
-    collection = _get_collection()
+    index = _get_index()
 
     query_embedding = model.encode(question).tolist()
 
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=3,
-        include=["metadatas", "distances"],
+    results = index.query(
+        namespace="faqs",
+        vector=query_embedding,
+        top_k=3,
+        include_metadata=True,
     )
 
-    if not results["metadatas"] or not results["metadatas"][0]:
+    if not results or not results.matches:
         return (
             "I don't have a specific answer for that in my FAQ database. "
             "Try rephrasing your question, or ask about: booking, cancellation, "
@@ -62,11 +62,12 @@ def search_faqs(question: str) -> str:
         )
 
     # Return the best match, with secondary matches for context
-    best = results["metadatas"][0][0]
-    distance = results["distances"][0][0]
+    best_match = results.matches[0]
+    best = best_match.metadata
+    score = best_match.score
 
-    # If the best match is too far, it's probably not relevant
-    if distance > 1.2:
+    # If the score is too low, it's probably not relevant (cosine similarity)
+    if score < 0.4:
         return (
             "I'm not sure about that specific question. "
             "I can help with: booking process, cancellation policies, refunds, "
@@ -77,8 +78,9 @@ def search_faqs(question: str) -> str:
     response = f"**{best['question']}**\n\n{best['answer']}"
 
     # Add related questions if they're close enough
-    if len(results["metadatas"][0]) > 1 and results["distances"][0][1] < 1.0:
-        related = results["metadatas"][0][1]
+    if len(results.matches) > 1 and results.matches[1].score > 0.5:
+        related = results.matches[1].metadata
         response += f"\n\n---\n📌 **Related:** {related['question']}"
 
     return response
+

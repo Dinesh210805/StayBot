@@ -9,14 +9,13 @@ import os
 import json
 from langchain_core.tools import tool
 from sentence_transformers import SentenceTransformer
-import chromadb
+from pinecone import Pinecone
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-CHROMA_DIR = os.path.join(BASE_DIR, "embeddings", "chroma_db")
 
 # Lazy-loaded globals
 _model = None
-_collection = None
+_index = None
 
 
 def _get_model():
@@ -26,12 +25,12 @@ def _get_model():
     return _model
 
 
-def _get_collection():
-    global _collection
-    if _collection is None:
-        client = chromadb.PersistentClient(path=CHROMA_DIR)
-        _collection = client.get_collection("listings")
-    return _collection
+def _get_index():
+    global _index
+    if _index is None:
+        pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+        _index = pc.Index(os.getenv("PINECONE_INDEX_NAME", "staybot"))
+    return _index
 
 
 @tool
@@ -51,28 +50,28 @@ def search_listings_semantic(query: str, n_results: int = 5) -> str:
     n_results = min(max(n_results, 1), 10)
 
     model = _get_model()
-    collection = _get_collection()
+    index = _get_index()
 
     # Embed the query
     query_embedding = model.encode(query).tolist()
 
-    # Search ChromaDB
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results,
-        include=["documents", "metadatas", "distances"],
+    # Search Pinecone
+    results = index.query(
+        namespace="listings",
+        vector=query_embedding,
+        top_k=n_results,
+        include_metadata=True,
     )
 
-    if not results["metadatas"] or not results["metadatas"][0]:
+    if not results or not results.matches:
         return "No matching listings found. Try broadening your search criteria."
 
     # Format results
-    output_lines = [f"Found {len(results['metadatas'][0])} matching listings:\n"]
+    output_lines = [f"Found {len(results.matches)} matching listings:\n"]
 
-    for i, (metadata, distance) in enumerate(
-        zip(results["metadatas"][0], results["distances"][0]), 1
-    ):
-        relevance = max(0, round((1 - distance) * 100, 1))
+    for i, match in enumerate(results.matches, 1):
+        metadata = match.metadata
+        relevance = max(0, round(match.score * 100, 1))
         name = metadata.get("name", "Unknown")
         city = metadata.get("city", "Unknown")
         price = metadata.get("price_per_night", 0)
@@ -84,7 +83,7 @@ def search_listings_semantic(query: str, n_results: int = 5) -> str:
         output_lines.append(
             f"{i}. **{name}** (ID: {listing_id})\n"
             f"   📍 {city} | 🏠 {prop_type}\n"
-            f"   💰 ${price:.0f}/night | ⭐ {rating}/5 | 👥 Up to {guests} guests\n"
+            f"   💰 ${price}/night | ⭐ {rating}/5 | 👥 Up to {guests} guests\n"
             f"   🎯 Relevance: {relevance}%\n"
         )
 
@@ -93,3 +92,4 @@ def search_listings_semantic(query: str, n_results: int = 5) -> str:
     )
 
     return "\n".join(output_lines)
+

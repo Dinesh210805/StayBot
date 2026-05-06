@@ -23,7 +23,9 @@ In production, this would be your deployed domain, e.g. `https://api.staybot.app
 | `Content-Type` | `application/json` | For POST requests |
 | `Accept` | `application/json` | Optional, assumed |
 
-> **CORS:** All origins are currently allowed (`*`). No authentication token needed.
+> **CORS:** Origins are controlled by the `ALLOWED_ORIGINS` environment variable.
+> If it is not set, the backend defaults to `*`. Public UI endpoints do not need
+> an authentication token. The admin status endpoint requires a token query parameter.
 
 ---
 
@@ -34,6 +36,7 @@ All responses follow standard HTTP status codes:
 | Code | Meaning |
 |---|---|
 | `200` | Success |
+| `403` | Forbidden / invalid admin token |
 | `404` | Resource not found |
 | `422` | Validation error (bad request body) |
 | `500` | Server error |
@@ -85,7 +88,52 @@ No body, no parameters.
 
 ---
 
-### 2. `POST /api/sessions`
+### 2. `GET /api/agent/status`
+
+**Admin-only agent key rotation status.** Returns Groq API key pool health and
+usage counters for backend monitoring. This route is hidden from generated
+OpenAPI docs (`include_in_schema=False`) but is implemented in the backend.
+
+#### Request
+```
+GET /api/agent/status?token=staybot_admin_secret_change_me
+```
+
+#### Query Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `token` | string | Yes | Must match the backend `ADMIN_TOKEN` environment variable |
+
+#### Response `200 OK`
+```json
+{
+  "total_keys": 3,
+  "bad_keys": 0,
+  "rate_limited_keys": 0,
+  "available_keys": 3,
+  "usage_per_key": {
+    "key_1": 12,
+    "key_2": 11,
+    "key_3": 10
+  }
+}
+```
+
+#### Error Responses
+
+| Status | Scenario |
+|---|---|
+| `422` | Missing required `token` query parameter |
+| `403` | Token is present but does not match `ADMIN_TOKEN`, or `ADMIN_TOKEN` is not configured |
+
+#### UI Usage
+- Use only in an internal/admin dashboard, not in the public guest-facing UI
+- Can power a small "LLM capacity" or "key pool" operational status view
+
+---
+
+### 3. `POST /api/sessions`
 
 **Create a new chat session.** Must be called before `/api/chat`.
 Each session has isolated conversation history.
@@ -121,7 +169,7 @@ Empty body (no fields required).
 
 ---
 
-### 3. `DELETE /api/sessions/{session_id}`
+### 4. `DELETE /api/sessions/{session_id}`
 
 **Clear/reset a chat session.** Deletes the conversation history for this session.
 
@@ -142,19 +190,124 @@ DELETE /api/sessions/5cb2e1e2-a361-4034-bcfe-c7fc5e090380
 - Trigger this on a "New Conversation" or "Clear Chat" button click
 - After deletion, call `POST /api/sessions` to get a fresh session_id
 - Wipe chat message history from the UI
+- Deleting a missing/non-existent session is idempotent and still returns `200 OK`
 
 ---
 
-### 4. `POST /api/chat` ⭐ Primary Endpoint
+### 5. `GET /api/users/{user_name}`
+
+**Get a user's profile and preferences.**
+Returns the user's saved preferences from the persistent memory system.
+
+#### Request
+```
+GET /api/users/Dinesh
+```
+
+#### Response `200 OK`
+```json
+{
+  "name": "Dinesh",
+  "created_at": "2026-05-05T10:00:00.000000",
+  "last_active": "2026-05-05T10:30:00.000000",
+  "preferences": {
+    "favorite_cities": ["Cape Town"],
+    "budget_max": 150,
+    "pet_friendly": true,
+    "preferred_property_type": "apartment",
+    "travel_style": "quiet"
+  }
+}
+```
+
+#### Response Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | string | User profile name |
+| `created_at` | string (ISO datetime) | When the profile was first saved |
+| `last_active` | string (ISO datetime) | Last time preferences/memory were updated or loaded |
+| `preferences` | object | Saved long-term preferences as JSON |
+
+#### Response `404 Not Found`
+```json
+{
+  "detail": "User not found"
+}
+```
+
+#### UI Usage
+- Use for a profile/preferences panel after the user identifies themselves
+- Profiles are created/updated by the chat agent's memory tools, not by a public REST create/update endpoint
+
+---
+
+### 6. `GET /api/users/{user_name}/bookings`
+
+**Get all bookings for a user.**
+Returns a list of reservations made by the AI agent for this user.
+
+#### Request
+```
+GET /api/users/Dinesh/bookings
+```
+
+#### Response `200 OK`
+```json
+{
+  "bookings": [
+    {
+      "reference": "STB-2026-X9A",
+      "listing_id": 16155609,
+      "listing_name": "Stunning, Dbl En Suite in Grade II Georgian Home",
+      "city": "London",
+      "check_in": "2026-06-15",
+      "check_out": "2026-06-20",
+      "guests": 2,
+      "total_price": 750.00,
+      "status": "confirmed",
+      "created_at": "2026-05-05T10:30:00.000000",
+      "picture_url": "https://a0.muscache.com/pictures/..."
+    }
+  ]
+}
+```
+
+#### Response Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `bookings` | booking[] | Bookings made by the chat agent for this user; returns an empty array if none exist |
+| `reference` | string | Booking reference, e.g. `STB-2026-X9A4` |
+| `listing_id` | integer | Booked listing ID |
+| `listing_name` | string | Listing name at lookup time, or `"Unknown"` if missing |
+| `city` | string | Listing city, or `"Unknown"` if the listing was removed |
+| `check_in` | string (`YYYY-MM-DD`) | Arrival date |
+| `check_out` | string (`YYYY-MM-DD`) | Departure date |
+| `guests` | integer | Number of guests |
+| `total_price` | float | Booking total in USD before estimated taxes |
+| `status` | string | Usually `"confirmed"`; cancelled bookings may use `"cancelled"` |
+| `created_at` | string (ISO datetime) | Booking creation timestamp |
+| `picture_url` | string/null | Primary listing photo if available |
+
+#### UI Usage
+- Use for a user's "My bookings" or reservation history view
+- Bookings are created by the chat agent when the user asks to book and provides dates/name
+
+---
+
+### 7. `POST /api/chat` ⭐ Primary Endpoint
 
 **Send a user message and receive an AI response.**
 This is the core of the application. The AI agent:
 1. Reads conversation history
-2. Decides which tool(s) to call (search, filter, FAQ, etc.)
-3. Executes tools against real data
-4. Returns a natural language response with listing info
+2. Sanitizes common prompt-injection phrases before sending to the LLM
+3. Decides which tool(s) to call (search, filter, FAQ, details, pricing, booking, memory, weather, places, or web search)
+4. Executes tools against real listing data and external travel APIs where configured
+5. Returns a natural language response with listing info or trip guidance
 
 > **Response time:** 3–10 seconds (depends on tool calls needed + Groq speed).
+> Weather/nearby places/web search can take longer because they call external APIs.
 > Design a loading/typing indicator in the UI.
 
 #### Request
@@ -193,12 +346,22 @@ Content-Type: application/json
 | `session_id` | string | Echo of the session ID |
 | `response` | string | AI-generated response in **Markdown format** |
 
+#### Error Responses
+
+| Status | Scenario |
+|---|---|
+| `404` | `session_id` is a valid UUID but the session does not exist or expired |
+| `422` | Invalid UUID, empty/missing message, or message longer than 2000 characters |
+| `500` | Unexpected backend exception outside the agent's graceful error handling |
+
 > **Important for UI:** The `response` field contains **Markdown**. You must render it with a markdown parser (e.g. `react-markdown`). It may contain:
 > - `**bold**` text for listing names
 > - Numbered lists for search results
 > - Tables for comparisons and price breakdowns
 > - Emoji characters (📍 🏠 💰 ⭐ 👥)
 > - Listing IDs like `(ID: 9075590)` for follow-up actions
+> - Booking references like `STB-2026-X9A4`
+> - Source URLs from web search results when Tavily is configured
 
 #### Message Types & Expected Responses
 
@@ -285,9 +448,81 @@ The AI remembers context. These work after a previous search:
 
 ---
 
-### 5. `GET /api/listings`
+##### H. Availability Check
+**Trigger:** Specific listing + check-in/check-out dates, or asking whether a property is free
+```json
+{ "message": "Is listing 9075590 available from 2026-06-15 to 2026-06-20?" }
+{ "message": "Can I stay at the first place next weekend?" }
+```
+**Response contains:** Availability status, conflicts if blocked/booked, minimum/maximum night warnings, and a pre-tax total when available.
 
-**Browse/filter listings directly.** Returns paginated listing results.
+---
+
+##### I. Booking
+**Trigger:** User confirms they want to book a listing with dates and guest name
+```json
+{ "message": "Book listing 9075590 from 2026-06-15 to 2026-06-20 for Dinesh, 2 guests" }
+{ "message": "Book it for me" }
+```
+**Response contains:** Confirmation, booking reference, property, dates, guests, price breakdown, cancellation policy, and pet policy. The booking is saved to the `bookings` table and can be read from `GET /api/users/{user_name}/bookings`.
+
+---
+
+##### J. Persistent Memory
+**Trigger:** User shares their name or preferences that should be remembered
+```json
+{ "message": "I'm Dinesh. Remember that I prefer pet-friendly places under $150." }
+{ "message": "What do you remember about me?" }
+```
+**Response contains:** Confirmation or a saved preference summary. Data is saved to the `users` table and can be read from `GET /api/users/{user_name}`.
+
+Common preference keys saved by the agent include:
+`favorite_cities`, `budget_max`, `budget_range`, `pet_friendly`, `preferred_property_type`, `travel_style`, and `group_size`.
+
+---
+
+##### K. Weather Forecast
+**Trigger:** User asks about weather, climate, temperature, or trip conditions for a supported city/listing
+```json
+{ "message": "What's the weather in Cape Town this week?" }
+{ "message": "How is the weather near listing 9075590?" }
+```
+**Response contains:** 7-day forecast with dates, conditions, high/low temperatures in Celsius, rain probability, and suggested outdoor days. Uses Open-Meteo.
+
+---
+
+##### L. Nearby Places
+**Trigger:** User asks what is nearby a listing: restaurants, cafes, parks, transit, attractions, etc.
+```json
+{ "message": "Find cafes within 800 meters of listing 9075590" }
+{ "message": "What restaurants are near the first place?" }
+```
+**Response contains:** Nearby place names, distances in meters, optional cuisine/hours, and coordinates. Uses OpenStreetMap Overpass.
+
+Supported categories include `restaurant`, `cafe`, `bar`, `supermarket`, `pharmacy`, `museum`, `park`, `gym`, `hospital`, `atm`, `bus_station`, `train_station`, and `beach`.
+
+---
+
+##### M. Live Web Search
+**Trigger:** User asks about real-time travel info outside the listing database
+```json
+{ "message": "Are there music festivals in Cape Town in June 2026?" }
+{ "message": "Do I need a visa for Thailand?" }
+{ "message": "What's the best way from Heathrow to central London?" }
+```
+**Response contains:** Search result summaries and source URLs. Requires `TAVILY_API_KEY`; otherwise the agent returns a graceful message that web search is unavailable while other tools still work.
+
+---
+
+### 8. `GET /api/listings`
+
+**Browse/filter listings directly.** Returns a limited listing result set for an
+Explore/Browse page without using chat.
+
+> **Current backend behavior:** `per_page` controls how many rows are returned,
+> and `page` is validated/echoed in the response, but the query currently does
+> not apply an offset. In other words, `page=2` returns the same top filtered
+> results as `page=1` until backend offset pagination is added.
 Use this for a "Browse" or "Explore" page that shows listings without using the chat.
 
 #### Request
@@ -385,7 +620,7 @@ GET /api/listings?min_price=50&max_price=200
 | Field | Type | Description |
 |---|---|---|
 | `total` | integer | Number of results in this response |
-| `page` | integer | Current page number |
+| `page` | integer | Echoed page number; currently does not change query offset |
 | `per_page` | integer | Results per page |
 
 #### UI Usage
@@ -393,10 +628,11 @@ GET /api/listings?min_price=50&max_price=200
 - Each card shows: `picture_url`, `name`, `city`, `neighbourhood`, `price_per_night`, `rating`, `review_count`, `max_guests`, `room_type`
 - Filter controls: city dropdown, price range slider, guest count stepper, property type dropdown
 - `picture_url` is a real Airbnb CDN URL — use directly as `<img src={picture_url} />`
+- For now, implement "Show more" carefully or wait for backend offset pagination before building numbered pages
 
 ---
 
-### 6. `GET /api/listings/{listing_id}`
+### 9. `GET /api/listings/{listing_id}`
 
 **Get full details for a specific listing.** Returns every field including amenities, house rules, host info, and scores. Use this for a listing detail page/modal.
 
@@ -603,6 +839,30 @@ The backend only has data for these 3 cities. Use exact spelling:
 "Small pets only (under 10kg)"
 ```
 
+### Booking Statuses
+```
+"confirmed"
+"cancelled"
+```
+
+### Nearby Place Categories
+Used by the chat agent's nearby places tool:
+```
+"restaurant"
+"cafe"
+"bar"
+"supermarket"
+"pharmacy"
+"museum"
+"park"
+"gym"
+"hospital"
+"atm"
+"bus_station"
+"train_station"
+"beach"
+```
+
 ---
 
 ## UI Design Guidance
@@ -617,16 +877,22 @@ The backend only has data for these 3 cities. Use exact spelling:
 **Listing ID extraction:**
 - Responses often include `(ID: 1234567)` — consider making these clickable
 - Clicking an ID should open the listing detail view
+- Responses can include booking references like `STB-2026-X9A4` — consider linking these to the user's booking history
 
 **Loading states:**
 - Show a typing indicator / skeleton while waiting for chat response
 - Typical response time: 3–10 seconds
-- Set `timeout` to at least 60 seconds for fetch calls
+- Set `timeout` to at least 60–90 seconds for chat fetch calls, especially when weather, places, or web search may run
 
 **Session management:**
 - Create a session on first chat open
 - Persist `session_id` in `localStorage` or `sessionStorage`
 - Offer a "New Chat" button that calls `DELETE /api/sessions/{id}` + creates a new one
+
+**User memory and bookings:**
+- If the user gives a name, use it consistently when showing `GET /api/users/{user_name}` or booking history
+- A public REST API exists for reading users/bookings, but creation happens through chat tools
+- After a booking confirmation, refresh `GET /api/users/{guest_name}/bookings`
 
 ### Card Design (Listing Cards)
 
@@ -664,12 +930,24 @@ Each card in browse/search results should display:
 | Scenario | Status | Response |
 |---|---|---|
 | Listing not found | `404` | `{"detail": "Listing 99999 not found"}` |
+| User profile not found | `404` | `{"detail": "User not found"}` |
+| Chat session not found/expired | `404` | `{"detail": "Session not found or expired. Create a new session."}` |
 | Empty message | `422` | Pydantic validation error with field details |
+| Chat `session_id` is not UUID-shaped | `422` | Pydantic validation error with field details |
+| Chat message > 2000 chars | `422` | Pydantic validation error with field details |
+| `GET /api/listings?page=0` | `422` | Query validation error (`page` must be ≥ 1) |
+| `GET /api/listings?per_page=200` | `422` | Query validation error (`per_page` must be 1–100) |
+| `GET /api/agent/status` without token | `422` | Missing required query parameter |
+| `GET /api/agent/status?token=wrong` | `403` | `{"detail": "Forbidden"}` |
 | Server error | `500` | `{"detail": "An error occurred..."}` |
 | Groq rate limit hit | `200` | `{"response": "I'm experiencing high demand..."}` |
-| Invalid API key | `200` | `{"response": "There is a configuration issue..."}` |
+| Tool-call formatting issue | `200` | `{"response": "I had trouble processing that request..."}` |
+| Unexpected agent/tool issue | `200` | `{"response": "I encountered an unexpected issue..."}` |
+| Web search unavailable | `200` | `{"response": "Web search is not available (TAVILY_API_KEY not configured)..."}` |
 
-> **Note:** Chat errors (`/api/chat`) always return HTTP `200` — the error is in the `response` field text. Design the UI to detect error phrases if needed.
+> **Note:** Agent/tool failures inside `/api/chat` usually return HTTP `200` with
+> the user-facing problem in the `response` field. Request validation and missing
+> sessions still use normal HTTP errors (`422` / `404`).
 
 ---
 
@@ -687,7 +965,7 @@ Each card in browse/search results should display:
 ### Flow 2: Browse page
 
 ```
-1. GET /api/listings (no params) → show all 450 listings as cards
+1. GET /api/listings (no params) → show first 20 top-rated listings as cards
 2. User selects city "Bangkok" → GET /api/listings?city=Bangkok
 3. User sets max price $100 → GET /api/listings?city=Bangkok&max_price=100
 4. User clicks a card → GET /api/listings/9075590 → show detail modal
@@ -702,6 +980,35 @@ Each card in browse/search results should display:
 4. App calls GET /api/listings/{id} → opens detail modal
 5. User chats: "How much for 4 nights at that one?"
 6. AI responds with price breakdown table
+```
+
+### Flow 4: Availability and booking
+
+```
+1. User chats: "Is listing 9075590 available from 2026-06-15 to 2026-06-20?"
+2. AI checks blocked dates and existing bookings
+3. If available, AI returns nights, nightly rate, cleaning fee, service fee, and total
+4. User chats: "Book it for Dinesh, 2 guests"
+5. AI creates a booking and returns a reference like STB-2026-X9A4
+6. App refreshes GET /api/users/Dinesh/bookings → show confirmed booking
+```
+
+### Flow 5: Trip planning from a listing
+
+```
+1. User opens listing 9075590 from chat or browse
+2. User asks: "What's the weather there this week?"
+3. AI calls weather by listing coordinates and returns a 7-day forecast
+4. User asks: "Find cafes within 800m"
+5. AI calls nearby places and returns place names, distances, and coordinates
+```
+
+### Flow 6: Admin monitoring
+
+```
+1. Internal dashboard calls GET /api/agent/status?token={ADMIN_TOKEN}
+2. Dashboard shows total_keys, available_keys, rate_limited_keys, bad_keys
+3. Do not expose this endpoint in the public guest UI
 ```
 
 ---

@@ -1,0 +1,182 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap");
+@import "tailwindcss";
+
+:root {
+  --bg-void: #03030A;
+  --bg-deep: #07071A;
+  --bg-card: #0A0A1F;
+  --bg-elevated: #0F0F28;
+  --gold: #C9A96E;
+  --gold-light: #E8D5A3;
+  --gold-dim: rgba(201, 169, 110, 0.4);
+  --cream: #EDE8DC;
+  --cream-dim: rgba(237, 232, 220, 0.6);
+  --text-primary: #F0EAE0;
+  --text-secondary: #9B9085;
+  --text-muted: #5A5550;
+  --border: rgba(201, 169, 110, 0.12);
+  --border-bright: rgba(201, 169, 110, 0.28);
+  --glow-gold: 0 0 60px rgba(201, 169, 110, 0.15);
+  --glow-intense: 0 0 120px rgba(201, 169, 110, 0.25);
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--bg-void);
+  --color-foreground: var(--text-primary);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Selection */
+::selection {
+  background: rgba(201, 169, 110, 0.25);
+  color: var(--cream);
+}
+
+/* Utility classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+.text-gold-light {
+  color: var(--gold-light);
+}
+
+.text-cream {
+  color: var(--cream);
+}
+
+.border-gold {
+  border-color: var(--border);
+}
+
+.bg-card {
+  background: var(--bg-card);
+}
+
+.glow-gold {
+  box-shadow: var(--glow-gold);
+}
+
+/* Noise texture overlay */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gold gradient text */
+.gradient-gold {
+  background: linear-gradient(135deg, #C9A96E 0%, #E8D5A3 50%, #C9A96E 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glowing border */
+.glow-border {
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 1px rgba(201, 169, 110, 0.04), inset 0 1px 0 rgba(201, 169, 110, 0.06);
+}
+
+/* Animated gradient background */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 0%, var(--bg-elevated) 50%, var(--bg-card) 100%);
+  background-size: 2000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Typing cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+
+/* Chat message fade in */
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.message-in {
+  animation: messageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Pulse glow */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(201, 169, 110, 0.1); }
+  50% { box-shadow: 0 0 60px rgba(201, 169, 110, 0.3); }
+}
+.pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* Hide scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

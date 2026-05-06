@@ -123,6 +123,67 @@ async def delete_session(session_id: str):
     )
 
 
+# ── User Profiles & Bookings ───────────────────────────────────────────────────
+
+
+@app.get("/api/users/{user_name}", tags=["Users"])
+async def get_user_profile(user_name: str):
+    """Get a user's profile and preferences."""
+    session = SessionLocal()
+    try:
+        from backend.database import User
+        import json
+        user = session.query(User).filter(User.name == user_name).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        prefs = {}
+        if user.preferences:
+            try:
+                prefs = json.loads(user.preferences)
+            except:
+                pass
+                
+        return {
+            "name": user.name,
+            "created_at": user.created_at,
+            "last_active": user.last_active,
+            "preferences": prefs,
+        }
+    finally:
+        session.close()
+
+
+@app.get("/api/users/{user_name}/bookings", tags=["Users"])
+async def get_user_bookings(user_name: str):
+    """Get all bookings for a user."""
+    session = SessionLocal()
+    try:
+        from backend.database import Booking, Listing
+        bookings = session.query(Booking).filter(Booking.user_name == user_name).order_by(Booking.created_at.desc()).all()
+        
+        result = []
+        for b in bookings:
+            # Get listing details
+            listing = session.query(Listing).filter(Listing.id == b.listing_id).first()
+            result.append({
+                "reference": b.reference,
+                "listing_id": b.listing_id,
+                "listing_name": listing.name if listing else "Unknown",
+                "city": listing.city if listing else "Unknown",
+                "check_in": b.check_in,
+                "check_out": b.check_out,
+                "guests": b.guests,
+                "total_price": b.total_price,
+                "status": b.status,
+                "created_at": b.created_at,
+                "picture_url": listing.picture_url if listing else None,
+            })
+        return {"bookings": result}
+    finally:
+        session.close()
+
+
 # ── Chat ───────────────────────────────────────────────────────────────────────
 
 

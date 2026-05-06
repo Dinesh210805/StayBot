@@ -1,523 +1,641 @@
 <div align="center">
 
-# 🏠 StayBot
+# StayBot
 
-### AI-Powered Travel & Accommodation Assistant
+### AI-Powered Accommodation Discovery, Trip Planning, and Booking Assistant
 
-**A production-ready RAG + LLM chatbot for discovering and comparing stays — built with LangGraph, Groq, FastAPI, ChromaDB, and SQLite.**
+StayBot is a full-stack AI travel app for finding real stays in Bangkok, London,
+and Cape Town. It combines a FastAPI backend, a LangGraph/Groq tool-calling
+agent, SQL listing data, Pinecone semantic search, persistent user memory,
+mock booking records, weather, nearby places, live web search, and a Next.js
+frontend.
 
-[![Python](https://img.shields.io/badge/Python-3.11+-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![LangChain](https://img.shields.io/badge/LangChain-1.2+-1C3C3C?style=flat-square&logo=chainlink&logoColor=white)](https://langchain.com)
-[![Groq](https://img.shields.io/badge/Groq-LLaMA_3.3_70B-F55036?style=flat-square)](https://groq.com)
-[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-orange?style=flat-square)](https://trychroma.com)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-
-[Features](#-features) · [Architecture](#-architecture) · [Quick Start](#-quick-start) · [API Docs](#-api-reference) · [Stack](#-tech-stack)
+[Features](#features) · [Architecture](#architecture) · [Quick Start](#quick-start) · [API](#api-overview) · [Frontend](#frontend) · [Project Map](#project-map)
 
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
-StayBot is a full-stack AI travel assistant that lets users discover, explore, and compare real accommodation listings through natural language conversation. Users can search by vibe, filter by price and amenities, get detailed property information, calculate total stay costs, and compare listings side-by-side — all through a conversational interface.
+StayBot helps users discover accommodations through natural language and a
+visual web UI. A user can ask for “a quiet pet-friendly apartment in Cape Town
+under $150,” compare options, inspect full listing details, check availability,
+book a stay, save preferences, ask about the weather, and find nearby cafes or
+attractions.
 
-The backend is built on a **hybrid RAG architecture**:
-- **Semantic search** via ChromaDB for natural language queries ("cozy apartment near the beach")
-- **Structured SQL filtering** via SQLite for precise queries ("under $80/night for 4 guests")
-- **Groq LLaMA 3.3 70B** as the reasoning engine, deciding which tools to call
-- **LangGraph ReAct agent** managing the tool-calling loop and multi-turn memory
+The project has two main parts:
 
-The dataset is sourced from [Inside Airbnb](https://insideairbnb.com) (CC BY 4.0) — real listings with real reviews — enriched with synthetic fields like cancellation policies, cleaning fees, and house rules.
+| Area | What It Does |
+|---|---|
+| `backend/` | FastAPI REST API, SQLAlchemy database layer, LangGraph agent, tool implementations |
+| `frontend/` | Next.js app with landing/explore/chat UI, markdown chat rendering, listing interactions |
+
+The canonical backend contract is documented in [API_DOCS.md](./API_DOCS.md).
 
 ---
 
-## ✨ Features
+## Current Status
+
+| Capability | Status |
+|---|---|
+| FastAPI backend | Implemented |
+| Next.js frontend | Implemented |
+| Chat sessions | Implemented |
+| Listing browse/detail API | Implemented |
+| Semantic listing search | Implemented with Pinecone |
+| FAQ retrieval | Implemented with Pinecone |
+| Structured filters | Implemented with SQLAlchemy |
+| Price breakdowns and comparisons | Implemented |
+| Availability checks and bookings | Implemented as a mock booking engine |
+| Persistent user preferences | Implemented through agent tools |
+| Weather forecasts | Implemented through Open-Meteo |
+| Nearby places | Implemented through OpenStreetMap Overpass |
+| Live web search | Implemented through Tavily when `TAVILY_API_KEY` is configured |
+| Docker backend deployment | Implemented |
+
+Important implementation note: `GET /api/listings` validates and echoes `page`,
+but it currently does not offset results. `per_page` controls the returned count.
+
+---
+
+## Features
 
 | Feature | Description |
 |---|---|
-| 🔍 **Semantic Search** | Natural language listing discovery via vector embeddings |
-| 🎛️ **Structured Filtering** | Filter by city, price, guests, amenities, rating, and property type |
-| 📋 **Listing Details** | Full property info: amenities, house rules, host profile, recent reviews |
-| 💰 **Price Breakdown** | Itemized cost: nightly rate × nights + cleaning fee + service fee + taxes |
-| 📊 **Listing Comparison** | Side-by-side table of 2–3 listings with category winners |
-| 💬 **FAQ Retrieval** | RAG-powered answers to platform questions (booking, cancellation, refunds) |
-| 🧠 **Multi-Turn Memory** | Session-based conversation history across tool calls |
-| 🌐 **REST API** | Full FastAPI backend with CORS, Pydantic validation, and OpenAPI docs |
+| Semantic search | Natural language listing discovery using `all-MiniLM-L6-v2` embeddings and Pinecone |
+| Structured filtering | Filter listings by city, price, guests, property type, room type, amenities, and rating |
+| Listing details | Full property profile including host info, amenities, rules, scores, URLs, and recent reviews |
+| Price breakdown | Calculates nightly total, cleaning fee, service fee, estimated tax, and grand total |
+| Comparisons | Side-by-side comparison of 2-3 listings with category winners |
+| FAQ answers | Answers booking, cancellation, refund, policy, and platform questions |
+| Availability | Checks blocked dates, existing bookings, min nights, max nights, and date validity |
+| Booking | Creates confirmed mock reservations with references like `STB-2026-A3X7` |
+| User memory | Saves and loads preferences such as budget, pet-friendly, favorite cities, and travel style |
+| Weather | 7-day forecasts for supported cities or exact listing coordinates |
+| Nearby places | Restaurants, cafes, parks, transit, museums, gyms, pharmacies, beaches, and more around a listing |
+| Live travel search | Tavily-powered search for real-time travel info, events, visas, advisories, and transport |
+| Frontend app | Next.js UI for the product, explore page, listing detail interactions, and chat |
+| Admin monitoring | Hidden `GET /api/agent/status` endpoint for Groq key pool status |
 
 ---
 
-## 🏙️ Dataset
+## Dataset
 
-Real listing data from **Inside Airbnb** (CC BY 4.0 open data license), covering:
+StayBot uses real accommodation and review data from Inside Airbnb, enriched
+with synthetic fields needed for a complete booking/product experience.
 
-| City | Country | Listings | Currency |
-|---|---|---|---|
-| **Bangkok** | Thailand | 150 | THB → USD (÷35) |
-| **London** | United Kingdom | 150 | GBP → USD (×1.27) |
-| **Cape Town** | South Africa | 150 | ZAR → USD (÷18.5) |
+| City | Listings | Notes |
+|---|---:|---|
+| Bangkok | 150 | Prices normalized from THB to USD |
+| London | 150 | Prices normalized from GBP to USD |
+| Cape Town | 150 | Prices normalized from ZAR to USD |
 
-**Total:** 450 listings · 4,500 reviews · 30 curated FAQs
+Total dataset:
 
-**Hybrid Enrichment** — Inside Airbnb provides: name, description, amenities, price, location, host info, ratings, and real guest reviews. We synthetically add: cancellation policy, cleaning fee, service fee, pet policy, smoking/party rules, and check-in/out times.
+| Data | Count |
+|---|---:|
+| Listings | 450 |
+| Reviews | 4,500 |
+| Curated FAQs | 30 |
+
+The generated listing fields include cancellation policy, cleaning fee, service
+fee, pet policy, smoking/party rules, and check-in/check-out times.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT (UI / API)                       │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ HTTP REST
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        FastAPI Backend                          │
-│  POST /api/chat  ·  POST /api/sessions  ·  GET /api/listings   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    LangGraph ReAct Agent                        │
-│                                                                 │
-│   System Prompt + Chat History + User Message                   │
-│              │                                                  │
-│              ▼                                                  │
-│   ┌─────────────────────┐   ┌──────────────────────────────┐   │
-│   │   Groq LLaMA 3.3    │──▶│        Tool Selection         │   │
-│   │      70B LLM        │   │  (which tool(s) to call?)    │   │
-│   └─────────────────────┘   └──────────────┬───────────────┘   │
-│                                            │                   │
-│              ┌─────────────────────────────┼──────────────┐    │
-│              │                             │              │    │
-│              ▼                             ▼              ▼    │
-│   ┌──────────────────┐  ┌──────────────────┐  ┌────────────┐  │
-│   │  search_semantic │  │  filter_listings │  │ search_faq │  │
-│   │  (ChromaDB RAG)  │  │  (SQLite query)  │  │ (Chroma)   │  │
-│   └──────────────────┘  └──────────────────┘  └────────────┘  │
-│   ┌──────────────────┐  ┌──────────────────┐  ┌────────────┐  │
-│   │  get_details     │  │  price_breakdown  │  │  compare   │  │
-│   │  (SQLite + ORM)  │  │  (math + SQLite) │  │ (SQLite)   │  │
-│   └──────────────────┘  └──────────────────┘  └────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                    │                    │
-         ┌──────────┘                    └──────────┐
-         ▼                                          ▼
-┌─────────────────┐                     ┌─────────────────────┐
-│   ChromaDB      │                     │   SQLite (ORM)      │
-│  ─────────────  │                     │  ─────────────────  │
-│  listings       │                     │  listings table     │
-│  collection     │                     │  reviews table      │
-│  faqs           │                     │                     │
-│  collection     │                     │  450 rows + 4500    │
-│  450 + 30 docs  │                     │  review rows        │
-└─────────────────┘                     └─────────────────────┘
-         ▲
-         │ all-MiniLM-L6-v2
-         │ (384-dim embeddings)
-┌─────────────────┐
-│  Sentence       │
-│  Transformers   │
-└─────────────────┘
+```text
+User / Frontend / API Client
+        |
+        v
+FastAPI backend
+  - /api/health
+  - /api/sessions
+  - /api/chat
+  - /api/listings
+  - /api/users
+        |
+        v
+LangGraph ReAct agent
+  - Groq LLaMA model
+  - session history
+  - prompt-injection sanitization
+  - tool selection
+        |
+        +--> Pinecone semantic search
+        |     - listings namespace
+        |     - faqs namespace
+        |
+        +--> SQLAlchemy database
+        |     - listings
+        |     - reviews
+        |     - users
+        |     - bookings
+        |     - blocked_dates
+        |
+        +--> External APIs
+              - Open-Meteo weather
+              - OpenStreetMap Overpass places
+              - Tavily web search
 ```
 
-### Data Flow (Single Chat Turn)
+### How One Chat Turn Works
 
-```
-User: "Find me a cozy apartment in London under £100"
-  │
-  ▼
-FastAPI receives POST /api/chat
-  │
-  ▼
-Session memory loads conversation history
-  │
-  ▼
-LangGraph agent receives: [history] + user message
-  │
-  ▼
-Groq LLaMA 3.3 reasons: "user wants filtered results → call filter_listings"
-  │
-  ▼
-filter_listings(city="London", max_price=100) → SQLite query → 5 results
-  │
-  ▼
-Groq formats results into natural language response
-  │
-  ▼
-Memory saves turn → Response returned to client
+```text
+POST /api/chat
+  -> validate session_id and message
+  -> load session history
+  -> sanitize common prompt-injection phrases
+  -> choose next available Groq API key
+  -> LangGraph agent decides which tool to call
+  -> tool queries Pinecone, SQL, or an external API
+  -> agent writes a markdown response
+  -> memory saves the user and assistant messages
+  -> API returns { session_id, response }
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Core
-
-| Layer | Technology | Why We Chose It |
-|---|---|---|
-| **LLM** | [Groq](https://groq.com) · LLaMA 3.3 70B | Fastest inference in the world (~700 tok/s). LLaMA 3.3 70B has excellent tool-calling capabilities and instruction following. Free tier available. |
-| **Agent Framework** | [LangGraph](https://langchain-ai.github.io/langgraph/) | Modern ReAct agent with native async support. `create_react_agent` handles the full reasoning→tool-call→observe→respond loop natively, replacing the deprecated AgentExecutor. |
-| **Tool Orchestration** | [LangChain Core](https://python.langchain.com) | `@tool` decorator for clean tool definitions. `langchain-groq` for the ChatGroq integration. |
-| **API Framework** | [FastAPI](https://fastapi.tiangolo.com) | Async-first, automatic OpenAPI docs, Pydantic validation, CORS middleware out of the box. Best Python API framework for production. |
-| **Vector Store** | [ChromaDB](https://trychroma.com) | Persistent local vector database. No external service needed. Supports cosine similarity search. Simple Python API. |
-| **Embeddings** | [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) | Fast, lightweight (80MB), 384-dim embeddings. Excellent balance of speed and quality for semantic search. Runs entirely locally. |
-| **SQL Database** | [SQLite](https://sqlite.org) + [SQLAlchemy](https://sqlalchemy.org) | Zero-config relational database for structured filtering. SQLAlchemy ORM for type-safe queries. Perfect for the dataset size (450 listings). |
-| **Data Processing** | [Pandas](https://pandas.pydata.org) | Industry standard for ETL pipelines. Used for downloading, cleaning, enriching, and saving listings data. |
-
-### Why This Architecture?
-
-**Dual-retrieval (RAG + SQL)** is the key design decision:
-- Pure SQL cannot handle "cozy place near the beach" — it has no semantic understanding
-- Pure vector search cannot handle "under $80 for 4 guests" — it lacks precision
-- **Combining both** gives the agent the right tool for every type of query
-
-**LangGraph over LangChain AgentExecutor** — LangChain 1.x deprecated AgentExecutor in favour of LangGraph's compiled graphs. LangGraph is more explicit, debuggable, and production-ready.
-
-**Groq over OpenAI** — At ~700 tokens/second inference speed vs ~40 tok/s for GPT-4o, Groq makes tool-calling agents feel instant. The free tier (100k tokens/day) is perfect for development.
+| Layer | Technology |
+|---|---|
+| Backend API | FastAPI, Pydantic, Uvicorn |
+| Agent | LangGraph, LangChain Core, Groq ChatGroq |
+| LLM | `llama-3.3-70b-versatile` by default |
+| Semantic search | Sentence Transformers + Pinecone |
+| SQL database | SQLite by default, PostgreSQL/Neon supported through `DATABASE_URL` |
+| ORM | SQLAlchemy |
+| Data processing | Pandas |
+| Weather | Open-Meteo |
+| Nearby places | OpenStreetMap Overpass |
+| Live web search | Tavily |
+| Frontend | Next.js 16, React 19, TypeScript |
+| UI dependencies | Tailwind CSS, Radix UI, lucide-react, react-markdown, Framer Motion, GSAP, Three.js |
+| Deployment | Docker, Docker Compose |
 
 ---
 
-## 📁 Project Structure
+## Project Map
 
-```
+```text
 StayBot/
-├── .env                          # API keys (GROQ_API_KEY)
-├── .gitignore
-├── requirements.txt
+├── API_DOCS.md                    # Full backend API contract for UI/design tools
+├── README.md                      # This project overview
+├── requirements.txt               # Python backend dependencies
+├── Dockerfile                     # Backend container
+├── docker-compose.yml             # Backend service definition
+├── package.json                   # Root shadcn CLI dependency
+├── .env                           # Local secrets and configuration, not committed
 │
-├── backend/                      # FastAPI + Agent application
-│   ├── __init__.py
-│   ├── main.py                   # FastAPI app, routes, lifespan
-│   ├── agent.py                  # LangGraph ReAct agent
-│   ├── database.py               # SQLAlchemy ORM + query helpers
-│   ├── memory.py                 # Session-based conversation memory
-│   ├── prompts.py                # LLM system prompt
-│   ├── schemas.py                # Pydantic request/response models
+├── backend/
+│   ├── main.py                    # FastAPI app and route definitions
+│   ├── agent.py                   # LangGraph agent, Groq key rotation, chat entrypoint
+│   ├── database.py                # SQLAlchemy models and query helpers
+│   ├── memory.py                  # In-memory chat sessions
+│   ├── prompts.py                 # Agent system prompt and behavior rules
+│   ├── schemas.py                 # Pydantic request/response schemas
 │   └── tools/
-│       ├── __init__.py
-│       ├── search_tool.py        # Semantic search (ChromaDB)
-│       ├── sql_tool.py           # Structured filter (SQLite)
-│       ├── faq_tool.py           # FAQ retrieval (ChromaDB)
-│       ├── detail_tool.py        # Listing details + reviews
-│       ├── price_tool.py         # Price breakdown calculator
-│       └── compare_tool.py       # Side-by-side comparison
-│
-├── scripts/
-│   ├── download_and_process.py   # Data pipeline (Inside Airbnb → CSV)
-│   └── ingest_data.py            # ChromaDB ingestion
+│       ├── search_tool.py         # Semantic listing search via Pinecone
+│       ├── faq_tool.py            # FAQ search via Pinecone
+│       ├── sql_tool.py            # Structured listing filters
+│       ├── detail_tool.py         # Listing details and recent reviews
+│       ├── price_tool.py          # Price breakdown calculator
+│       ├── compare_tool.py        # Listing comparison table
+│       ├── booking_tool.py        # Availability and mock booking engine
+│       ├── memory_tool.py         # Persistent user profile preferences
+│       ├── weather_tool.py        # Open-Meteo forecast tool
+│       ├── places_tool.py         # OpenStreetMap nearby places tool
+│       └── web_search_tool.py     # Tavily live web search tool
 │
 ├── data/
-│   ├── faqs.json                 # 30 curated FAQ entries
-│   ├── listings.csv              # Processed listings (450 rows)
-│   ├── reviews.csv               # Processed reviews (4500 rows)
-│   ├── staybot.db                # SQLite database (auto-generated)
-│   └── raw/                      # Downloaded .csv.gz files (gitignored)
+│   ├── listings.csv               # Processed listing data
+│   ├── reviews.csv                # Processed review data
+│   └── faqs.json                  # Curated FAQ corpus
 │
-├── embeddings/
-│   └── chroma_db/                # ChromaDB persistent storage (gitignored)
+├── scripts/
+│   ├── download_and_process.py    # Inside Airbnb download/clean/enrich pipeline
+│   ├── ingest_data.py             # Embedding ingestion to Pinecone
+│   ├── seed_calendar.py           # Simulated blocked dates for availability
+│   ├── clean_and_upload.py        # Cloud data helper
+│   ├── cloud_migration.py         # Cloud migration helper
+│   ├── fast_postgres_upload.py    # PostgreSQL upload helper
+│   └── verify_cloud.py            # Cloud verification helper
+│
+├── frontend/
+│   ├── package.json               # Next.js dependencies and scripts
+│   ├── src/app/                   # App Router pages
+│   ├── src/components/            # UI and map components
+│   └── src/lib/api.ts             # Frontend API wrapper
 │
 └── tests/
-    └── test_api.py               # End-to-end API test script
+    ├── test_api.py                # Basic API smoke test script
+    ├── test_full.py               # Comprehensive backend flow tests
+    └── check_prices.py            # Price/data validation helper
 ```
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.11+
-- A [Groq API key](https://console.groq.com/keys) (free)
+- Node.js/npm for the frontend
+- Groq API key
+- Pinecone API key and index
+- Optional: Tavily API key for live web search
+- Optional: PostgreSQL/Neon database URL
 
-### 1. Clone & Setup
+### 1. Install Backend Dependencies
 
 ```bash
-git clone https://github.com/your-username/staybot.git
-cd StayBot
-
-# Create virtual environment
 python -m venv venv
-
-# Activate (Windows)
 .\venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-# Activate (Mac/Linux)
+On macOS/Linux:
+
+```bash
+python -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### 2. Configure Environment
 
-```bash
-# Copy the template
-cp .env.example .env
+Create or update `.env` in the repo root:
 
-# Edit .env and add your Groq API key
-GROQ_API_KEY=gsk_your_key_here
+```env
+GROQ_API_KEY_1=gsk_your_first_key
+GROQ_API_KEY_2=gsk_your_second_key
+GROQ_API_KEY_3=gsk_your_third_key
 GROQ_MODEL=llama-3.3-70b-versatile
+
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_INDEX_NAME=staybot
+
+ADMIN_TOKEN=change_this_admin_token
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# Optional
+TAVILY_API_KEY=your_tavily_key
+DATABASE_URL=postgresql://user:password@host/dbname
 ```
 
-### 3. Download & Process Data
+You can also use a single `GROQ_API_KEY` instead of numbered keys. Numbered
+keys enable round-robin load balancing and cooldown handling for rate limits.
 
-This downloads real listing data from Inside Airbnb (Bangkok, London, Cape Town), converts prices to USD, and enriches with synthetic fields.
+If `DATABASE_URL` is unset, the backend uses local SQLite at `data/staybot.db`.
+
+### 3. Prepare Data
+
+If `data/listings.csv` and `data/reviews.csv` are already present, the backend
+can initialize its SQL tables from them on startup.
+
+To regenerate the data:
 
 ```bash
 python scripts/download_and_process.py
 ```
 
-Expected output:
-```
-Processing Bangkok... [DONE] Kept 150 listings
-Processing London...  [DONE] Kept 150 listings
-Processing Cape Town... [DONE] Kept 150 listings
-
-DATASET READY
-Listings: 450 | Reviews: 4500
-```
-
-### 4. Ingest into ChromaDB
-
-Embeds listing descriptions and FAQs using `all-MiniLM-L6-v2` and stores them in ChromaDB.
+To upload embeddings to Pinecone:
 
 ```bash
 python scripts/ingest_data.py
 ```
 
-Expected output:
-```
-[INGEST] Embedding 450 listings...  ████████████ 100%
-[INGEST] Stored 450 listings in ChromaDB
-[INGEST] Stored 30 FAQs in ChromaDB
-[DONE] ChromaDB ingestion complete!
-```
-
-### 5. Start the Server
+To create simulated blocked dates for availability testing:
 
 ```bash
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+python scripts/seed_calendar.py
 ```
 
-Server is running at:
-- **API:** `http://localhost:8000`
-- **Interactive Docs (Swagger):** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
+### 4. Start Backend
+
+```bash
+python -m uvicorn backend.main:app --reload --port 8000
+```
+
+Backend URLs:
+
+| URL | Purpose |
+|---|---|
+| `http://localhost:8000/api/health` | Health check |
+| `http://localhost:8000/docs` | Swagger docs |
+| `http://localhost:8000/redoc` | ReDoc docs |
+
+### 5. Start Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend URL:
+
+```text
+http://localhost:3000
+```
+
+Set `NEXT_PUBLIC_API_URL=http://localhost:8000` if you need to override the
+frontend API base URL.
 
 ---
 
-## 💬 Usage Guide
+## API Overview
 
-### Conversational Chat
+Full API details are in [API_DOCS.md](./API_DOCS.md).
 
-StayBot understands natural language. Start a session and chat:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Health, API version, cities, listing count |
+| `GET` | `/api/agent/status` | Hidden admin Groq key status endpoint; requires `?token=...` |
+| `POST` | `/api/sessions` | Create a chat session |
+| `DELETE` | `/api/sessions/{session_id}` | Delete/reset a chat session |
+| `GET` | `/api/users/{user_name}` | Read saved user preferences |
+| `GET` | `/api/users/{user_name}/bookings` | Read bookings for a user |
+| `POST` | `/api/chat` | Send a message to the AI agent |
+| `GET` | `/api/listings` | Browse/filter listings |
+| `GET` | `/api/listings/{listing_id}` | Get full listing details |
 
-**Finding listings:**
-> "Find me a cozy apartment in Bangkok with a pool, under $80 a night for 2 people"
+### Minimal API Usage
 
-> "Show me luxury villas in Cape Town with ocean views, 4+ guests"
+Create a chat session:
 
-> "What's available in London near the city centre?"
-
-**Getting details:**
-> "Tell me more about the second listing"
-
-> "What are the house rules for listing 12345?"
-
-> "Does it allow pets?"
-
-**Pricing:**
-> "How much would 5 nights cost at that place?"
-
-> "Break down the total cost for a week at listing 67890"
-
-**Comparing:**
-> "Compare the first two listings"
-
-> "Which is better between listing 111 and 222?"
-
-**Platform FAQs:**
-> "How does cancellation work?"
-
-> "What payment methods do you accept?"
-
-> "Can I book for someone else?"
-
-### API Usage
-
-**Create a session:**
 ```bash
 curl -X POST http://localhost:8000/api/sessions
-# Returns: {"session_id": "uuid-here", "message": "..."}
 ```
 
-**Send a chat message:**
+Send a chat message:
+
 ```bash
 curl -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
-  -d '{
-    "session_id": "your-session-id",
-    "message": "Find apartments in Bangkok under $80"
-  }'
+  -d "{\"session_id\":\"YOUR_SESSION_ID\",\"message\":\"Find apartments in Bangkok under $80\"}"
 ```
 
-**Browse listings directly:**
+Browse listings:
+
 ```bash
 curl "http://localhost:8000/api/listings?city=Bangkok&max_price=80&guests=2&per_page=10"
 ```
 
----
+Get a listing:
 
-## 🔌 API Reference
+```bash
+curl "http://localhost:8000/api/listings/16155609"
+```
 
-Full documentation → see **[API_DOCS.md](./API_DOCS.md)**
+Admin agent status:
 
-### Quick Endpoint Overview
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | System health, cities, listing count |
-| `POST` | `/api/sessions` | Create a new chat session |
-| `DELETE` | `/api/sessions/{id}` | Delete/reset a session |
-| `POST` | `/api/chat` | Send a message, receive AI response |
-| `GET` | `/api/listings` | Browse/filter listings |
-| `GET` | `/api/listings/{id}` | Get full listing details |
+```bash
+curl "http://localhost:8000/api/agent/status?token=YOUR_ADMIN_TOKEN"
+```
 
 ---
 
-## 🤖 Agent Tools
+## Agent Tools
 
-The LangGraph agent has access to 6 tools. It automatically selects the right one(s) based on the user's message.
+The agent chooses from these tools automatically:
 
 | Tool | Trigger | Data Source |
 |---|---|---|
-| `search_listings_semantic` | Descriptive language, vibes, moods | ChromaDB (vector search) |
-| `filter_listings` | Specific criteria: price, city, guests | SQLite (SQL query) |
-| `search_faqs` | Platform policy questions | ChromaDB (vector search) |
-| `get_listing_details` | "Tell me more about listing X" | SQLite + Reviews |
-| `calculate_price_breakdown` | "How much for N nights?" | SQLite + Math |
-| `compare_listings` | "Compare listing A and B" | SQLite |
+| `search_listings_semantic` | Descriptive/vibe-based searches | Pinecone listings namespace |
+| `filter_listings` | City, budget, guests, type, amenities, rating | SQL database |
+| `search_faqs` | Platform policies and how-to questions | Pinecone FAQs namespace |
+| `get_listing_details` | Full details for a listing ID | SQL database and reviews |
+| `calculate_price_breakdown` | Total cost for N nights | SQL database and fee math |
+| `compare_listings` | Compare 2-3 listing IDs | SQL database |
+| `check_availability` | Dates for a listing | SQL bookings and blocked dates |
+| `book_listing` | Confirm a reservation | SQL bookings table |
+| `save_user_preferences` | Remember user preferences | SQL users table |
+| `load_user_preferences` | Returning user personalization | SQL users table |
+| `update_memory_summary` | Save conversation summary | SQL users table |
+| `get_weather_forecast` | Weather for a city/listing | Open-Meteo |
+| `search_nearby_places` | Restaurants, cafes, transit, attractions nearby | OpenStreetMap Overpass |
+| `web_search` | Events, visas, advisories, current travel info | Tavily |
 
 ---
 
-## ⚙️ Configuration
+## Frontend
 
-All configuration is via `.env`:
+The frontend is a Next.js app in `frontend/`.
 
-| Variable | Default | Description |
-|---|---|---|
-| `GROQ_API_KEY` | *(required)* | Your Groq Cloud API key |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Groq model to use |
-
-**Alternative models for development** (higher rate limits):
-
-| Model | Speed | Quality | Best For |
-|---|---|---|---|
-| `llama-3.3-70b-versatile` | Fast | Highest | Production |
-| `llama-3.1-8b-instant` | Fastest | Good | Development/testing |
-| `gemma2-9b-it` | Fast | Good | Development |
-
----
-
-## 🗄️ Database Schema
-
-### listings table
-
-| Column | Type | Description |
-|---|---|---|
-| `id` | INTEGER PK | Inside Airbnb listing ID |
-| `name` | TEXT | Property name |
-| `description` | TEXT | Full listing description |
-| `city` | TEXT | Bangkok / London / Cape Town |
-| `neighbourhood` | TEXT | Local area name |
-| `property_type` | TEXT | e.g. "Entire rental unit" |
-| `room_type` | TEXT | "Entire home/apt", "Private room" |
-| `price_per_night` | FLOAT | Nightly price in USD |
-| `cleaning_fee` | FLOAT | One-time fee (synthetic) |
-| `service_fee` | FLOAT | Platform fee (synthetic) |
-| `max_guests` | INTEGER | Maximum guest capacity |
-| `bedrooms` | INTEGER | Number of bedrooms |
-| `bathrooms` | FLOAT | Number of bathrooms |
-| `amenities` | TEXT | JSON array of amenity strings |
-| `rating` | FLOAT | Overall rating (0–5) |
-| `review_count` | INTEGER | Total number of reviews |
-| `cancellation_policy` | TEXT | Flexible / Moderate / Strict (synthetic) |
-| `pet_policy` | TEXT | Pet rules (synthetic) |
-| `check_in_time` | TEXT | e.g. "3:00 PM" (synthetic) |
-| `check_out_time` | TEXT | e.g. "11:00 AM" (synthetic) |
-| `host_name` | TEXT | Host's name |
-| `host_is_superhost` | TEXT | "t" or "f" |
-| `listing_url` | TEXT | Airbnb listing URL |
-| `picture_url` | TEXT | Primary listing image URL |
-
-### reviews table
-
-| Column | Type | Description |
-|---|---|---|
-| `id` | INTEGER PK | Review ID |
-| `listing_id` | INTEGER FK | References listings.id |
-| `reviewer_name` | TEXT | Guest's name |
-| `date` | TEXT | Review date |
-| `comment_text` | TEXT | Full review text |
-| `rating` | FLOAT | Review rating (synthetic) |
-| `sentiment_score` | FLOAT | 0.0–1.0 sentiment score |
-
----
-
-## 🧪 Running Tests
+Useful scripts:
 
 ```bash
-# Make sure the server is running first
-python -m uvicorn backend.main:app --port 8000
+cd frontend
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
 
-# In a separate terminal:
+Main frontend areas:
+
+| Path | Purpose |
+|---|---|
+| `frontend/src/app/page.tsx` | Main product/landing experience |
+| `frontend/src/app/explore/page.tsx` | Listing exploration UI |
+| `frontend/src/app/chat/page.tsx` | Chat interface |
+| `frontend/src/components/Map.tsx` | Map component |
+| `frontend/src/lib/api.ts` | API client wrapper |
+
+Known integration notes:
+
+- The backend returns `/api/users/{name}/bookings` as `{ "bookings": [...] }`;
+  the frontend API wrapper currently types it as a direct array.
+- The backend health endpoint is `/api/health`; the frontend wrapper currently
+  calls `/health`.
+- The backend listings response uses `per_page`; the frontend type includes
+  `limit`.
+- The backend listing field is `neighbourhood`; some frontend types use
+  `neighborhood`.
+
+These are frontend wrapper/type alignment issues, not backend API gaps.
+
+---
+
+## Configuration Reference
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `GROQ_API_KEY` | Yes, unless numbered keys exist | None | Single Groq key fallback |
+| `GROQ_API_KEY_1` ... `GROQ_API_KEY_9` | Recommended | None | Round-robin Groq key pool |
+| `GROQ_MODEL` | No | `llama-3.3-70b-versatile` | Groq model name |
+| `PINECONE_API_KEY` | Yes for semantic/FAQ search | None | Pinecone API key |
+| `PINECONE_INDEX_NAME` | No | `staybot` | Pinecone index name |
+| `DATABASE_URL` | No | Local SQLite | PostgreSQL/Neon connection string |
+| `ADMIN_TOKEN` | Required for admin status | None | Token for `/api/agent/status` |
+| `ALLOWED_ORIGINS` | No | `*` | Comma-separated CORS origins |
+| `TAVILY_API_KEY` | No | None | Enables live web search |
+| `NEXT_PUBLIC_API_URL` | Frontend only | `http://localhost:8000` | Frontend API base URL |
+
+---
+
+## Database Schema
+
+Core tables are defined in `backend/database.py`.
+
+| Table | Purpose |
+|---|---|
+| `listings` | Accommodation records, prices, host fields, rules, scores, images, coordinates |
+| `reviews` | Guest reviews, ratings, sentiment, review metadata |
+| `users` | Persistent user profiles, preference JSON, memory summaries |
+| `bookings` | Mock booking confirmations with dates, guests, total, status |
+| `blocked_dates` | Simulated unavailable calendar dates by listing |
+
+---
+
+## Testing
+
+Start the backend first:
+
+```bash
+python -m uvicorn backend.main:app --port 8000
+```
+
+Run smoke tests:
+
+```bash
 python tests/test_api.py
 ```
 
-Tests cover: health check, listing browse, listing detail, session create, and chat.
+Run the broader backend test script:
 
----
-
-## 🚦 Rate Limits
-
-Groq's **free tier** limits:
-- **100,000 tokens/day** for `llama-3.3-70b-versatile`
-- **14,400 tokens/minute**
-
-Each chat turn uses ~3,000–5,000 tokens (system prompt + history + tool results). This gives ~20–30 conversations per day on the free tier.
-
-**For development**, switch to `llama-3.1-8b-instant` which has much higher limits:
-```
-GROQ_MODEL=llama-3.1-8b-instant
+```bash
+python tests/test_full.py
 ```
 
-**For production**, upgrade to Groq's paid Dev Tier for higher daily limits.
+The full test suite exercises health, admin status, sessions, listings, listing
+details, validation, chat tool flows, memory, key rotation, concurrency, and
+security edge cases. Some chat tests require configured Groq and Pinecone keys.
 
 ---
 
-## 🛣️ Roadmap
+## Docker
 
-- [x] Backend: Data pipeline, RAG tools, agent, REST API
-- [ ] Frontend: React/Next.js conversational UI
-- [ ] WebSocket: Real-time streaming chat responses
-- [ ] Map view: Listing locations on an interactive map
-- [ ] Booking flow: Mock booking confirmation UI
-- [ ] Multi-language: i18n support for Bangkok/London/Cape Town markets
-- [ ] Caching: Redis for session persistence across restarts
-- [ ] Auth: JWT-based user authentication
+Build and run the backend with Docker Compose:
+
+```bash
+docker-compose up -d --build
+docker-compose logs -f
+```
+
+Stop it:
+
+```bash
+docker-compose down
+```
+
+Or use plain Docker:
+
+```bash
+docker build -t staybot-backend .
+docker run -d -p 8000:8000 --env-file .env --name staybot staybot-backend
+```
+
+The Docker setup runs only the backend. Run the frontend separately from
+`frontend/` unless you add a frontend service.
 
 ---
 
-## 📄 License
+## Common User Journeys
 
-MIT License — see [LICENSE](LICENSE) for details.
+Search:
 
-Data sourced from [Inside Airbnb](https://insideairbnb.com) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+```text
+"Find me a quiet apartment in Bangkok under $80 for 2 guests"
+```
+
+Details:
+
+```text
+"Tell me more about listing 16155609"
+```
+
+Price:
+
+```text
+"How much would 5 nights cost at that place?"
+```
+
+Compare:
+
+```text
+"Compare listing 16155609 and 31643626"
+```
+
+Availability:
+
+```text
+"Is listing 16155609 available from 2026-06-15 to 2026-06-20?"
+```
+
+Booking:
+
+```text
+"Book it for Dinesh, 2 guests"
+```
+
+Trip planning:
+
+```text
+"What's the weather near that listing?"
+"Find cafes within 800 meters"
+"Are there events in Cape Town in June 2026?"
+```
+
+Memory:
+
+```text
+"I'm Dinesh. Remember that I prefer pet-friendly places under $150."
+```
+
+---
+
+## Troubleshooting
+
+| Problem | Likely Cause | Fix |
+|---|---|---|
+| `No Groq API keys found` | No `GROQ_API_KEY` or numbered keys in `.env` | Add `GROQ_API_KEY` or `GROQ_API_KEY_1` |
+| Semantic search fails | Missing Pinecone key/index or embeddings not uploaded | Set `PINECONE_API_KEY`, `PINECONE_INDEX_NAME`, run `scripts/ingest_data.py` |
+| Web search unavailable | `TAVILY_API_KEY` not configured | Add Tavily key or ignore; other tools still work |
+| `/api/chat` returns 404 | Session missing or expired | Create a new session with `POST /api/sessions` |
+| `/api/agent/status` returns 403 | Missing/wrong `ADMIN_TOKEN` | Set `ADMIN_TOKEN` and pass it as `?token=` |
+| Frontend cannot reach backend | Wrong base URL or CORS | Set `NEXT_PUBLIC_API_URL` and `ALLOWED_ORIGINS` |
+| Browse pagination repeats results | Backend has no offset pagination yet | Use `per_page` only or implement backend offset logic |
+
+---
+
+## Roadmap
+
+Useful next improvements:
+
+- Align `frontend/src/lib/api.ts` with the live backend response shapes.
+- Add true offset pagination to `GET /api/listings`.
+- Add booking cancellation endpoints.
+- Add authenticated users instead of name-based profiles.
+- Add streaming chat responses.
+- Add a frontend service to `docker-compose.yml`.
+- Add CI for backend tests and frontend lint/build.
+
+---
+
+## License and Data
+
+Data is sourced from Inside Airbnb under CC BY 4.0. Application code is intended
+to be MIT-style, but add a `LICENSE` file if this repository will be published.
 
 ---
 
 <div align="center">
-Built with ❤️ using LangGraph · Groq · FastAPI · ChromaDB
+
+Built with LangGraph, Groq, FastAPI, Pinecone, SQLAlchemy, and Next.js.
+
 </div>

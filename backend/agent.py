@@ -23,6 +23,11 @@ from backend.tools.faq_tool import search_faqs
 from backend.tools.detail_tool import get_listing_details
 from backend.tools.price_tool import calculate_price_breakdown
 from backend.tools.compare_tool import compare_listings
+from backend.tools.booking_tool import check_availability, book_listing
+from backend.tools.memory_tool import save_user_preferences, load_user_preferences, update_memory_summary
+from backend.tools.weather_tool import get_weather_forecast
+from backend.tools.places_tool import search_nearby_places
+from backend.tools.web_search_tool import web_search
 
 load_dotenv()
 
@@ -130,12 +135,24 @@ key_manager = KeyManager(_API_KEYS)
 # ── Tools ──────────────────────────────────────────────────────────────────────
 
 TOOLS = [
+    # Search & Discovery
     search_listings_semantic,
     filter_listings,
     search_faqs,
     get_listing_details,
     calculate_price_breakdown,
     compare_listings,
+    # Booking Engine
+    check_availability,
+    book_listing,
+    # Persistent Memory
+    save_user_preferences,
+    load_user_preferences,
+    update_memory_summary,
+    # Trip Planner
+    get_weather_forecast,
+    search_nearby_places,
+    web_search,
 ]
 
 

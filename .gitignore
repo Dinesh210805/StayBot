@@ -29,3 +29,4 @@ Thumbs.db
 
 # Database
 *.db
+node_modules/
