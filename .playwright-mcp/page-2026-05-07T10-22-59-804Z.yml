@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "StayBot N° 001 · Vol. I" [ref=e4]:
+        - /url: /
+        - generic [ref=e5]:
+          - text: Stay
+          - emphasis [ref=e6]: Bot
+        - generic [ref=e7]: N° 001 · Vol. I
+      - generic [ref=e8]:
+        - link "Index" [ref=e9]:
+          - /url: /
+        - link "Destinations" [ref=e10]:
+          - /url: /destinations
+        - link "Stays" [ref=e11]:
+          - /url: /explore
+          - text: Stays
+        - link "Booking" [ref=e13]:
+          - /url: /booking
+        - link "Concierge" [ref=e14]:
+          - /url: /chat
+      - link "Begin →" [ref=e15]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e16]: →
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - paragraph [ref=e23]: Index · All stays
+        - heading "Pick a place to disappear." [level=1] [ref=e25]:
+          - generic [ref=e27]: Pick a place
+          - generic [ref=e30]:
+            - text: to
+            - emphasis [ref=e31]: disappear
+            - text: .
+      - generic [ref=e34]:
+        - combobox [ref=e35]:
+          - option "Any city" [selected]
+          - option "Bangkok"
+          - option "London"
+          - option "Cape Town"
+        - combobox [ref=e37]:
+          - option "Any type" [selected]
+          - option "Apartment"
+          - option "House"
+          - option "Villa"
+          - option "Condo"
+          - option "Studio"
+          - option "Loft"
+        - spinbutton [ref=e39]
+        - spinbutton [ref=e40]
+        - spinbutton [ref=e41]
+        - button "Search" [ref=e42]
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - paragraph [ref=e64]: Don't see what you want?
+          - heading "Tell the concierge." [level=2] [ref=e65]
+        - link "Open a conversation →" [ref=e68]:
+          - /url: /chat
+          - text: Open a conversation
+          - generic [ref=e69]: →
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e75] [cursor=pointer]:
+    - img [ref=e76]

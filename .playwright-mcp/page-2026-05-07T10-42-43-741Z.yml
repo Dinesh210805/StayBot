@@ -1,0 +1,756 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "StayBot N° 001 · Vol. I" [ref=e4]:
+        - /url: /
+        - generic [ref=e5]:
+          - text: Stay
+          - emphasis [ref=e6]: Bot
+        - generic [ref=e7]: N° 001 · Vol. I
+      - generic [ref=e8]:
+        - link "Index" [ref=e9]:
+          - /url: /
+          - text: Index
+        - link "Destinations" [ref=e11]:
+          - /url: /destinations
+        - link "Stays" [ref=e12]:
+          - /url: /explore
+        - link "Booking" [ref=e13]:
+          - /url: /booking
+        - link "Concierge" [ref=e14]:
+          - /url: /chat
+      - link "Begin →" [ref=e15]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e16]: →
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - iframe [ref=e24]:
+            - generic [active] [ref=f164e1]:
+              - generic "YouTube Video Player" [ref=f164e3]
+              - generic [ref=f164e6]:
+                - generic:
+                  - generic:
+                    - button "Hide player controls" [ref=f164e7] [cursor=pointer]
+                    - generic [ref=f164e9]:
+                      - generic:
+                        - generic [ref=f164e14]:
+                          - generic [ref=f164e15]:
+                            - link "Bangkok, Thailand from Above in 4K — A Cinematic Drone Journey" [ref=f164e16] [cursor=pointer]:
+                              - /url: https://www.youtube.com/watch?v=oCTFmGENO-M
+                            - link "Alejandro Torres" [ref=f164e17] [cursor=pointer]:
+                              - /url: /channel/UCdTff6CR1MXSZE_fd_qWREA
+                              - generic [ref=f164e18]: Alejandro Torres
+                          - generic [ref=f164e19]:
+                            - button [ref=f164e20] [cursor=pointer]
+                            - generic [ref=f164e22]:
+                              - generic: Alejandro Torres
+                              - generic: 58.2K subscribers
+                        - generic [ref=f164e24]:
+                          - button "Previous video" [ref=f164e26] [cursor=pointer]:
+                            - generic [ref=f164e30]:
+                              - img
+                          - button "Rewind 10 seconds" [ref=f164e31] [cursor=pointer]
+                          - button "Pause video" [ref=f164e33] [cursor=pointer]:
+                            - generic [ref=f164e36]:
+                              - img
+                          - button "Fast forward 10 seconds" [ref=f164e37] [cursor=pointer]
+                          - button "Next video" [disabled] [ref=f164e39] [cursor=pointer]:
+                            - generic [ref=f164e43]:
+                              - img
+                      - generic:
+                        - generic [ref=f164e44]:
+                          - button "Share" [ref=f164e48] [cursor=pointer]:
+                            - generic [ref=f164e52]:
+                              - img
+                          - generic [ref=f164e56]:
+                            - button "More videos" [ref=f164e59] [cursor=pointer]:
+                              - generic [ref=f164e60]: More videos
+                            - link "Watch on YouTube" [ref=f164e67] [cursor=pointer]:
+                              - /url: https://www.youtube.com/watch?v=oCTFmGENO-M
+                              - img [ref=f164e71]:
+                                - generic [ref=f164e73]:
+                                  - img
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=trcWUvGZn7o&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 1:20:08
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Phuket, Thailand from Above in 4K — An Unreal Island Journey 2 years ago":
+                                            - /url: https://www.youtube.com/watch?v=trcWUvGZn7o&feature=endscreen
+                                            - heading "Phuket, Thailand from Above in 4K — An Unreal Island Journey" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 2 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=_8fvKhqnxhI&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 54:16
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Flying Over San Diego — Relaxing Views of California 3 years ago":
+                                            - /url: https://www.youtube.com/watch?v=_8fvKhqnxhI&feature=endscreen
+                                            - heading "Flying Over San Diego — Relaxing Views of California" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 3 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=snHIi4SF41Y&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 53:22
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Exploring Mullet Bay Beach, Sint Maarten | Relaxing Drone Journey 2 years ago":
+                                            - /url: https://www.youtube.com/watch?v=snHIi4SF41Y&feature=endscreen
+                                            - heading "Exploring Mullet Bay Beach, Sint Maarten | Relaxing Drone Journey" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 2 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=IvW9rDRiZNI&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 2:13:35
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "POLAND IN 4K - WARSAW - ZAKOPANE - KRAKOW DRONE FOOTAGE (ULTRA HD) - European Scenery Footage UHD 2 years ago":
+                                            - /url: https://www.youtube.com/watch?v=IvW9rDRiZNI&feature=endscreen
+                                            - heading "POLAND IN 4K - WARSAW - ZAKOPANE - KRAKOW DRONE FOOTAGE (ULTRA HD) - European Scenery Footage UHD" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 2 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=Bakpf-dqMz8&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 1:02:08
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "PUNTA CANA 4K DRONE FOOTAGE (ULTRA HD) - Dominican Republic Beautiful Scenery Footage UHD 3 years ago":
+                                            - /url: https://www.youtube.com/watch?v=Bakpf-dqMz8&feature=endscreen
+                                            - heading "PUNTA CANA 4K DRONE FOOTAGE (ULTRA HD) - Dominican Republic Beautiful Scenery Footage UHD" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 3 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=UI9P4adfeFA&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 3:04:57
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "THAILAND 4K Long Relaxing Video — Bangkok, Phi Phi Islands & Phuket 3 years ago":
+                                            - /url: https://www.youtube.com/watch?v=UI9P4adfeFA&feature=endscreen
+                                            - heading "THAILAND 4K Long Relaxing Video — Bangkok, Phi Phi Islands & Phuket" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 3 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=67KJlAu_y4Q&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 2:28:49
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Cabo San Lucas from Above in 4K — Where Mexico Feels Unreal 3 years ago":
+                                            - /url: https://www.youtube.com/watch?v=67KJlAu_y4Q&feature=endscreen
+                                            - heading "Cabo San Lucas from Above in 4K — Where Mexico Feels Unreal" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 3 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=AENgPKnwglc&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 3:00:18
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Aruba, Caribbean in 4K — Stunning Beaches & Unreal Waters 1 year ago":
+                                            - /url: https://www.youtube.com/watch?v=AENgPKnwglc&feature=endscreen
+                                            - heading "Aruba, Caribbean in 4K — Stunning Beaches & Unreal Waters" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 1 year ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=kTUG4hHaQio&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 3:53
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Thailand Island Dreams ( PHI PHI ISLANDS) 4K VIDEO 6 years ago":
+                                            - /url: https://www.youtube.com/watch?v=kTUG4hHaQio&feature=endscreen
+                                            - heading "Thailand Island Dreams ( PHI PHI ISLANDS) 4K VIDEO" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 6 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=w92n013BDpc&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 1:59:51
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "A Cinematic Drone Journey Over Phi Phi Islands, Thailand in 4K 2 years ago":
+                                            - /url: https://www.youtube.com/watch?v=w92n013BDpc&feature=endscreen
+                                            - heading "A Cinematic Drone Journey Over Phi Phi Islands, Thailand in 4K" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 2 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=bumK7IIVOKE&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 1:19:29
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Split to Dubrovnik, Croatia in 4K — A Relaxing Aerial Journey 2 years ago":
+                                            - /url: https://www.youtube.com/watch?v=bumK7IIVOKE&feature=endscreen
+                                            - heading "Split to Dubrovnik, Croatia in 4K — A Relaxing Aerial Journey" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 2 years ago
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - link:
+                                      - /url: https://www.youtube.com/watch?v=FMN78PJKMuA&feature=endscreen
+                                      - generic:
+                                        - generic:
+                                          - generic:
+                                            - generic: 2:39:00
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - link "Huatulco, Mexico in 4K - Oaxaca Paradise Landscapes UHD 3 years ago":
+                                            - /url: https://www.youtube.com/watch?v=FMN78PJKMuA&feature=endscreen
+                                            - heading "Huatulco, Mexico in 4K - Oaxaca Paradise Landscapes UHD" [level=3]
+                                            - generic:
+                                              - generic:
+                                                - generic: 3 years ago
+        - generic:
+          - generic: 13.7563° N · 100.5018° E
+          - generic: 33.9249° S · 18.4241° E
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: EST · MMXXV
+            - generic [ref=e29]: Concierge online
+            - generic [ref=e31]: Issue I · 5.07.26
+          - generic [ref=e32]:
+            - paragraph [ref=e33]: A Living Atlas of Stays
+            - heading "Where you sleep is the story." [level=1] [ref=e34]:
+              - generic [ref=e35]:
+                - generic [ref=e37]: Where you
+                - generic [ref=e40]:
+                  - text: sleep
+                  - emphasis [ref=e41]: is the
+                - generic [ref=e44]:
+                  - emphasis [ref=e45]: story
+                  - text: .
+            - paragraph [ref=e46]:
+              - text: StayBot is your AI concierge for extraordinary stays in
+              - emphasis [ref=e48]: Bangkok
+              - generic [ref=e49]:
+                - text: ","
+                - emphasis [ref=e50]: London
+              - generic [ref=e51]:
+                - text: ", and"
+                - emphasis [ref=e52]: Cape Town
+              - text: . Describe what you want — we curate where you sleep.
+            - generic [ref=e53]:
+              - link "Begin a conversation →" [ref=e54]:
+                - /url: /chat
+                - text: Begin a conversation
+                - generic [ref=e55]: →
+              - link "See destinations" [ref=e56]:
+                - /url: /destinations
+          - generic:
+            - generic:
+              - generic: Scroll
+              - generic: ↓
+        - generic:
+          - generic: 13.7563° N · 100.5018° E
+          - generic: Live · YouTube
+      - generic [ref=e58]:
+        - link "/01 The Atlas Three cities, hand-picked." [ref=e59]:
+          - /url: /destinations
+          - generic [ref=e61]: /01
+          - heading "The Atlas" [level=3] [ref=e62]
+          - paragraph [ref=e63]: Three cities, hand-picked.
+        - link "/02 The Stays 450 properties, no algorithm." [ref=e64]:
+          - /url: /explore
+          - generic [ref=e66]: /02
+          - heading "The Stays" [level=3] [ref=e67]
+          - paragraph [ref=e68]: 450 properties, no algorithm.
+        - link "/03 The Calendar Hold your dates." [ref=e69]:
+          - /url: /booking
+          - generic [ref=e71]: /03
+          - heading "The Calendar" [level=3] [ref=e72]
+          - paragraph [ref=e73]: Hold your dates.
+        - link "/04 The Concierge Speak. It will listen." [ref=e74]:
+          - /url: /chat
+          - generic [ref=e76]: /04
+          - heading "The Concierge" [level=3] [ref=e77]
+          - paragraph [ref=e78]: Speak. It will listen.
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: Bangkok · 180 Curated Stays
+            - generic [ref=e84]: ·
+          - generic [ref=e85]:
+            - generic [ref=e86]: London · 165 Curated Stays
+            - generic [ref=e87]: ·
+          - generic [ref=e88]:
+            - generic [ref=e89]: Cape Town · 105 Curated Stays
+            - generic [ref=e90]: ·
+          - generic [ref=e91]:
+            - generic [ref=e92]: AI Concierge · Always On
+            - generic [ref=e93]: ·
+          - generic [ref=e94]:
+            - generic [ref=e95]: Free Cancellation Available
+            - generic [ref=e96]: ·
+          - generic [ref=e97]:
+            - generic [ref=e98]: Describe It · We Curate It
+            - generic [ref=e99]: ·
+          - generic [ref=e100]:
+            - generic [ref=e101]: Hand-Picked. Not Algorithmic.
+            - generic [ref=e102]: ·
+          - generic [ref=e103]:
+            - generic [ref=e104]: From Inquiry to Arrival
+            - generic [ref=e105]: ·
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - generic [ref=e108]: Bangkok · 180 Curated Stays
+            - generic [ref=e109]: ·
+          - generic [ref=e110]:
+            - generic [ref=e111]: London · 165 Curated Stays
+            - generic [ref=e112]: ·
+          - generic [ref=e113]:
+            - generic [ref=e114]: Cape Town · 105 Curated Stays
+            - generic [ref=e115]: ·
+          - generic [ref=e116]:
+            - generic [ref=e117]: AI Concierge · Always On
+            - generic [ref=e118]: ·
+          - generic [ref=e119]:
+            - generic [ref=e120]: Free Cancellation Available
+            - generic [ref=e121]: ·
+          - generic [ref=e122]:
+            - generic [ref=e123]: Describe It · We Curate It
+            - generic [ref=e124]: ·
+          - generic [ref=e125]:
+            - generic [ref=e126]: Hand-Picked. Not Algorithmic.
+            - generic [ref=e127]: ·
+          - generic [ref=e128]:
+            - generic [ref=e129]: From Inquiry to Arrival
+            - generic [ref=e130]: ·
+      - generic [ref=e132]:
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]: "0"
+            - generic [ref=e136]: +
+          - paragraph [ref=e137]: Curated stays
+        - generic [ref=e138]:
+          - generic [ref=e140]: "0"
+          - paragraph [ref=e141]: World cities
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e144]: "0"
+            - generic [ref=e145]: "%"
+          - paragraph [ref=e146]: Guest satisfaction
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - generic [ref=e149]: "0"
+            - generic [ref=e150]: /7
+          - paragraph [ref=e151]: Concierge hours
+      - generic [ref=e152]:
+        - generic [ref=e153]:
+          - paragraph [ref=e156]: /01 · Approach
+          - generic [ref=e157]:
+            - heading "We don't sell rooms. We compose arrivals." [level=2] [ref=e158]:
+              - generic [ref=e160]: We don't sell rooms.
+              - generic [ref=e163]:
+                - text: We compose
+                - emphasis [ref=e164]: arrivals
+                - text: .
+            - paragraph [ref=e166]: Travel software flattens where you sleep into a search result. We rebuild it as a conversation — one that knows the difference between a balcony and a view, between a quiet street and a lonely one.
+        - generic [ref=e167]:
+          - link "Bangkok N° 01 13.7563° N · 100.5018° E City of Angels, City of Light Bangkok →" [ref=e170]:
+            - /url: /destinations/bangkok
+            - img "Bangkok" [ref=e171]
+            - generic [ref=e173]:
+              - generic [ref=e174]: N° 01
+              - generic [ref=e175]: 13.7563° N · 100.5018° E
+            - generic [ref=e176]:
+              - paragraph [ref=e177]: City of Angels, City of Light
+              - heading "Bangkok" [level=3] [ref=e178]
+            - generic [ref=e179]: →
+          - link "London N° 02 51.5074° N · 0.1278° W The Great Metropolis London →" [ref=e182]:
+            - /url: /destinations/london
+            - img "London" [ref=e183]
+            - generic [ref=e185]:
+              - generic [ref=e186]: N° 02
+              - generic [ref=e187]: 51.5074° N · 0.1278° W
+            - generic [ref=e188]:
+              - paragraph [ref=e189]: The Great Metropolis
+              - heading "London" [level=3] [ref=e190]
+            - generic [ref=e191]: →
+          - generic [ref=e192]:
+            - paragraph [ref=e193]: N° 003
+            - paragraph [ref=e194]: “We slept here so you could too.”
+            - paragraph [ref=e195]: — The Editors
+          - link "Cape Town N° 03 33.9249° S · 18.4241° E Where Two Oceans Meet Cape Town →" [ref=e198]:
+            - /url: /destinations/cape-town
+            - img "Cape Town" [ref=e199]
+            - generic [ref=e201]:
+              - generic [ref=e202]: N° 03
+              - generic [ref=e203]: 33.9249° S · 18.4241° E
+            - generic [ref=e204]:
+              - paragraph [ref=e205]: Where Two Oceans Meet
+              - heading "Cape Town" [level=3] [ref=e206]
+            - generic [ref=e207]: →
+      - generic [ref=e208]:
+        - generic [ref=e209]: Field Notes · Vol. I
+        - generic [ref=e210]:
+          - generic [ref=e211]:
+            - img "Bangkok" [ref=e212]
+            - generic [ref=e214]:
+              - generic [ref=e215]: Bangkok
+              - generic [ref=e216]: "01"
+            - generic [ref=e217]: 13.7563° N
+          - generic [ref=e218]:
+            - img "Bangkok" [ref=e219]
+            - generic [ref=e221]:
+              - generic [ref=e222]: Bangkok
+              - generic [ref=e223]: "02"
+            - generic [ref=e224]: 13.7563° N
+          - generic [ref=e225]:
+            - img "Bangkok" [ref=e226]
+            - generic [ref=e228]:
+              - generic [ref=e229]: Bangkok
+              - generic [ref=e230]: "03"
+            - generic [ref=e231]: 13.7563° N
+          - generic [ref=e232]:
+            - img "Bangkok" [ref=e233]
+            - generic [ref=e235]:
+              - generic [ref=e236]: Bangkok
+              - generic [ref=e237]: "04"
+            - generic [ref=e238]: 13.7563° N
+          - generic [ref=e239]:
+            - img "London" [ref=e240]
+            - generic [ref=e242]:
+              - generic [ref=e243]: London
+              - generic [ref=e244]: "05"
+            - generic [ref=e245]: 51.5074° N
+          - generic [ref=e246]:
+            - img "London" [ref=e247]
+            - generic [ref=e249]:
+              - generic [ref=e250]: London
+              - generic [ref=e251]: "06"
+            - generic [ref=e252]: 51.5074° N
+          - generic [ref=e253]:
+            - img "London" [ref=e254]
+            - generic [ref=e256]:
+              - generic [ref=e257]: London
+              - generic [ref=e258]: "07"
+            - generic [ref=e259]: 51.5074° N
+          - generic [ref=e260]:
+            - img "London" [ref=e261]
+            - generic [ref=e263]:
+              - generic [ref=e264]: London
+              - generic [ref=e265]: "08"
+            - generic [ref=e266]: 51.5074° N
+          - generic [ref=e267]:
+            - img "Cape Town" [ref=e268]
+            - generic [ref=e270]:
+              - generic [ref=e271]: Cape Town
+              - generic [ref=e272]: "09"
+            - generic [ref=e273]: 33.9249° S
+          - generic [ref=e274]:
+            - img "Cape Town" [ref=e275]
+            - generic [ref=e277]:
+              - generic [ref=e278]: Cape Town
+              - generic [ref=e279]: "10"
+            - generic [ref=e280]: 33.9249° S
+          - generic [ref=e281]:
+            - img "Cape Town" [ref=e282]
+            - generic [ref=e284]:
+              - generic [ref=e285]: Cape Town
+              - generic [ref=e286]: "11"
+            - generic [ref=e287]: 33.9249° S
+          - generic [ref=e288]:
+            - img "Cape Town" [ref=e289]
+            - generic [ref=e291]:
+              - generic [ref=e292]: Cape Town
+              - generic [ref=e293]: "12"
+            - generic [ref=e294]: 33.9249° S
+          - generic [ref=e295]:
+            - img "Bangkok" [ref=e296]
+            - generic [ref=e298]: Bangkok
+          - generic [ref=e299]:
+            - img "Bangkok" [ref=e300]
+            - generic [ref=e302]: Bangkok
+          - generic [ref=e303]:
+            - img "Bangkok" [ref=e304]
+            - generic [ref=e306]: Bangkok
+          - generic [ref=e307]:
+            - img "Bangkok" [ref=e308]
+            - generic [ref=e310]: Bangkok
+        - generic [ref=e311]: Drag to browse ·
+      - generic [ref=e314]:
+        - generic [ref=e316]:
+          - img [ref=e317]
+          - iframe [ref=e318]:
+            
+        - generic [ref=e322]:
+          - img [ref=e323]
+          - iframe [ref=e324]:
+            
+        - generic [ref=e328]:
+          - img [ref=e329]
+          - iframe [ref=e330]:
+            
+        - generic [ref=e333]:
+          - generic [ref=e334]:
+            - generic [ref=e335]: Destinations · Vol. I
+            - generic [ref=e336]: 01 / 03
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: City of Angels, City of Light
+                - heading "B a n g k o k" [level=3] [ref=e342]:
+                  - generic [ref=e343]: B
+                  - generic [ref=e344]: a
+                  - generic [ref=e345]: "n"
+                  - generic [ref=e346]: g
+                  - generic [ref=e347]: k
+                  - generic [ref=e348]: o
+                  - generic [ref=e349]: k
+                - paragraph [ref=e350]: กรุงเทพมหานคร
+              - generic [ref=e351]:
+                - paragraph [ref=e352]: The Great Metropolis
+                - heading "L o n d o n" [level=3] [ref=e353]:
+                  - generic [ref=e354]: L
+                  - generic [ref=e355]: o
+                  - generic [ref=e356]: "n"
+                  - generic [ref=e357]: d
+                  - generic [ref=e358]: o
+                  - generic [ref=e359]: "n"
+                - paragraph [ref=e360]: Lundúnir
+              - generic [ref=e361]:
+                - paragraph [ref=e362]: Where Two Oceans Meet
+                - heading "C a p e T o w n" [level=3] [ref=e363]:
+                  - generic [ref=e364]: C
+                  - generic [ref=e365]: a
+                  - generic [ref=e366]: p
+                  - generic [ref=e367]: e
+                  - generic [ref=e369]: T
+                  - generic [ref=e370]: o
+                  - generic [ref=e371]: w
+                  - generic [ref=e372]: "n"
+                - paragraph [ref=e373]: Kaapstad · iKapa
+            - generic [ref=e374]:
+              - generic [ref=e375]:
+                - paragraph [ref=e376]: Bangkok hums in two registers — the gilded baritone of its temples and the electric soprano of its markets. Stay here long enough and the city teaches you how to listen.
+                - generic [ref=e377]:
+                  - generic [ref=e378]:
+                    - generic [ref=e379]: Coordinate
+                    - generic [ref=e380]: 13.7563° N · 100.5018° E
+                  - generic [ref=e381]:
+                    - generic [ref=e382]: Stays
+                    - generic [ref=e383]: 180 curated
+                - link "Wander Bangkok →" [ref=e384]:
+                  - /url: /destinations/bangkok
+                  - generic [ref=e385]: Wander Bangkok
+                  - generic [ref=e386]: →
+              - generic [ref=e387]:
+                - paragraph [ref=e388]: London is an argument between centuries. Stay here long enough and you start to hear it — the Roman wall under the office block, the old river under the new road, the ghost coffee house on the corner of the bank.
+                - generic [ref=e389]:
+                  - generic [ref=e390]:
+                    - generic [ref=e391]: Coordinate
+                    - generic [ref=e392]: 51.5074° N · 0.1278° W
+                  - generic [ref=e393]:
+                    - generic [ref=e394]: Stays
+                    - generic [ref=e395]: 165 curated
+                - link "Wander London →" [ref=e396]:
+                  - /url: /destinations/london
+                  - generic [ref=e397]: Wander London
+                  - generic [ref=e398]: →
+              - generic [ref=e399]:
+                - paragraph [ref=e400]: Cape Town is geography first, city second. The mountain decides where the streets can go. The ocean decides what the light will do. You don't visit it so much as stay out of its way.
+                - generic [ref=e401]:
+                  - generic [ref=e402]:
+                    - generic [ref=e403]: Coordinate
+                    - generic [ref=e404]: 33.9249° S · 18.4241° E
+                  - generic [ref=e405]:
+                    - generic [ref=e406]: Stays
+                    - generic [ref=e407]: 105 curated
+                - link "Wander Cape Town →" [ref=e408]:
+                  - /url: /destinations/cape-town
+                  - generic [ref=e409]: Wander Cape Town
+                  - generic [ref=e410]: →
+          - paragraph [ref=e420]: Scroll to wander
+      - generic [ref=e422]:
+        - generic [ref=e423]:
+          - paragraph [ref=e426]: /02 · Principles
+          - heading "Four ideas we keep close." [level=2] [ref=e428]:
+            - generic [ref=e430]: Four ideas
+            - generic [ref=e433]:
+              - text: we keep
+              - emphasis [ref=e434]: close
+              - text: .
+        - generic [ref=e435]:
+          - generic [ref=e437]:
+            - generic [ref=e438]: I
+            - paragraph [ref=e439]: I
+            - heading "Conversation, not forms" [level=3] [ref=e440]
+            - paragraph [ref=e441]: Tell us what you want in plain language. The concierge handles the rest.
+          - generic [ref=e443]:
+            - generic [ref=e444]: II
+            - paragraph [ref=e445]: II
+            - heading "Curated, not crowded" [level=3] [ref=e446]
+            - paragraph [ref=e447]: Hand-picked stays. No infinite scroll. Just places worth waking up in.
+          - generic [ref=e449]:
+            - generic [ref=e450]: III
+            - paragraph [ref=e451]: III
+            - heading "Memory that travels" [level=3] [ref=e452]
+            - paragraph [ref=e453]: Your concierge remembers. The next conversation begins where the last one ended.
+          - generic [ref=e455]:
+            - generic [ref=e456]: IV
+            - paragraph [ref=e457]: IV
+            - heading "From inquiry to arrival" [level=3] [ref=e458]
+            - paragraph [ref=e459]: Calendar, neighborhood, transit, restaurants — handled inside one conversation.
+      - generic [ref=e461]:
+        - generic [ref=e462]:
+          - paragraph [ref=e464]: /03 · The Concierge
+          - heading "Speak. It will listen." [level=2] [ref=e465]:
+            - generic [ref=e467]: Speak. It will
+            - generic [ref=e470]:
+              - emphasis [ref=e471]: listen
+              - text: .
+          - paragraph [ref=e473]: No forms. No filters. Tell the concierge exactly what you want — quiet, walkable, near a temple, under £200 — and it curates from 450+ hand-picked stays.
+          - link "Try the concierge →" [ref=e475]:
+            - /url: /chat
+            - text: Try the concierge
+            - generic [ref=e476]: →
+        - generic [ref=e478]:
+          - generic [ref=e479]:
+            - generic [ref=e484]: StayBot · Concierge
+            - generic [ref=e487]: Live
+          - generic [ref=e488]:
+            - generic [ref=e490]: I want a quiet place in Bangkok with rooftop views, near temples, under $80.
+            - generic [ref=e491]:
+              - generic [ref=e493]: S
+              - generic [ref=e494]: "Three matches. Top pick: The Golden Loft — $65/night, rooftop facing Wat Arun, 5-min walk to the river."
+            - generic [ref=e496]: Yes — and Dec 15–20.
+            - generic [ref=e497]:
+              - generic [ref=e499]: S
+              - generic [ref=e500]: Available. Five nights at $325 total. Free cancellation until Dec 10. Should I hold the dates?
+          - generic [ref=e501]:
+            - generic [ref=e502]: Describe your perfect stay…
+            - button "→" [ref=e503]
+      - generic [ref=e506]:
+        - paragraph [ref=e508]: Now boarding · Concierge online
+        - heading "Your next arrival awaits." [level=2] [ref=e509]:
+          - generic [ref=e511]: Your next
+          - generic [ref=e514]:
+            - emphasis [ref=e515]: arrival
+            - text: awaits.
+        - generic [ref=e517]:
+          - link "Begin a conversation →" [ref=e518]:
+            - /url: /chat
+            - text: Begin a conversation
+            - generic [ref=e519]: →
+          - link "Browse all stays" [ref=e520]:
+            - /url: /explore
+      - generic [ref=e522]:
+        - generic [ref=e523]:
+          - text: Stay
+          - emphasis [ref=e524]: Bot
+        - paragraph [ref=e525]: © 2025 · A Living Atlas · Made with care
+        - generic [ref=e526]:
+          - link "Destinations" [ref=e527]:
+            - /url: /destinations
+          - link "Stays" [ref=e528]:
+            - /url: /explore
+          - link "Concierge" [ref=e529]:
+            - /url: /chat
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e535] [cursor=pointer]:
+    - img [ref=e536]
+  - alert [ref=e539]

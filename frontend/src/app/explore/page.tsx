@@ -3,89 +3,81 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, type Listing } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { Reveal, RevealLines } from "@/components/fx/Reveal";
+import Magnetic from "@/components/fx/Magnetic";
 
 const CITIES = ["Bangkok", "London", "Cape Town"];
 const TYPES = ["Apartment", "House", "Villa", "Condo", "Studio", "Loft"];
+const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <span className="text-[var(--gold)] text-xs">
-      {"★".repeat(Math.round(rating))}
-      <span className="text-[var(--text-muted)] ml-1">{rating.toFixed(1)}</span>
+    <span className="flex items-center gap-1 font-mono text-[10px] tracking-wider">
+      <span className="text-[var(--amber)]">★</span>
+      <span className="text-[var(--text-primary)]">{rating.toFixed(1)}</span>
     </span>
   );
 }
 
 function ListingCard({ listing, index }: { listing: Listing; index: number }) {
-  const img =
-    listing.images?.[0] ??
-    `https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80`;
+  const img = listing.picture_url ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900&q=85";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: Math.min(index * 0.06, 0.6) }}
-      className="group relative rounded-2xl overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] hover:border-[rgba(201,169,110,0.35)] transition-all duration-400 hover:shadow-[0_0_40px_rgba(201,169,110,0.07)]"
+      transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.4), ease: easeOutExpo }}
     >
-      {/* Image area */}
-      <div className="relative h-56 overflow-hidden bg-[var(--bg-elevated)]">
-        <img
-          src={img}
-          alt={listing.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent opacity-60" />
-        <div className="absolute top-3 left-3">
-          <span className="px-2 py-1 rounded-full text-[10px] tracking-wider uppercase bg-[var(--bg-void)]/80 backdrop-blur-sm text-[var(--text-secondary)] border border-[var(--border)]">
-            {listing.property_type}
-          </span>
-        </div>
-        <div className="absolute top-3 right-3">
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--gold)]/90 text-[var(--bg-void)]">
-            {formatPrice(listing.price_per_night)}/night
-          </span>
-        </div>
-      </div>
+      <Link
+        href={`/explore/${listing.id}`}
+        className="group block relative rounded-2xl overflow-hidden border border-[var(--border)] hover:border-[var(--border-bright)] bg-[var(--bg-card)] transition-all duration-500 hover:shadow-[0_0_50px_rgba(233,178,108,0.08)]"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--bg-elevated)]">
+          <Image
+            src={img}
+            alt={listing.name}
+            fill
+            className="object-cover transition-transform duration-1000 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/30 to-transparent opacity-90" />
 
-      {/* Content */}
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-medium text-[var(--text-primary)] text-sm leading-snug flex-1 line-clamp-2 group-hover:text-white transition-colors">
-            {listing.name}
-          </h3>
+          {/* Top metadata */}
+          <div className="absolute top-4 left-4 right-4 flex items-start justify-between font-mono text-[10px] tracking-widest uppercase">
+            <span className="px-2 py-1 rounded-full bg-[var(--bg-void)]/70 backdrop-blur-md text-white/80 border border-white/10">
+              {listing.property_type}
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-[var(--amber)] text-[var(--bg-void)] font-medium">
+              {formatPrice(listing.price_per_night)}<span className="opacity-60"> /n</span>
+            </span>
+          </div>
+
+          {/* Bottom content */}
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--amber)] mb-2 opacity-80">
+              {listing.neighbourhood ?? listing.city} · {listing.country}
+            </p>
+            <h3 className="font-display text-xl leading-snug mb-3 line-clamp-2 group-hover:translate-y-0 transition-transform">
+              {listing.name}
+            </h3>
+            <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
+              <StarRating rating={listing.rating} />
+              <span className="font-mono tracking-wider">
+                {listing.max_guests} ppl · {listing.bedrooms} bed
+              </span>
+            </div>
+          </div>
+
+          {/* Hover arrow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-[var(--amber)] text-[var(--bg-void)] flex items-center justify-center text-xl opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-500">
+            →
+          </div>
         </div>
-
-        <p className="text-[var(--text-muted)] text-xs mb-3">
-          {listing.neighborhood ?? listing.city}, {listing.country}
-        </p>
-
-        <div className="flex items-center justify-between mb-4">
-          <StarRating rating={listing.rating} />
-          <span className="text-[var(--text-muted)] text-xs">
-            {listing.review_count} reviews
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)] border-t border-[var(--border)] pt-3">
-          <span>{listing.guests} guests</span>
-          <span className="text-[var(--text-muted)]">·</span>
-          <span>{listing.bedrooms} bed</span>
-          <span className="text-[var(--text-muted)]">·</span>
-          <span>{listing.bathrooms} bath</span>
-        </div>
-
-        <Link
-          href={`/explore/${listing.id}`}
-          className="mt-4 block w-full py-2.5 rounded-xl text-xs font-medium text-center border border-[var(--border-bright)] text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors"
-        >
-          View Details
-        </Link>
-      </div>
+      </Link>
     </motion.div>
   );
 }
@@ -93,13 +85,7 @@ function ListingCard({ listing, index }: { listing: Listing; index: number }) {
 function SkeletonCard() {
   return (
     <div className="rounded-2xl overflow-hidden border border-[var(--border)] bg-[var(--bg-card)]">
-      <div className="h-56 shimmer" />
-      <div className="p-5 space-y-3">
-        <div className="h-4 rounded shimmer w-3/4" />
-        <div className="h-3 rounded shimmer w-1/2" />
-        <div className="h-3 rounded shimmer w-full" />
-        <div className="h-9 rounded-xl shimmer mt-4" />
-      </div>
+      <div className="aspect-[4/5] shimmer" />
     </div>
   );
 }
@@ -117,7 +103,7 @@ function ExploreContent() {
   const [maxPrice, setMaxPrice] = useState("");
   const [guests, setGuests] = useState("");
 
-  const limit = 12;
+  const perPage = 12;
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
@@ -129,7 +115,7 @@ function ExploreContent() {
         max_price: maxPrice ? Number(maxPrice) : undefined,
         guests: guests ? Number(guests) : undefined,
         page,
-        limit,
+        per_page: perPage,
       });
       setListings(res.listings ?? []);
       setTotal(res.total ?? 0);
@@ -144,171 +130,188 @@ function ExploreContent() {
     fetchListings();
   }, [fetchListings]);
 
-  const handleFilter = () => {
-    setPage(1);
-    fetchListings();
-  };
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const hasFilters = city || type || minPrice || maxPrice || guests;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-void)] pt-24">
+    <div className="min-h-screen bg-[var(--bg-page)] pt-32 pb-32">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 mb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="text-xs tracking-[0.3em] uppercase text-[var(--gold)] mb-3">
-            Browse
-          </p>
-          <h1 className="font-display text-[clamp(2.5rem,5vw,5rem)] text-[var(--text-primary)] leading-tight">
-            Find your
-            <br />
-            <em className="text-[var(--gold)]">perfect stay.</em>
-          </h1>
-          {total > 0 && !loading && (
-            <p className="text-[var(--text-muted)] mt-3 text-sm">
-              {total} properties found
-            </p>
-          )}
-        </motion.div>
+      <div className="max-w-[1400px] mx-auto px-6 mb-16">
+        <div className="grid md:grid-cols-12 gap-12 items-end">
+          <div className="md:col-span-3">
+            <Reveal>
+              <p className="eyebrow">Index · All stays</p>
+            </Reveal>
+          </div>
+          <div className="md:col-span-9">
+            <RevealLines
+              as="h1"
+              className="font-display text-[clamp(3rem,7vw,8rem)] leading-[0.86] tracking-[-0.03em]"
+              lines={["Pick a place", <span key="b">to <em className="text-[var(--amber)] italic">disappear</em>.</span>]}
+            />
+            {!loading && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="font-mono text-xs tracking-widest text-[var(--text-muted)] uppercase mt-6"
+              >
+                {total} stays · curated by hand
+              </motion.p>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pb-24">
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="flex flex-wrap gap-3 mb-10 p-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)]"
-        >
-          <select
-            value={city}
-            onChange={(e) => { setCity(e.target.value); setPage(1); }}
-            className="flex-1 min-w-[140px] bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:border-[var(--gold)] transition-colors"
-          >
-            <option value="">All Cities</option>
-            {CITIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-
-          <select
-            value={type}
-            onChange={(e) => { setType(e.target.value); setPage(1); }}
-            className="flex-1 min-w-[140px] bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:border-[var(--gold)] transition-colors"
-          >
-            <option value="">All Types</option>
-            {TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-
-          <input
-            type="number"
-            placeholder="Min $"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="w-24 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--gold)] transition-colors"
-          />
-
-          <input
-            type="number"
-            placeholder="Max $"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-24 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--gold)] transition-colors"
-          />
-
-          <input
-            type="number"
-            placeholder="Guests"
-            value={guests}
-            onChange={(e) => setGuests(e.target.value)}
-            className="w-24 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--gold)] transition-colors"
-          />
-
-          <button
-            onClick={handleFilter}
-            className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--bg-void)] text-sm font-medium hover:bg-[var(--gold-light)] transition-colors"
-          >
-            Search
-          </button>
-
-          {(city || type || minPrice || maxPrice || guests) && (
-            <button
-              onClick={() => {
-                setCity("");
-                setType("");
-                setMinPrice("");
-                setMaxPrice("");
-                setGuests("");
-                setPage(1);
-              }}
-              className="px-4 py-2.5 rounded-xl border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+      {/* Filters */}
+      <div className="max-w-[1400px] mx-auto px-6 mb-12">
+        <Reveal delay={0.1}>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-2 flex flex-wrap items-center gap-2">
+            <select
+              value={city}
+              onChange={(e) => { setCity(e.target.value); setPage(1); }}
+              className="flex-1 min-w-[140px] bg-transparent border-0 px-4 py-2.5 text-sm text-[var(--text-primary)] cursor-pointer focus:outline-none rounded-xl hover:bg-[var(--bg-elevated)] transition-colors"
             >
-              Clear
-            </button>
-          )}
-        </motion.div>
+              <option value="">Any city</option>
+              {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
 
-        {/* Grid */}
+            <span className="w-px h-6 bg-[var(--border)]" />
+
+            <select
+              value={type}
+              onChange={(e) => { setType(e.target.value); setPage(1); }}
+              className="flex-1 min-w-[140px] bg-transparent border-0 px-4 py-2.5 text-sm text-[var(--text-primary)] cursor-pointer focus:outline-none rounded-xl hover:bg-[var(--bg-elevated)] transition-colors"
+            >
+              <option value="">Any type</option>
+              {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+
+            <span className="w-px h-6 bg-[var(--border)]" />
+
+            <input
+              type="number"
+              placeholder="Min $"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-24 bg-transparent border-0 px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none placeholder:text-[var(--text-muted)] rounded-xl hover:bg-[var(--bg-elevated)] transition-colors"
+            />
+
+            <input
+              type="number"
+              placeholder="Max $"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-24 bg-transparent border-0 px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none placeholder:text-[var(--text-muted)] rounded-xl hover:bg-[var(--bg-elevated)] transition-colors"
+            />
+
+            <input
+              type="number"
+              placeholder="Guests"
+              value={guests}
+              onChange={(e) => setGuests(e.target.value)}
+              className="w-24 bg-transparent border-0 px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none placeholder:text-[var(--text-muted)] rounded-xl hover:bg-[var(--bg-elevated)] transition-colors"
+            />
+
+            <button
+              onClick={() => { setPage(1); fetchListings(); }}
+              className="ml-auto px-5 py-2.5 rounded-xl bg-[var(--amber)] text-[var(--bg-void)] text-sm font-medium hover:bg-[var(--amber-bright)] transition-colors"
+            >
+              Search
+            </button>
+
+            {hasFilters && (
+              <button
+                onClick={() => {
+                  setCity(""); setType(""); setMinPrice(""); setMaxPrice(""); setGuests(""); setPage(1);
+                }}
+                className="px-4 py-2.5 rounded-xl text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </Reveal>
+      </div>
+
+      {/* Grid */}
+      <div className="max-w-[1400px] mx-auto px-6">
         <AnimatePresence mode="wait">
           {loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : listings.length === 0 ? (
             <motion.div
               key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               className="text-center py-32"
             >
-              <p className="font-display text-4xl text-[var(--text-muted)] mb-4">
-                No properties found
+              <p className="font-display text-5xl text-[var(--text-muted)] mb-6 italic">
+                Nothing yet
               </p>
-              <p className="text-[var(--text-secondary)] mb-8">
-                Try adjusting your filters or{" "}
-                <Link href="/chat" className="text-[var(--gold)] hover:underline">
-                  ask the AI concierge
+              <p className="text-[var(--text-secondary)] mb-10">
+                Try widening your search, or{" "}
+                <Link href="/chat" className="text-[var(--amber)] underline-offset-4 hover:underline">
+                  ask the concierge
                 </Link>
                 .
               </p>
             </motion.div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {listings.map((l, i) => (
-                <ListingCard key={l.id} listing={l} index={i} />
-              ))}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {listings.map((l, i) => <ListingCard key={l.id} listing={l} index={i} />)}
             </div>
           )}
         </AnimatePresence>
 
-        {/* Pagination */}
-        {total > limit && !loading && (
-          <div className="flex items-center justify-center gap-3 mt-12">
+        {total > perPage && !loading && (
+          <div className="flex items-center justify-center gap-3 mt-16">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-5 py-2 rounded-full border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="px-5 py-2.5 rounded-full border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--amber)] hover:border-[var(--amber)] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               ← Previous
             </button>
-            <span className="text-sm text-[var(--text-muted)]">
-              Page {page} of {Math.ceil(total / limit)}
+            <span className="font-mono text-[10px] tracking-widest text-[var(--text-muted)] uppercase">
+              {String(page).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}
             </span>
             <button
-              onClick={() => setPage((p) => Math.min(Math.ceil(total / limit), p + 1))}
-              disabled={page >= Math.ceil(total / limit)}
-              className="px-5 py-2 rounded-full border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--gold)] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="px-5 py-2.5 rounded-full border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--amber)] hover:border-[var(--amber)] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               Next →
             </button>
           </div>
         )}
+      </div>
+
+      {/* CTA strip */}
+      <div className="max-w-[1400px] mx-auto px-6 mt-32 pt-16 border-t border-[var(--border)]">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="eyebrow mb-4">Don't see what you want?</p>
+            <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] leading-tight">
+              Tell the concierge.
+            </h2>
+          </div>
+          <div className="flex md:justify-end">
+            <Magnetic strength={0.25}>
+              <Link
+                href="/chat"
+                className="group inline-flex items-center gap-2 pl-7 pr-1.5 py-1.5 rounded-full bg-[var(--amber)] text-[var(--bg-void)] text-sm font-medium hover:bg-[var(--amber-bright)] transition-all"
+              >
+                Open a conversation
+                <span className="w-9 h-9 rounded-full bg-[var(--bg-void)] text-[var(--amber)] flex items-center justify-center group-hover:rotate-[-45deg] transition-transform">
+                  →
+                </span>
+              </Link>
+            </Magnetic>
+          </div>
+        </div>
       </div>
     </div>
   );

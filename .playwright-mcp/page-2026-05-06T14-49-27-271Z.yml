@@ -1,0 +1,162 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "S StayBot" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: S
+        - generic [ref=e9]: StayBot
+      - generic [ref=e10]:
+        - link "Home" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - text: Home
+        - link "Explore" [ref=e13] [cursor=pointer]:
+          - /url: /explore
+          - text: Explore
+        - link "AI Concierge" [ref=e14] [cursor=pointer]:
+          - /url: /chat
+          - text: AI Concierge
+        - link "Start Planning" [ref=e15] [cursor=pointer]:
+          - /url: /chat
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: AI-Powered Accommodation
+          - heading "Stay. Anywhere. Beautifully." [level=1] [ref=e26]:
+            - generic [ref=e27]: Stay.
+            - generic [ref=e28]: Anywhere.
+            - generic [ref=e29]: Beautifully.
+          - paragraph [ref=e30]: Your personal AI concierge for extraordinary stays in Bangkok, London, and Cape Town. Just describe what you want — it handles the rest.
+          - generic [ref=e31]:
+            - link "Talk to AI Concierge" [ref=e32] [cursor=pointer]:
+              - /url: /chat
+            - link "Browse Properties" [ref=e33] [cursor=pointer]:
+              - /url: /explore
+        - generic [ref=e35]: Scroll
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: 450+
+          - paragraph [ref=e42]: Curated Properties
+        - generic [ref=e43]:
+          - generic [ref=e44]: "3"
+          - paragraph [ref=e45]: World Cities
+        - generic [ref=e46]:
+          - generic [ref=e47]: 98%
+          - paragraph [ref=e48]: Guest Satisfaction
+        - generic [ref=e49]:
+          - generic [ref=e50]: 24/7
+          - paragraph [ref=e51]: AI Availability
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - paragraph [ref=e54]: Destinations
+          - heading "Three cities. Infinite possibilities." [level=2] [ref=e55]:
+            - text: Three cities.
+            - emphasis [ref=e56]: Infinite possibilities.
+        - generic [ref=e57]:
+          - link "Bangkok 01 City of Angels Bangkok Ancient temples meet modern skyline in Thailand's vibrant capital. 180 properties Explore →" [ref=e59] [cursor=pointer]:
+            - /url: /explore?city=Bangkok
+            - img "Bangkok" [ref=e60]
+            - generic [ref=e63]: "01"
+            - generic [ref=e64]:
+              - paragraph [ref=e65]: City of Angels
+              - heading "Bangkok" [level=3] [ref=e66]
+              - paragraph [ref=e67]: Ancient temples meet modern skyline in Thailand's vibrant capital.
+              - generic [ref=e68]:
+                - generic [ref=e69]: 180 properties
+                - generic [ref=e70]: Explore →
+          - link "London 02 The Great Metropolis London History, culture and cosmopolitan energy across the Thames. 165 properties Explore →" [ref=e72] [cursor=pointer]:
+            - /url: /explore?city=London
+            - img "London" [ref=e73]
+            - generic [ref=e76]: "02"
+            - generic [ref=e77]:
+              - paragraph [ref=e78]: The Great Metropolis
+              - heading "London" [level=3] [ref=e79]
+              - paragraph [ref=e80]: History, culture and cosmopolitan energy across the Thames.
+              - generic [ref=e81]:
+                - generic [ref=e82]: 165 properties
+                - generic [ref=e83]: Explore →
+          - link "Cape Town 03 Where Mountains Meet the Sea Cape Town Dramatic landscapes and world-class wine country await. 105 properties Explore →" [ref=e85] [cursor=pointer]:
+            - /url: /explore?city=Cape Town
+            - img "Cape Town" [ref=e86]
+            - generic [ref=e89]: "03"
+            - generic [ref=e90]:
+              - paragraph [ref=e91]: Where Mountains Meet the Sea
+              - heading "Cape Town" [level=3] [ref=e92]
+              - paragraph [ref=e93]: Dramatic landscapes and world-class wine country await.
+              - generic [ref=e94]:
+                - generic [ref=e95]: 105 properties
+                - generic [ref=e96]: Explore →
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - paragraph [ref=e100]: How it works
+          - heading "Intelligence built for travelers." [level=2] [ref=e101]:
+            - text: Intelligence built
+            - emphasis [ref=e102]: for travelers.
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - generic [ref=e105]: ✦
+            - paragraph [ref=e106]: "01"
+            - heading "Conversational AI" [level=3] [ref=e107]
+            - paragraph [ref=e108]: Tell the AI what you're looking for in plain language. It understands context, nuance, and vague preferences — no forms needed.
+          - generic [ref=e109]:
+            - generic [ref=e110]: ◈
+            - paragraph [ref=e111]: "02"
+            - heading "Smart Filtering" [level=3] [ref=e112]
+            - paragraph [ref=e113]: 450+ curated properties filtered in real time by price, guests, type, and neighborhood. Results in under a second.
+          - generic [ref=e114]:
+            - generic [ref=e115]: ◎
+            - paragraph [ref=e116]: "03"
+            - heading "Memory & Preferences" [level=3] [ref=e117]
+            - paragraph [ref=e118]: Your AI concierge learns your taste over time. Return visits start exactly where you left off.
+          - generic [ref=e119]:
+            - generic [ref=e120]: ⬡
+            - paragraph [ref=e121]: "04"
+            - heading "Complete Trip Planning" [level=3] [ref=e122]
+            - paragraph [ref=e123]: "From arrival to checkout: local tips, calendar blocking, and full booking flow — all in one conversation."
+      - generic [ref=e125]:
+        - generic [ref=e126]:
+          - paragraph [ref=e127]: AI Concierge
+          - heading "Just describe your perfect stay." [level=2] [ref=e128]:
+            - text: Just describe
+            - text: your perfect stay.
+          - paragraph [ref=e129]: No forms. No filters. Tell the AI exactly what you want in plain English and it finds the perfect match instantly.
+          - link "Try the AI Concierge →" [ref=e130] [cursor=pointer]:
+            - /url: /chat
+            - text: Try the AI Concierge
+            - generic [ref=e131]: →
+        - generic [ref=e133]:
+          - generic [ref=e139]: StayBot AI Concierge
+          - generic [ref=e141]:
+            - generic [ref=e143]: I need a cozy place in Bangkok near temples, max $70/night for 2
+            - generic [ref=e144]:
+              - generic [ref=e146]: S
+              - generic [ref=e147]: "I found 3 perfect matches near the Grand Palace district. Top pick: The Golden Loft — $65/night, rooftop terrace with temple views. Want details?"
+            - generic [ref=e149]: Yes! And can we do Dec 15–20?
+            - generic [ref=e150]:
+              - generic [ref=e152]: S
+              - generic [ref=e153]: "The Golden Loft is available Dec 15–20 (5 nights). Total: $325. Free cancellation until Dec 10. Shall I check you in?"
+            - generic [ref=e156]: S
+          - generic [ref=e162]:
+            - generic [ref=e163]: Ask about your next stay…
+            - button "→" [ref=e164]
+      - generic [ref=e168]:
+        - paragraph [ref=e169]: Ready to travel?
+        - heading "Your next great adventure awaits." [level=2] [ref=e170]:
+          - text: Your next great
+          - text: adventure awaits.
+        - generic [ref=e171]:
+          - link "Talk to AI Concierge" [ref=e172] [cursor=pointer]:
+            - /url: /chat
+          - link "Browse All Properties" [ref=e173] [cursor=pointer]:
+            - /url: /explore
+      - generic [ref=e175]:
+        - generic [ref=e176]: StayBot
+        - paragraph [ref=e177]: © 2025 StayBot. AI-powered accommodation discovery.
+        - generic [ref=e178]:
+          - link "Explore" [ref=e179] [cursor=pointer]:
+            - /url: /explore
+          - link "AI Concierge" [ref=e180] [cursor=pointer]:
+            - /url: /chat
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e186] [cursor=pointer]:
+    - img [ref=e187]

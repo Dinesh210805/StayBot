@@ -67,7 +67,7 @@ class KeyManager:
     """
 
     RATE_LIMIT_COOLDOWN = 60   # seconds to wait before retrying a rate-limited key
-    MAX_RETRIES = 3            # max attempts across keys before giving up
+    MAX_RETRIES = 5            # max attempts across keys before giving up
 
     def __init__(self, keys: list[str]):
         self._keys = keys
@@ -97,11 +97,12 @@ class KeyManager:
             self._usage[key] = self._usage.get(key, 0) + 1
             return key
 
-    def mark_rate_limited(self, key: str):
+    def mark_rate_limited(self, key: str, cooldown_seconds: float | None = None):
         """Mark a key as temporarily exhausted due to 429."""
+        cooldown = max(1, int(cooldown_seconds or self.RATE_LIMIT_COOLDOWN))
         with self._lock:
-            self._cooldown_until[key] = time.time() + self.RATE_LIMIT_COOLDOWN
-            print(f"[KEY-MANAGER] Key ...{key[-6:]} rate-limited, cooldown {self.RATE_LIMIT_COOLDOWN}s")
+            self._cooldown_until[key] = time.time() + cooldown
+            print(f"[KEY-MANAGER] Key ...{key[-6:]} rate-limited, cooldown {cooldown}s")
 
     def mark_bad(self, key: str):
         """Mark a key as permanently invalid (401)."""
@@ -128,6 +129,16 @@ class KeyManager:
                 for i, k in enumerate(self._keys)
             },
         }
+
+    def seconds_until_available(self) -> int:
+        """Return seconds until the next non-bad key exits cooldown."""
+        with self._lock:
+            now = time.time()
+            waits = [
+                t - now for k, t in self._cooldown_until.items()
+                if k not in self._bad_keys and t > now
+            ]
+        return max(1, int(min(waits))) if waits else 0
 
 
 key_manager = KeyManager(_API_KEYS)
@@ -158,20 +169,61 @@ TOOLS = [
 
 # ── Agent Builder with Cache ──────────────────────────────────────────────────
 
-_agent_cache: dict[str, object] = {}
+_agent_cache: dict[tuple[str, bool], object] = {}
+
+_TOOL_RETRY_PROMPT = """
+
+## Tool Calling Retry Mode
+- Use only the platform's native tool-call mechanism.
+- Do not write XML, pseudo-code, markdown code blocks, or raw `<function=...>` text.
+- If a tool is needed, call exactly one tool with valid JSON arguments.
+- If no tool is needed, answer directly in concise markdown.
+"""
 
 
-def _get_agent(api_key: str):
+def _get_agent(api_key: str, strict_tool_mode: bool = False):
     """Get or build a cached LangGraph agent for the given API key."""
-    if api_key not in _agent_cache:
+    cache_key = (api_key, strict_tool_mode)
+    if cache_key not in _agent_cache:
         llm = ChatGroq(
             model=GROQ_MODEL,
-            temperature=0.7,
-            max_tokens=2048,
+            temperature=0.2 if strict_tool_mode else 0.7,
+            max_tokens=600,
             api_key=api_key,
         )
-        _agent_cache[api_key] = create_react_agent(model=llm, tools=TOOLS, prompt=SYSTEM_PROMPT)
-    return _agent_cache[api_key]
+        prompt = SYSTEM_PROMPT + (_TOOL_RETRY_PROMPT if strict_tool_mode else "")
+        _agent_cache[cache_key] = create_react_agent(model=llm, tools=TOOLS, prompt=prompt)
+    return _agent_cache[cache_key]
+
+
+def _is_rate_limit_error(error_msg: str) -> bool:
+    """Return True when Groq reports a quota/rate-limit failure."""
+    normalized = error_msg.lower()
+    return "429" in error_msg or "rate_limit" in normalized or "rate limit" in normalized
+
+
+def _is_auth_error(error_msg: str) -> bool:
+    """Return True when Groq reports an invalid API key."""
+    normalized = error_msg.lower()
+    return "401" in error_msg or "invalid_api_key" in normalized or "invalid api key" in normalized
+
+
+def _is_tool_generation_error(error_msg: str) -> bool:
+    """Return True for transient model failures while emitting tool calls."""
+    normalized = error_msg.lower()
+    return (
+        "failed to call a function" in normalized
+        or "tool_use_failed" in normalized
+        or "failed_generation" in normalized
+    )
+
+
+def _retry_after_seconds(error_msg: str) -> float | None:
+    """Extract Groq's suggested retry delay when it is present in the error text."""
+    match = re.search(r"try again in\s+([0-9.]+)s", error_msg, re.IGNORECASE)
+    if match:
+        return float(match.group(1))
+    return None
 
 
 # ── Input Sanitization ───────────────────────────────────────────────────
@@ -214,18 +266,26 @@ async def chat(session_id: str, message: str) -> str:
     messages = chat_history + [HumanMessage(content=message)]
 
     last_error = None
+    strict_tool_retry = False
+    tool_generation_failures = 0
     for attempt in range(KeyManager.MAX_RETRIES):
         api_key = key_manager.get_next_key()
 
         if api_key is None:
             print("[AGENT] All keys exhausted or rate-limited")
+            wait_seconds = key_manager.seconds_until_available()
+            if wait_seconds:
+                return (
+                    "I'm experiencing high demand across all API keys. "
+                    f"Please try again in about {wait_seconds} seconds."
+                )
             return (
                 "I'm experiencing high demand across all API keys. "
                 "Please try again in a minute!"
             )
 
         try:
-            agent = _get_agent(api_key)
+            agent = _get_agent(api_key, strict_tool_mode=strict_tool_retry)
             result = await agent.ainvoke({"messages": messages})
 
             # Extract the last AI text response
@@ -251,20 +311,28 @@ async def chat(session_id: str, message: str) -> str:
             last_error = error_msg
             print(f"[AGENT] Attempt {attempt+1} failed with key ...{api_key[-6:]}: {error_msg[:120]}")
 
-            if "429" in error_msg or "rate_limit" in error_msg.lower():
-                key_manager.mark_rate_limited(api_key)
+            if _is_rate_limit_error(error_msg):
+                key_manager.mark_rate_limited(api_key, _retry_after_seconds(error_msg))
                 continue
-            elif "401" in error_msg or "invalid_api_key" in error_msg.lower():
+            elif _is_auth_error(error_msg):
                 key_manager.mark_bad(api_key)
                 # Invalidate cached agent for this key
-                _agent_cache.pop(api_key, None)
+                _agent_cache.pop((api_key, False), None)
+                _agent_cache.pop((api_key, True), None)
                 continue
-            elif "tool_use_failed" in error_msg:
-                # Bad tool call format — don't retry, return graceful message
-                return (
-                    "I had trouble processing that request. "
-                    "Could you rephrase it? For example: 'Find apartments in Bangkok under $100'"
-                )
+            elif _is_tool_generation_error(error_msg):
+                # Bad tool call format — retry with a stricter low-temperature agent.
+                tool_generation_failures += 1
+                if tool_generation_failures > 2:
+                    return (
+                        "I had trouble formatting that tool request. "
+                        "Could you rephrase it with the city, dates, budget, or listing ID?"
+                    )
+                print(f"[AGENT INFO] Groq tool execution failed on attempt {attempt+1}. Retrying...")
+                import asyncio
+                await asyncio.sleep(0.5)
+                strict_tool_retry = True
+                continue
             else:
                 # Unknown error — return immediately
                 print(f"[AGENT ERROR] Unhandled: {error_msg}")

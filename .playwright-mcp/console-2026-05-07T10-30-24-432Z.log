@@ -1,0 +1,57 @@
+[    1825ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2189ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2328ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[    2331ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[    2548ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/4040038/4040038-hd_1920_1080_25fps.mp4:0
+[    2743ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2815ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/2913374/2913374-hd_1920_1080_25fps.mp4:0
+[   97766ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   97853ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[   97853ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/2913374/2913374-hd_1920_1080_25fps.mp4:0
+[   97855ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[   97858ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/4040038/4040038-hd_1920_1080_25fps.mp4:0
+[   98077ms] [LOG] [Fast Refresh] done in 409ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98181ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98327ms] [LOG] [Fast Refresh] done in 249ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98462ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98635ms] [LOG] [Fast Refresh] done in 279ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98765ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98772ms] [LOG] [Fast Refresh] done in 115ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  102566ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  103132ms] [LOG] [Fast Refresh] done in 670ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  103193ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  103227ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/2913374/2913374-hd_1920_1080_25fps.mp4:0
+[  103227ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  103228ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/4040038/4040038-hd_1920_1080_25fps.mp4:0
+[  103362ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  103417ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  103642ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  120556ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1528181304800-26298f6dadce%3Fw%3D1200%26q%3D85&w=640&q=75:0
+[  133282ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1591789638128-5e2bcd95f9cf%3Fw%3D1200%26q%3D85&w=640&q=75:0
+[  151786ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  151875ms] [LOG] [Fast Refresh] done in 195ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  212089ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  212188ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  212189ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/2913374/2913374-hd_1920_1080_25fps.mp4:0
+[  212200ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/4040038/4040038-hd_1920_1080_25fps.mp4:0
+[  215866ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  217006ms] [LOG] [Fast Refresh] done in 1251ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  217110ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  217111ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/2913374/2913374-hd_1920_1080_25fps.mp4:0
+[  217111ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/4040038/4040038-hd_1920_1080_25fps.mp4:0
+[  217114ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://videos.pexels.com/video-files/3571264/3571264-hd_1920_1080_25fps.mp4:0
+[  217416ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  217497ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  217953ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  221086ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  221387ms] [LOG] [Fast Refresh] done in 403ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  236337ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  269545ms] [LOG] [Fast Refresh] done in 10330ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  281261ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  282797ms] [LOG] [Fast Refresh] done in 869ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  418104ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  418395ms] [LOG] [Fast Refresh] done in 405ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  542099ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  544252ms] [LOG] [Fast Refresh] done in 3280ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  599324ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  603824ms] [LOG] [Fast Refresh] done in 4675ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431

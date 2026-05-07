@@ -6,7 +6,7 @@ export interface Listing {
   city: string;
   country: string;
   price_per_night: number;
-  guests: number;
+  max_guests: number;
   bedrooms: number;
   bathrooms: number;
   property_type: string;
@@ -15,7 +15,7 @@ export interface Listing {
   review_count: number;
   description: string;
   amenities: string[];
-  images: string[];
+  picture_url: string | null;
   host_name: string;
   host_since: string;
   cancellation_policy: string;
@@ -23,14 +23,23 @@ export interface Listing {
   availability: boolean;
   latitude?: number;
   longitude?: number;
-  neighborhood?: string;
+  neighbourhood?: string;
+  cleaning_fee?: number;
+  service_fee?: number;
 }
 
 export interface ListingsResponse {
   listings: Listing[];
   total: number;
   page: number;
-  limit: number;
+  per_page: number;
+}
+
+export interface HealthResponse {
+  status: string;
+  version: string;
+  cities: string[];
+  total_listings: number;
 }
 
 export interface ChatMessage {
@@ -55,14 +64,20 @@ export interface UserProfile {
 }
 
 export interface Booking {
-  id: string;
+  reference: string;
   listing_id: string;
   listing_name: string;
+  city: string;
   check_in: string;
   check_out: string;
   guests: number;
   total_price: number;
   status: string;
+  picture_url?: string | null;
+}
+
+export interface BookingsResponse {
+  bookings: Booking[];
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -85,7 +100,7 @@ export const api = {
       guests?: number;
       property_type?: string;
       page?: number;
-      limit?: number;
+      per_page?: number;
     }): Promise<ListingsResponse> {
       const qs = new URLSearchParams();
       if (params) {
@@ -124,12 +139,12 @@ export const api = {
     get(name: string): Promise<UserProfile> {
       return apiFetch<UserProfile>(`/api/users/${name}`);
     },
-    bookings(name: string): Promise<Booking[]> {
-      return apiFetch<Booking[]>(`/api/users/${name}/bookings`);
+    bookings(name: string): Promise<BookingsResponse> {
+      return apiFetch<BookingsResponse>(`/api/users/${name}/bookings`);
     },
   },
 
-  health(): Promise<{ status: string }> {
-    return apiFetch<{ status: string }>("/health");
+  health(): Promise<HealthResponse> {
+    return apiFetch<HealthResponse>("/api/health");
   },
 };

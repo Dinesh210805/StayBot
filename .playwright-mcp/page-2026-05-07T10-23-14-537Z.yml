@@ -1,0 +1,94 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "StayBot N° 001 · Vol. I" [ref=e4]:
+        - /url: /
+        - generic [ref=e5]:
+          - text: Stay
+          - emphasis [ref=e6]: Bot
+        - generic [ref=e7]: N° 001 · Vol. I
+      - generic [ref=e8]:
+        - link "Index" [ref=e9]:
+          - /url: /
+        - link "Destinations" [ref=e10]:
+          - /url: /destinations
+        - link "Stays" [ref=e11]:
+          - /url: /explore
+        - link "Booking" [ref=e12]:
+          - /url: /booking
+        - link "Concierge" [ref=e13]:
+          - /url: /chat
+          - text: Concierge
+      - link "Begin →" [ref=e15]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e16]: →
+  - main [ref=e17]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - generic [ref=e25]: S
+            - generic [ref=e26]:
+              - paragraph [ref=e27]:
+                - text: The
+                - emphasis [ref=e28]: Concierge
+              - paragraph [ref=e29]: Bangkok · London · Cape Town
+          - generic [ref=e31]: Live
+        - generic [ref=e34]:
+          - generic [ref=e35]: S
+          - generic [ref=e36]:
+            - paragraph [ref=e37]:
+              - text: I'm your StayBot concierge. I curate stays in
+              - strong [ref=e38]: Bangkok
+              - text: ","
+              - strong [ref=e39]: London
+              - text: ", and"
+              - strong [ref=e40]: Cape Town
+              - text: .
+            - paragraph [ref=e41]: Tell me what you're looking for — vibe, dates, budget, neighborhood — and I'll surface the right matches.
+        - generic [ref=e42]:
+          - paragraph [ref=e43]: Try one of these
+          - generic [ref=e44]:
+            - button "Bangkok A cozy loft in Bangkok under $80, near temples" [ref=e45]:
+              - paragraph [ref=e46]: Bangkok
+              - paragraph [ref=e47]: A cozy loft in Bangkok under $80, near temples
+            - button "Cape Town Ocean-view villa in Cape Town for 4 guests" [ref=e48]:
+              - paragraph [ref=e49]: Cape Town
+              - paragraph [ref=e50]: Ocean-view villa in Cape Town for 4 guests
+            - button "London Quiet studio in Marylebone near the tube" [ref=e51]:
+              - paragraph [ref=e52]: London
+              - paragraph [ref=e53]: Quiet studio in Marylebone near the tube
+            - button "Top picks Most-loved stays with a pool" [ref=e54]:
+              - paragraph [ref=e55]: Top picks
+              - paragraph [ref=e56]: Most-loved stays with a pool
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - textbox "Describe your perfect stay…" [ref=e59]
+            - button "→" [disabled] [ref=e60]
+          - paragraph [ref=e61]: Enter to send · Shift+Enter for new line
+      - complementary [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - paragraph [ref=e65]: Live · Curated for you
+            - paragraph [ref=e66]: As we talk…
+          - link "See all" [ref=e67]:
+            - /url: /explore
+        - generic [ref=e68]:
+          - img [ref=e69]:
+            - generic [ref=e77]: LDN
+            - generic [ref=e82]: BKK
+            - generic [ref=e87]: CPT
+          - generic [ref=e91]:
+            - generic [ref=e92]: Sample atlas
+            - generic [ref=e93]: 3 cities
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: No matches yet
+          - paragraph [ref=e97]: Tell me what you're looking for →
+        - link "Open the calendar →" [ref=e99]:
+          - /url: /booking
+          - text: Open the calendar
+          - generic [ref=e100]: →
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e106] [cursor=pointer]:
+    - img [ref=e107]

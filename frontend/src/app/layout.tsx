@@ -2,39 +2,42 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/nav/Navigation";
 import { Toaster } from "sonner";
+import Cursor from "@/components/fx/Cursor";
+import SmoothScroll from "@/components/providers/SmoothScroll";
 
 export const metadata: Metadata = {
-  title: "StayBot — AI-Powered Accommodation",
+  title: "StayBot — A Living Atlas of Stays",
   description:
-    "Discover extraordinary stays in Bangkok, London, and Cape Town. Your personal AI concierge for unforgettable accommodations.",
-  keywords: ["travel", "accommodation", "AI", "Bangkok", "London", "Cape Town"],
+    "An AI concierge for extraordinary stays in Bangkok, London, and Cape Town. Describe what you want — we curate where you sleep.",
+  keywords: ["travel", "AI concierge", "Bangkok", "London", "Cape Town", "luxury stays"],
   openGraph: {
-    title: "StayBot — AI-Powered Accommodation",
-    description: "Your personal AI concierge for extraordinary stays.",
+    title: "StayBot — A Living Atlas of Stays",
+    description: "An AI concierge for extraordinary stays.",
     type: "website",
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full">
-        <Navigation />
-        <main>{children}</main>
-        <Toaster
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: "var(--bg-elevated)",
-              border: "1px solid var(--border)",
-              color: "var(--text-primary)",
-            },
-          }}
-        />
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-full" suppressHydrationWarning>
+        <SmoothScroll>
+          <Cursor />
+          <Navigation />
+          <main>{children}</main>
+          <Toaster
+            theme="light"
+            toastOptions={{
+              style: {
+                background: "#FBF6EA",
+                border: "1px solid #DACFB7",
+                color: "#0E1110",
+              },
+            }}
+          />
+        </SmoothScroll>
       </body>
     </html>
   );

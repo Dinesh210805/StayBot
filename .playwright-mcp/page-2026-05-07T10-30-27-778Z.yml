@@ -1,0 +1,491 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "StayBot N° 001 · Vol. I" [ref=e4]:
+        - /url: /
+        - generic [ref=e5]:
+          - text: Stay
+          - emphasis [ref=e6]: Bot
+        - generic [ref=e7]: N° 001 · Vol. I
+      - generic [ref=e8]:
+        - link "Index" [ref=e9]:
+          - /url: /
+          - text: Index
+        - link "Destinations" [ref=e11]:
+          - /url: /destinations
+        - link "Stays" [ref=e12]:
+          - /url: /explore
+        - link "Booking" [ref=e13]:
+          - /url: /booking
+        - link "Concierge" [ref=e14]:
+          - /url: /chat
+      - link "Begin →" [ref=e15]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e16]: →
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - text: Stay
+          - emphasis [ref=e22]: Bot
+        - generic [ref=e23]: 000 / 100
+      - generic [ref=e24]:
+        - paragraph [ref=e25]: A Living Atlas · Vol. I · 2025
+        - img [ref=e27]
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: ยินดีต้อนรับ
+          - paragraph [ref=e35]: from Bangkok
+      - generic [ref=e38]: Curating
+    - generic [ref=e39]:
+      - generic [ref=e41]:
+        - generic:
+          - generic: 13.7563° N · 100.5018° E
+          - generic: 33.9249° S · 18.4241° E
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]: EST · MMXXV
+            - generic [ref=e45]: Concierge online
+            - generic [ref=e47]: Issue I · 5.07.26
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - paragraph [ref=e50]: A Living Atlas of Stays
+              - heading "Where you sleep is the story." [level=1] [ref=e51]:
+                - generic [ref=e52]:
+                  - generic [ref=e54]: Where you
+                  - generic [ref=e57]:
+                    - text: sleep
+                    - emphasis [ref=e58]: is the
+                  - generic [ref=e61]:
+                    - emphasis [ref=e62]: story
+                    - text: .
+              - paragraph [ref=e63]:
+                - text: StayBot is your AI concierge for extraordinary stays in
+                - emphasis [ref=e65]: Bangkok
+                - generic [ref=e66]:
+                  - text: ","
+                  - emphasis [ref=e67]: London
+                - generic [ref=e68]:
+                  - text: ", and"
+                  - emphasis [ref=e69]: Cape Town
+                - text: . Describe what you want — we curate where you sleep.
+              - generic [ref=e70]:
+                - link "Begin a conversation →" [ref=e71]:
+                  - /url: /chat
+                  - text: Begin a conversation
+                  - generic [ref=e72]: →
+                - link "See destinations" [ref=e73]:
+                  - /url: /destinations
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - img [ref=e77]
+                - generic [ref=e80]:
+                  - generic [ref=e81]: Plate 001
+                  - generic [ref=e82]: Bangkok · Live
+                - generic [ref=e86]: 13.7563° N · 100.5018° E
+              - generic [ref=e87]:
+                - generic [ref=e88]: Live · Free Stock · Pexels
+                - generic [ref=e89]: —
+                - generic [ref=e90]: FIG. 01
+          - generic:
+            - generic:
+              - generic: Scroll
+              - generic: ↓
+        - generic [ref=e92]:
+          - link "/01 The Atlas Three cities, hand-picked." [ref=e93]:
+            - /url: /destinations
+            - generic [ref=e95]: /01
+            - heading "The Atlas" [level=3] [ref=e96]
+            - paragraph [ref=e97]: Three cities, hand-picked.
+          - link "/02 The Stays 450 properties, no algorithm." [ref=e98]:
+            - /url: /explore
+            - generic [ref=e100]: /02
+            - heading "The Stays" [level=3] [ref=e101]
+            - paragraph [ref=e102]: 450 properties, no algorithm.
+          - link "/03 The Calendar Hold your dates." [ref=e103]:
+            - /url: /booking
+            - generic [ref=e105]: /03
+            - heading "The Calendar" [level=3] [ref=e106]
+            - paragraph [ref=e107]: Hold your dates.
+          - link "/04 The Concierge Speak. It will listen." [ref=e108]:
+            - /url: /chat
+            - generic [ref=e110]: /04
+            - heading "The Concierge" [level=3] [ref=e111]
+            - paragraph [ref=e112]: Speak. It will listen.
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]: Bangkok · 180 Curated Stays
+            - generic [ref=e118]: ·
+          - generic [ref=e119]:
+            - generic [ref=e120]: London · 165 Curated Stays
+            - generic [ref=e121]: ·
+          - generic [ref=e122]:
+            - generic [ref=e123]: Cape Town · 105 Curated Stays
+            - generic [ref=e124]: ·
+          - generic [ref=e125]:
+            - generic [ref=e126]: AI Concierge · Always On
+            - generic [ref=e127]: ·
+          - generic [ref=e128]:
+            - generic [ref=e129]: Free Cancellation Available
+            - generic [ref=e130]: ·
+          - generic [ref=e131]:
+            - generic [ref=e132]: Describe It · We Curate It
+            - generic [ref=e133]: ·
+          - generic [ref=e134]:
+            - generic [ref=e135]: Hand-Picked. Not Algorithmic.
+            - generic [ref=e136]: ·
+          - generic [ref=e137]:
+            - generic [ref=e138]: From Inquiry to Arrival
+            - generic [ref=e139]: ·
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - generic [ref=e142]: Bangkok · 180 Curated Stays
+            - generic [ref=e143]: ·
+          - generic [ref=e144]:
+            - generic [ref=e145]: London · 165 Curated Stays
+            - generic [ref=e146]: ·
+          - generic [ref=e147]:
+            - generic [ref=e148]: Cape Town · 105 Curated Stays
+            - generic [ref=e149]: ·
+          - generic [ref=e150]:
+            - generic [ref=e151]: AI Concierge · Always On
+            - generic [ref=e152]: ·
+          - generic [ref=e153]:
+            - generic [ref=e154]: Free Cancellation Available
+            - generic [ref=e155]: ·
+          - generic [ref=e156]:
+            - generic [ref=e157]: Describe It · We Curate It
+            - generic [ref=e158]: ·
+          - generic [ref=e159]:
+            - generic [ref=e160]: Hand-Picked. Not Algorithmic.
+            - generic [ref=e161]: ·
+          - generic [ref=e162]:
+            - generic [ref=e163]: From Inquiry to Arrival
+            - generic [ref=e164]: ·
+      - generic [ref=e166]:
+        - generic [ref=e167]:
+          - generic [ref=e168]:
+            - generic [ref=e169]: "0"
+            - generic [ref=e170]: +
+          - paragraph [ref=e171]: Curated stays
+        - generic [ref=e172]:
+          - generic [ref=e174]: "0"
+          - paragraph [ref=e175]: World cities
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - generic [ref=e178]: "0"
+            - generic [ref=e179]: "%"
+          - paragraph [ref=e180]: Guest satisfaction
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e183]: "0"
+            - generic [ref=e184]: /7
+          - paragraph [ref=e185]: Concierge hours
+      - generic [ref=e186]:
+        - generic [ref=e187]:
+          - paragraph [ref=e190]: /01 · Approach
+          - generic [ref=e191]:
+            - heading "We don't sell rooms. We compose arrivals." [level=2] [ref=e192]:
+              - generic [ref=e194]: We don't sell rooms.
+              - generic [ref=e197]:
+                - text: We compose
+                - emphasis [ref=e198]: arrivals
+                - text: .
+            - paragraph [ref=e200]: Travel software flattens where you sleep into a search result. We rebuild it as a conversation — one that knows the difference between a balcony and a view, between a quiet street and a lonely one.
+        - generic [ref=e201]:
+          - link "Bangkok N° 01 13.7563° N · 100.5018° E City of Angels, City of Light Bangkok →" [ref=e204]:
+            - /url: /destinations/bangkok
+            - img "Bangkok" [ref=e205]
+            - generic [ref=e207]:
+              - generic [ref=e208]: N° 01
+              - generic [ref=e209]: 13.7563° N · 100.5018° E
+            - generic [ref=e210]:
+              - paragraph [ref=e211]: City of Angels, City of Light
+              - heading "Bangkok" [level=3] [ref=e212]
+            - generic [ref=e213]: →
+          - link "London N° 02 51.5074° N · 0.1278° W The Great Metropolis London →" [ref=e216]:
+            - /url: /destinations/london
+            - img "London" [ref=e217]
+            - generic [ref=e219]:
+              - generic [ref=e220]: N° 02
+              - generic [ref=e221]: 51.5074° N · 0.1278° W
+            - generic [ref=e222]:
+              - paragraph [ref=e223]: The Great Metropolis
+              - heading "London" [level=3] [ref=e224]
+            - generic [ref=e225]: →
+          - generic [ref=e226]:
+            - paragraph [ref=e227]: N° 003
+            - paragraph [ref=e228]: “We slept here so you could too.”
+            - paragraph [ref=e229]: — The Editors
+          - link "Cape Town N° 03 33.9249° S · 18.4241° E Where Two Oceans Meet Cape Town →" [ref=e232]:
+            - /url: /destinations/cape-town
+            - img "Cape Town" [ref=e233]
+            - generic [ref=e235]:
+              - generic [ref=e236]: N° 03
+              - generic [ref=e237]: 33.9249° S · 18.4241° E
+            - generic [ref=e238]:
+              - paragraph [ref=e239]: Where Two Oceans Meet
+              - heading "Cape Town" [level=3] [ref=e240]
+            - generic [ref=e241]: →
+      - generic [ref=e242]:
+        - generic [ref=e243]: Field Notes · Vol. I
+        - generic [ref=e244]:
+          - generic [ref=e245]:
+            - img "Bangkok" [ref=e246]
+            - generic [ref=e248]:
+              - generic [ref=e249]: Bangkok
+              - generic [ref=e250]: "01"
+            - generic [ref=e251]: 13.7563° N
+          - generic [ref=e252]:
+            - img "Bangkok" [ref=e253]
+            - generic [ref=e255]:
+              - generic [ref=e256]: Bangkok
+              - generic [ref=e257]: "02"
+            - generic [ref=e258]: 13.7563° N
+          - generic [ref=e259]:
+            - img "Bangkok" [ref=e260]
+            - generic [ref=e262]:
+              - generic [ref=e263]: Bangkok
+              - generic [ref=e264]: "03"
+            - generic [ref=e265]: 13.7563° N
+          - generic [ref=e266]:
+            - img "Bangkok" [ref=e267]
+            - generic [ref=e269]:
+              - generic [ref=e270]: Bangkok
+              - generic [ref=e271]: "04"
+            - generic [ref=e272]: 13.7563° N
+          - generic [ref=e273]:
+            - img "London" [ref=e274]
+            - generic [ref=e276]:
+              - generic [ref=e277]: London
+              - generic [ref=e278]: "05"
+            - generic [ref=e279]: 51.5074° N
+          - generic [ref=e280]:
+            - img "London" [ref=e281]
+            - generic [ref=e283]:
+              - generic [ref=e284]: London
+              - generic [ref=e285]: "06"
+            - generic [ref=e286]: 51.5074° N
+          - generic [ref=e287]:
+            - img "London" [ref=e288]
+            - generic [ref=e290]:
+              - generic [ref=e291]: London
+              - generic [ref=e292]: "07"
+            - generic [ref=e293]: 51.5074° N
+          - generic [ref=e294]:
+            - img "London" [ref=e295]
+            - generic [ref=e297]:
+              - generic [ref=e298]: London
+              - generic [ref=e299]: "08"
+            - generic [ref=e300]: 51.5074° N
+          - generic [ref=e301]:
+            - img "Cape Town" [ref=e302]
+            - generic [ref=e304]:
+              - generic [ref=e305]: Cape Town
+              - generic [ref=e306]: "09"
+            - generic [ref=e307]: 33.9249° S
+          - generic [ref=e308]:
+            - img "Cape Town" [ref=e309]
+            - generic [ref=e311]:
+              - generic [ref=e312]: Cape Town
+              - generic [ref=e313]: "10"
+            - generic [ref=e314]: 33.9249° S
+          - generic [ref=e315]:
+            - img "Cape Town" [ref=e316]
+            - generic [ref=e318]:
+              - generic [ref=e319]: Cape Town
+              - generic [ref=e320]: "11"
+            - generic [ref=e321]: 33.9249° S
+          - generic [ref=e322]:
+            - img "Cape Town" [ref=e323]
+            - generic [ref=e325]:
+              - generic [ref=e326]: Cape Town
+              - generic [ref=e327]: "12"
+            - generic [ref=e328]: 33.9249° S
+          - generic [ref=e329]:
+            - img "Bangkok" [ref=e330]
+            - generic [ref=e332]: Bangkok
+          - generic [ref=e333]:
+            - img "Bangkok" [ref=e334]
+            - generic [ref=e336]: Bangkok
+          - generic [ref=e337]:
+            - img "Bangkok" [ref=e338]
+            - generic [ref=e340]: Bangkok
+          - generic [ref=e341]:
+            - img "Bangkok" [ref=e342]
+            - generic [ref=e344]: Bangkok
+        - generic [ref=e345]: Drag to browse ·
+      - generic [ref=e348]:
+        - img [ref=e351]
+        - img [ref=e357]
+        - img [ref=e362]
+        - generic [ref=e366]:
+          - generic [ref=e367]:
+            - generic [ref=e368]: Destinations · Vol. I
+            - generic [ref=e369]: 01 / 03
+          - generic [ref=e371]:
+            - generic [ref=e372]:
+              - generic [ref=e373]:
+                - paragraph [ref=e374]: City of Angels, City of Light
+                - heading "B a n g k o k" [level=3] [ref=e375]:
+                  - generic [ref=e376]: B
+                  - generic [ref=e377]: a
+                  - generic [ref=e378]: "n"
+                  - generic [ref=e379]: g
+                  - generic [ref=e380]: k
+                  - generic [ref=e381]: o
+                  - generic [ref=e382]: k
+                - paragraph [ref=e383]: กรุงเทพมหานคร
+              - generic [ref=e384]:
+                - paragraph [ref=e385]: The Great Metropolis
+                - heading "L o n d o n" [level=3] [ref=e386]:
+                  - generic [ref=e387]: L
+                  - generic [ref=e388]: o
+                  - generic [ref=e389]: "n"
+                  - generic [ref=e390]: d
+                  - generic [ref=e391]: o
+                  - generic [ref=e392]: "n"
+                - paragraph [ref=e393]: Lundúnir
+              - generic [ref=e394]:
+                - paragraph [ref=e395]: Where Two Oceans Meet
+                - heading "C a p e T o w n" [level=3] [ref=e396]:
+                  - generic [ref=e397]: C
+                  - generic [ref=e398]: a
+                  - generic [ref=e399]: p
+                  - generic [ref=e400]: e
+                  - generic [ref=e402]: T
+                  - generic [ref=e403]: o
+                  - generic [ref=e404]: w
+                  - generic [ref=e405]: "n"
+                - paragraph [ref=e406]: Kaapstad · iKapa
+            - generic [ref=e407]:
+              - generic [ref=e408]:
+                - paragraph [ref=e409]: Bangkok hums in two registers — the gilded baritone of its temples and the electric soprano of its markets. Stay here long enough and the city teaches you how to listen.
+                - generic [ref=e410]:
+                  - generic [ref=e411]:
+                    - generic [ref=e412]: Coordinate
+                    - generic [ref=e413]: 13.7563° N · 100.5018° E
+                  - generic [ref=e414]:
+                    - generic [ref=e415]: Stays
+                    - generic [ref=e416]: 180 curated
+                - link "Wander Bangkok →" [ref=e417]:
+                  - /url: /destinations/bangkok
+                  - generic [ref=e418]: Wander Bangkok
+                  - generic [ref=e419]: →
+              - generic [ref=e420]:
+                - paragraph [ref=e421]: London is an argument between centuries. Stay here long enough and you start to hear it — the Roman wall under the office block, the old river under the new road, the ghost coffee house on the corner of the bank.
+                - generic [ref=e422]:
+                  - generic [ref=e423]:
+                    - generic [ref=e424]: Coordinate
+                    - generic [ref=e425]: 51.5074° N · 0.1278° W
+                  - generic [ref=e426]:
+                    - generic [ref=e427]: Stays
+                    - generic [ref=e428]: 165 curated
+                - link "Wander London →" [ref=e429]:
+                  - /url: /destinations/london
+                  - generic [ref=e430]: Wander London
+                  - generic [ref=e431]: →
+              - generic [ref=e432]:
+                - paragraph [ref=e433]: Cape Town is geography first, city second. The mountain decides where the streets can go. The ocean decides what the light will do. You don't visit it so much as stay out of its way.
+                - generic [ref=e434]:
+                  - generic [ref=e435]:
+                    - generic [ref=e436]: Coordinate
+                    - generic [ref=e437]: 33.9249° S · 18.4241° E
+                  - generic [ref=e438]:
+                    - generic [ref=e439]: Stays
+                    - generic [ref=e440]: 105 curated
+                - link "Wander Cape Town →" [ref=e441]:
+                  - /url: /destinations/cape-town
+                  - generic [ref=e442]: Wander Cape Town
+                  - generic [ref=e443]: →
+          - paragraph [ref=e455]: Scroll to wander
+      - generic [ref=e457]:
+        - generic [ref=e458]:
+          - paragraph [ref=e461]: /02 · Principles
+          - heading "Four ideas we keep close." [level=2] [ref=e463]:
+            - generic [ref=e465]: Four ideas
+            - generic [ref=e468]:
+              - text: we keep
+              - emphasis [ref=e469]: close
+              - text: .
+        - generic [ref=e470]:
+          - generic [ref=e472]:
+            - generic [ref=e473]: I
+            - paragraph [ref=e474]: I
+            - heading "Conversation, not forms" [level=3] [ref=e475]
+            - paragraph [ref=e476]: Tell us what you want in plain language. The concierge handles the rest.
+          - generic [ref=e478]:
+            - generic [ref=e479]: II
+            - paragraph [ref=e480]: II
+            - heading "Curated, not crowded" [level=3] [ref=e481]
+            - paragraph [ref=e482]: Hand-picked stays. No infinite scroll. Just places worth waking up in.
+          - generic [ref=e484]:
+            - generic [ref=e485]: III
+            - paragraph [ref=e486]: III
+            - heading "Memory that travels" [level=3] [ref=e487]
+            - paragraph [ref=e488]: Your concierge remembers. The next conversation begins where the last one ended.
+          - generic [ref=e490]:
+            - generic [ref=e491]: IV
+            - paragraph [ref=e492]: IV
+            - heading "From inquiry to arrival" [level=3] [ref=e493]
+            - paragraph [ref=e494]: Calendar, neighborhood, transit, restaurants — handled inside one conversation.
+      - generic [ref=e496]:
+        - generic [ref=e497]:
+          - paragraph [ref=e499]: /03 · The Concierge
+          - heading "Speak. It will listen." [level=2] [ref=e500]:
+            - generic [ref=e502]: Speak. It will
+            - generic [ref=e505]:
+              - emphasis [ref=e506]: listen
+              - text: .
+          - paragraph [ref=e508]: No forms. No filters. Tell the concierge exactly what you want — quiet, walkable, near a temple, under £200 — and it curates from 450+ hand-picked stays.
+          - link "Try the concierge →" [ref=e510]:
+            - /url: /chat
+            - text: Try the concierge
+            - generic [ref=e511]: →
+        - generic [ref=e513]:
+          - generic [ref=e514]:
+            - generic [ref=e519]: StayBot · Concierge
+            - generic [ref=e522]: Live
+          - generic [ref=e523]:
+            - generic [ref=e525]: I want a quiet place in Bangkok with rooftop views, near temples, under $80.
+            - generic [ref=e526]:
+              - generic [ref=e528]: S
+              - generic [ref=e529]: "Three matches. Top pick: The Golden Loft — $65/night, rooftop facing Wat Arun, 5-min walk to the river."
+            - generic [ref=e531]: Yes — and Dec 15–20.
+            - generic [ref=e532]:
+              - generic [ref=e534]: S
+              - generic [ref=e535]: Available. Five nights at $325 total. Free cancellation until Dec 10. Should I hold the dates?
+          - generic [ref=e536]:
+            - generic [ref=e537]: Describe your perfect stay…
+            - button "→" [ref=e538]
+      - generic [ref=e541]:
+        - paragraph [ref=e543]: Now boarding · Concierge online
+        - heading "Your next arrival awaits." [level=2] [ref=e544]:
+          - generic [ref=e546]: Your next
+          - generic [ref=e549]:
+            - emphasis [ref=e550]: arrival
+            - text: awaits.
+        - generic [ref=e552]:
+          - link "Begin a conversation →" [ref=e553]:
+            - /url: /chat
+            - text: Begin a conversation
+            - generic [ref=e554]: →
+          - link "Browse all stays" [ref=e555]:
+            - /url: /explore
+      - generic [ref=e557]:
+        - generic [ref=e558]:
+          - text: Stay
+          - emphasis [ref=e559]: Bot
+        - paragraph [ref=e560]: © 2025 · A Living Atlas · Made with care
+        - generic [ref=e561]:
+          - link "Destinations" [ref=e562]:
+            - /url: /destinations
+          - link "Stays" [ref=e563]:
+            - /url: /explore
+          - link "Concierge" [ref=e564]:
+            - /url: /chat
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e570] [cursor=pointer]:
+    - img [ref=e571]
+  - alert [ref=e574]

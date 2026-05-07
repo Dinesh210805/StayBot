@@ -21,6 +21,7 @@ from sqlalchemy import (
     Date,
     DateTime,
 )
+from sqlalchemy.exc import DBAPIError, OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from datetime import datetime
 
@@ -34,10 +35,15 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
-    engine = create_engine(DATABASE_URL, echo=False)
+    engine = create_engine(
+        DATABASE_URL,
+        echo=False,
+        pool_pre_ping=True,
+        pool_recycle=300,
+    )
 else:
     engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 Base = declarative_base()
 
 
@@ -216,6 +222,40 @@ def get_session() -> Session:
     return SessionLocal()
 
 
+def _is_disconnect_error(exc: Exception) -> bool:
+    """Return True for stale/dropped database connections that are safe to retry."""
+    if isinstance(exc, DBAPIError) and exc.connection_invalidated:
+        return True
+
+    message = str(exc).lower()
+    return (
+        "ssl connection has been closed" in message
+        or "server closed the connection unexpectedly" in message
+        or "connection already closed" in message
+    )
+
+
+def _run_db_read(operation):
+    """Run a read operation, retrying once if the pooled connection was stale."""
+    last_error = None
+    for attempt in range(2):
+        session = SessionLocal()
+        try:
+            return operation(session)
+        except (OperationalError, DBAPIError) as exc:
+            session.rollback()
+            last_error = exc
+            if attempt == 0 and _is_disconnect_error(exc):
+                print("[DB] Stale connection detected; disposing pool and retrying read")
+                engine.dispose()
+                continue
+            raise
+        finally:
+            session.close()
+
+    raise last_error
+
+
 def search_listings(
     city: str = None,
     min_price: float = None,
@@ -231,8 +271,7 @@ def search_listings(
     # Clamp limit to sane range
     limit = max(1, min(limit, 100))
 
-    session = SessionLocal()
-    try:
+    def _operation(session: Session) -> list[dict]:
         query = session.query(Listing)
 
         if city:
@@ -260,24 +299,22 @@ def search_listings(
         results = query.limit(limit).all()
 
         return [_listing_to_dict(r) for r in results]
-    finally:
-        session.close()
+
+    return _run_db_read(_operation)
 
 
 def get_listing_by_id(listing_id: int) -> dict | None:
     """Get a single listing by ID."""
-    session = SessionLocal()
-    try:
+    def _operation(session: Session) -> dict | None:
         listing = session.query(Listing).filter(Listing.id == listing_id).first()
         return _listing_to_dict(listing) if listing else None
-    finally:
-        session.close()
+
+    return _run_db_read(_operation)
 
 
 def get_listing_reviews(listing_id: int, limit: int = 10) -> list[dict]:
     """Get reviews for a specific listing."""
-    session = SessionLocal()
-    try:
+    def _operation(session: Session) -> list[dict]:
         reviews = (
             session.query(Review)
             .filter(Review.listing_id == listing_id)
@@ -286,28 +323,26 @@ def get_listing_reviews(listing_id: int, limit: int = 10) -> list[dict]:
             .all()
         )
         return [_review_to_dict(r) for r in reviews]
-    finally:
-        session.close()
+
+    return _run_db_read(_operation)
 
 
 def get_all_cities() -> list[str]:
     """Get a list of all unique cities in the dataset."""
-    session = SessionLocal()
-    try:
+    def _operation(session: Session) -> list[str]:
         cities = session.query(Listing.city).distinct().all()
         return [c[0] for c in cities]
-    finally:
-        session.close()
+
+    return _run_db_read(_operation)
 
 
 def get_listings_by_ids(listing_ids: list[int]) -> list[dict]:
     """Get multiple listings by their IDs."""
-    session = SessionLocal()
-    try:
+    def _operation(session: Session) -> list[dict]:
         listings = session.query(Listing).filter(Listing.id.in_(listing_ids)).all()
         return [_listing_to_dict(l) for l in listings]
-    finally:
-        session.close()
+
+    return _run_db_read(_operation)
 
 
 # ── Serialization Helpers ──────────────────────────────────────────────────────
