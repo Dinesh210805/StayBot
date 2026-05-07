@@ -160,25 +160,24 @@ export default function HomePage() {
                     / A Living Atlas of Stays
                   </motion.p>
 
-                  <h1 className="leading-[0.84] tracking-[-0.03em] text-white overflow-hidden">
-                    <RevealLines
-                      lines={[
-                        <span key="a" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block">
-                          Where
-                        </span>,
-                        <span key="b" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block pl-[12%]">
-                          you <em className="italic-display" style={{ color: "var(--ochre)" }}>sleep</em>
-                        </span>,
-                        <span key="c" className="font-display text-[clamp(1.1rem,2.8vw,2.8rem)] block opacity-35 tracking-[0.02em]">
-                          — is the —
-                        </span>,
-                        <span key="d" className="font-display italic-display text-[clamp(4rem,11.5vw,11.5rem)] block" style={{ color: "var(--terra)" }}>
-                          story.
-                        </span>,
-                      ]}
-                      as="span"
-                      className="block"
-                    />
+                  <h1 className="leading-[0.84] tracking-[-0.03em] text-white">
+                    {[
+                      <span key="a" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block">Where</span>,
+                      <span key="b" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block pl-[12%]">you <em className="italic-display" style={{ color: "var(--ochre)" }}>sleep</em></span>,
+                      <span key="c" className="font-display text-[clamp(1.1rem,2.8vw,2.8rem)] block opacity-35 tracking-[0.02em]">— is the —</span>,
+                      <span key="d" className="font-display italic-display text-[clamp(4rem,11.5vw,11.5rem)] block" style={{ color: "var(--terra)" }}>story.</span>,
+                    ].map((line, i) => (
+                      <span key={i} className="block overflow-hidden" style={{ paddingBottom: "0.05em" }}>
+                        <motion.span
+                          className="block"
+                          initial={{ y: "110%" }}
+                          animate={{ y: loaderDone ? "0%" : "110%" }}
+                          transition={{ duration: 1.0, ease: easeOutExpo, delay: 0.35 + i * 0.08 }}
+                        >
+                          {line}
+                        </motion.span>
+                      </span>
+                    ))}
                   </h1>
                 </div>
 
