@@ -13,3 +13,14 @@ requests>=2.31.0
 psycopg2-binary>=2.9.0
 pinecone-client>=5.0.0
 langchain-pinecone>=0.2.0
+# Structured logging
+structlog>=24.0.0
+# Terminal TUI dashboard
+rich>=13.0.0
+# LLM tracing
+langsmith>=0.1.0
+# Rate limiting
+slowapi>=0.1.9
+# RAG evaluation
+ragas>=0.2.0
+datasets>=2.20.0

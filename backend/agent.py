@@ -9,14 +9,24 @@ it marks it as temporarily exhausted and tries the next key.
 import os
 import re
 import time
+import uuid
+import statistics
 import threading
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage
 
+from backend.logger import get_logger
 from backend.prompts import SYSTEM_PROMPT
 from backend.memory import memory_store
+from backend.observability import (
+    RequestContext,
+    RequestRecord,
+    set_request_context,
+    get_request_context,
+    metrics_store,
+)
 from backend.tools.search_tool import search_listings_semantic
 from backend.tools.sql_tool import filter_listings
 from backend.tools.faq_tool import search_faqs
@@ -53,7 +63,8 @@ if not _API_KEYS:
         "No Groq API keys found. Set GROQ_API_KEY_1, GROQ_API_KEY_2, GROQ_API_KEY_3 in .env"
     )
 
-print(f"[AGENT] Loaded {len(_API_KEYS)} Groq API key(s) — round-robin enabled")
+log = get_logger("agent")
+log.info("agent.keys_loaded", key_count=len(_API_KEYS))
 
 # ── Round-Robin Key Manager ────────────────────────────────────────────────────
 
@@ -102,13 +113,13 @@ class KeyManager:
         cooldown = max(1, int(cooldown_seconds or self.RATE_LIMIT_COOLDOWN))
         with self._lock:
             self._cooldown_until[key] = time.time() + cooldown
-            print(f"[KEY-MANAGER] Key ...{key[-6:]} rate-limited, cooldown {cooldown}s")
+            log.warning("key_manager.rate_limited", key_suffix=key[-6:], cooldown_s=cooldown)
 
     def mark_bad(self, key: str):
         """Mark a key as permanently invalid (401)."""
         with self._lock:
             self._bad_keys.add(key)
-            print(f"[KEY-MANAGER] Key ...{key[-6:]} marked as invalid (auth error)")
+            log.error("key_manager.invalid_key", key_suffix=key[-6:])
 
     def status(self) -> dict:
         """Return current key status for monitoring."""
@@ -140,6 +151,26 @@ class KeyManager:
             ]
         return max(1, int(min(waits))) if waits else 0
 
+    def each_key_status(self) -> list[dict]:
+        """Return per-key status for TUI dashboard."""
+        now = time.time()
+        with self._lock:
+            result = []
+            for i, key in enumerate(self._keys):
+                if key in self._bad_keys:
+                    state, eta = "INVALID", None
+                elif self._cooldown_until[key] > now:
+                    state, eta = "COOLING", int(self._cooldown_until[key] - now)
+                else:
+                    state, eta = "READY", None
+                result.append({
+                    "index": i + 1,
+                    "state": state,
+                    "eta_seconds": eta,
+                    "usage": self._usage.get(key, 0),
+                })
+        return result
+
 
 key_manager = KeyManager(_API_KEYS)
 
@@ -169,7 +200,10 @@ TOOLS = [
 
 # ── Agent Builder with Cache ──────────────────────────────────────────────────
 
-_agent_cache: dict[tuple[str, bool], object] = {}
+_TOOL_BY_NAME = {tool.name: tool for tool in TOOLS}
+_DEFAULT_TOOL_NAMES = ("search_listings_semantic", "filter_listings", "search_faqs")
+
+_agent_cache: dict[tuple[str, bool, tuple[str, ...]], object] = {}
 
 _TOOL_RETRY_PROMPT = """
 
@@ -181,9 +215,71 @@ _TOOL_RETRY_PROMPT = """
 """
 
 
-def _get_agent(api_key: str, strict_tool_mode: bool = False):
+def _select_tool_names(message: str) -> tuple[str, ...]:
+    """Select a small, relevant tool set for the user's latest request.
+
+    Groq function calling becomes much less reliable when the model receives a
+    large list of similar tools. Keep the schema surface tight per turn.
+    """
+    text = message.lower()
+    selected: list[str] = []
+    has_listing_reference = bool(
+        re.search(r"\b(listing|property|place|stay)\s*#?\s*\d+\b|\b(id|details?)\s*#?\s*\d+\b", text)
+    )
+
+    def add(*names: str) -> None:
+        for name in names:
+            if name in _TOOL_BY_NAME and name not in selected:
+                selected.append(name)
+
+    if re.search(r"\b(weather|temperature|rain|forecast|climate|hot|cold)\b", text):
+        add("get_weather_forecast")
+
+    if has_listing_reference and re.search(r"\b(nearby|near|restaurant|cafe|bar|museum|park|gym|beach|attraction|things to do|around)\b", text):
+        add("search_nearby_places", "get_listing_details")
+
+    if re.search(r"\b(event|festival|visa|advisory|current|latest|today|tomorrow|transport|train|flight)\b", text):
+        add("web_search")
+
+    if re.search(r"\b(book|reserve|reservation|confirm)\b", text):
+        add("check_availability", "book_listing", "calculate_price_breakdown")
+    elif re.search(r"\b(available|availability|check[- ]?in|check[- ]?out|dates?|nights?)\b", text):
+        add("check_availability", "calculate_price_breakdown")
+
+    if re.search(r"\b(price|cost|total|how much|fee|fees|breakdown|budget)\b", text):
+        add("calculate_price_breakdown", "filter_listings")
+
+    if re.search(r"\b(compare|versus| vs |difference|better between)\b", text):
+        add("compare_listings", "get_listing_details")
+
+    if has_listing_reference:
+        add("get_listing_details")
+
+    if re.search(r"\b(cancel|refund|policy|policies|rules|faq|how does|how do i)\b", text):
+        add("search_faqs")
+
+    if re.search(r"\b(i am|i'm|im |my name|remember|prefer|preference|i like|i want)\b", text):
+        add("load_user_preferences", "save_user_preferences")
+
+    has_listing_action = bool(
+        re.search(r"\b(show|find|search|list|recommend|suggest|stays?|places?|properties?|rooms?)\b", text)
+        and re.search(r"\b(bangkok|london|cape town|istanbul|under|over|guests?|bed|bedroom|bath|villa|apartment|house|condo|studio|loft|pool|pet|wifi|temple|temples|beach)\b", text)
+    )
+    has_listing_criteria = bool(
+        re.search(r"\b(under|over|guests?|bed|bedroom|bath|villa|apartment|house|condo|studio|loft|pool|pet|wifi|temple|temples|beach)\b", text)
+    )
+    if has_listing_action or has_listing_criteria:
+        add("filter_listings", "search_listings_semantic")
+
+    if not selected:
+        add(*_DEFAULT_TOOL_NAMES)
+
+    return tuple(selected)
+
+
+def _get_agent(api_key: str, tool_names: tuple[str, ...], strict_tool_mode: bool = False):
     """Get or build a cached LangGraph agent for the given API key."""
-    cache_key = (api_key, strict_tool_mode)
+    cache_key = (api_key, strict_tool_mode, tool_names)
     if cache_key not in _agent_cache:
         llm = ChatGroq(
             model=GROQ_MODEL,
@@ -192,7 +288,8 @@ def _get_agent(api_key: str, strict_tool_mode: bool = False):
             api_key=api_key,
         )
         prompt = SYSTEM_PROMPT + (_TOOL_RETRY_PROMPT if strict_tool_mode else "")
-        _agent_cache[cache_key] = create_react_agent(model=llm, tools=TOOLS, prompt=prompt)
+        tools = [_TOOL_BY_NAME[name] for name in tool_names]
+        _agent_cache[cache_key] = create_react_agent(model=llm, tools=tools, prompt=prompt)
     return _agent_cache[cache_key]
 
 
@@ -226,6 +323,29 @@ def _retry_after_seconds(error_msg: str) -> float | None:
     return None
 
 
+def _looks_like_internal_process_response(response: str) -> bool:
+    """Detect responses that leaked implementation steps instead of useful output."""
+    normalized = response.lower()
+    # Raw function-call tags emitted as text (model used wrong output format)
+    if "<function=" in response or "<function_calls>" in response:
+        return True
+    if "<|python_tag|>" in response or "<tool_call>" in response:
+        return True
+    return any(
+        phrase in normalized
+        for phrase in (
+            "filter_listings tool",
+            "search_listings_semantic tool",
+            "get_listing_details tool",
+            "search_nearby_places tool",
+            "i'll use the",
+            "i will use the",
+            "please give me a moment",
+            "once i have the results",
+        )
+    )
+
+
 # ── Input Sanitization ───────────────────────────────────────────────────
 
 # Patterns that indicate prompt injection attempts
@@ -248,6 +368,57 @@ def _sanitize_input(message: str) -> str:
     return cleaned[:2000]
 
 
+# ── Observability Helpers ─────────────────────────────────────────────────────
+
+def _extract_tool_calls(messages: list) -> list[str]:
+    """Return ordered list of tool names called during an agent invocation."""
+    tools: list[str] = []
+    for msg in messages:
+        if type(msg).__name__ == "AIMessage" and getattr(msg, "tool_calls", None):
+            for tc in msg.tool_calls:
+                name = tc.get("name", "") if isinstance(tc, dict) else getattr(tc, "name", "")
+                if name:
+                    tools.append(name)
+    return tools
+
+
+def _extract_token_usage(messages: list) -> tuple[int, int]:
+    """Sum input/output tokens across all AIMessages in an invocation result."""
+    input_tokens = output_tokens = 0
+    for msg in messages:
+        if type(msg).__name__ != "AIMessage":
+            continue
+        usage = (getattr(msg, "response_metadata", None) or {}).get("token_usage", {})
+        input_tokens += usage.get("prompt_tokens", 0)
+        output_tokens += usage.get("completion_tokens", 0)
+    return input_tokens, output_tokens
+
+
+def _finalize_metrics(ctx: RequestContext) -> None:
+    """Build an immutable RequestRecord from the context and push it to the store."""
+    latency_ms = (time.monotonic() - ctx.start_time) * 1000
+    scores = ctx.rag_scores
+    metrics_store.record(
+        RequestRecord(
+            request_id=ctx.request_id,
+            session_id=ctx.session_id,
+            timestamp=time.time(),
+            latency_ms=latency_ms,
+            tool_calls=tuple(ctx.tool_calls),
+            rag_embedding_ms=ctx.rag_embedding_ms,
+            rag_retrieval_ms=ctx.rag_retrieval_ms,
+            rag_avg_score=round(statistics.mean(scores), 4) if scores else None,
+            rag_min_score=round(min(scores), 4) if scores else None,
+            rag_max_score=round(max(scores), 4) if scores else None,
+            rag_results_count=ctx.rag_results_count,
+            input_tokens=ctx.input_tokens,
+            output_tokens=ctx.output_tokens,
+            retries=ctx.retries,
+            error=ctx.error,
+        )
+    )
+
+
 # ── Public API ─────────────────────────────────────────────────────────────────
 
 async def chat(session_id: str, message: str) -> str:
@@ -264,6 +435,15 @@ async def chat(session_id: str, message: str) -> str:
     message = _sanitize_input(message)
     chat_history = memory_store.get_history(session_id)
     messages = chat_history + [HumanMessage(content=message)]
+    tool_names = _select_tool_names(message)
+    log.info("agent.request", session_id=session_id, tools=list(tool_names))
+
+    # Initialise per-request observability context
+    req_ctx = RequestContext(
+        request_id=uuid.uuid4().hex[:8],
+        session_id=session_id,
+    )
+    set_request_context(req_ctx)
 
     last_error = None
     strict_tool_retry = False
@@ -272,7 +452,9 @@ async def chat(session_id: str, message: str) -> str:
         api_key = key_manager.get_next_key()
 
         if api_key is None:
-            print("[AGENT] All keys exhausted or rate-limited")
+            log.error("agent.all_keys_exhausted", session_id=session_id)
+            req_ctx.error = True
+            _finalize_metrics(req_ctx)
             wait_seconds = key_manager.seconds_until_available()
             if wait_seconds:
                 return (
@@ -285,12 +467,20 @@ async def chat(session_id: str, message: str) -> str:
             )
 
         try:
-            agent = _get_agent(api_key, strict_tool_mode=strict_tool_retry)
+            agent = _get_agent(api_key, tool_names, strict_tool_mode=strict_tool_retry)
             result = await agent.ainvoke({"messages": messages})
+            result_messages = result.get("messages", [])
+
+            # Collect observability data from result messages
+            req_ctx.tool_calls = _extract_tool_calls(result_messages)
+            in_tok, out_tok = _extract_token_usage(result_messages)
+            req_ctx.input_tokens = in_tok
+            req_ctx.output_tokens = out_tok
+            req_ctx.retries = attempt
 
             # Extract the last AI text response
             response = ""
-            for msg in reversed(result.get("messages", [])):
+            for msg in reversed(result_messages):
                 if type(msg).__name__ == "AIMessage" and msg.content:
                     response = msg.content
                     break
@@ -298,18 +488,24 @@ async def chat(session_id: str, message: str) -> str:
             if not response:
                 response = "I'm sorry, I couldn't generate a response. Could you try rephrasing?"
 
+            if _looks_like_internal_process_response(response):
+                response = (
+                    "I got stuck before showing the results. Please send that search once more, "
+                    "and I'll return the matching stays directly."
+                )
+
             # Save to memory only on success
             memory_store.add_message(session_id, "human", message)
             memory_store.add_message(session_id, "ai", response)
 
-            key_short = f"...{api_key[-6:]}"
-            print(f"[AGENT] Success on attempt {attempt+1} using key {key_short}")
+            log.info("agent.success", session_id=session_id, attempt=attempt + 1, key_suffix=api_key[-6:])
+            _finalize_metrics(req_ctx)
             return response
 
         except Exception as e:
             error_msg = str(e)
             last_error = error_msg
-            print(f"[AGENT] Attempt {attempt+1} failed with key ...{api_key[-6:]}: {error_msg[:120]}")
+            log.warning("agent.attempt_failed", session_id=session_id, attempt=attempt + 1, key_suffix=api_key[-6:], error=error_msg[:120])
 
             if _is_rate_limit_error(error_msg):
                 key_manager.mark_rate_limited(api_key, _retry_after_seconds(error_msg))
@@ -317,8 +513,9 @@ async def chat(session_id: str, message: str) -> str:
             elif _is_auth_error(error_msg):
                 key_manager.mark_bad(api_key)
                 # Invalidate cached agent for this key
-                _agent_cache.pop((api_key, False), None)
-                _agent_cache.pop((api_key, True), None)
+                for cache_key in list(_agent_cache):
+                    if cache_key[0] == api_key:
+                        _agent_cache.pop(cache_key, None)
                 continue
             elif _is_tool_generation_error(error_msg):
                 # Bad tool call format — retry with a stricter low-temperature agent.
@@ -328,24 +525,29 @@ async def chat(session_id: str, message: str) -> str:
                         "I had trouble formatting that tool request. "
                         "Could you rephrase it with the city, dates, budget, or listing ID?"
                     )
-                print(f"[AGENT INFO] Groq tool execution failed on attempt {attempt+1}. Retrying...")
+                log.warning("agent.tool_generation_failed", session_id=session_id, attempt=attempt + 1)
                 import asyncio
                 await asyncio.sleep(0.5)
                 strict_tool_retry = True
                 continue
             else:
                 # Unknown error — return immediately
-                print(f"[AGENT ERROR] Unhandled: {error_msg}")
+                log.error("agent.unhandled_error", session_id=session_id, error=error_msg)
                 return (
                     "I encountered an unexpected issue. "
                     "Could you try rephrasing or asking something else?"
                 )
 
     # All retries exhausted
-    print(f"[AGENT] All {KeyManager.MAX_RETRIES} attempts failed. Last: {last_error}")
+    req_ctx.error = True
+    req_ctx.retries = KeyManager.MAX_RETRIES
+    _finalize_metrics(req_ctx)
+    log.error("agent.all_retries_exhausted", session_id=session_id, last_error=last_error)
     return "I'm experiencing issues right now. Please try again in a moment!"
 
 
 def get_key_status() -> dict:
     """Return the current API key rotation status."""
-    return key_manager.status()
+    status = key_manager.status()
+    status["keys"] = key_manager.each_key_status()
+    return status

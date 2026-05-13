@@ -6,20 +6,21 @@ Best for queries with specific numeric constraints.
 """
 
 import json
+from typing import Optional
 from langchain_core.tools import tool
 from backend.database import search_listings
 
 
 @tool
 def filter_listings(
-    city: str = None,
-    min_price: float = None,
-    max_price: float = None,
-    guests: int = None,
-    property_type: str = None,
-    room_type: str = None,
-    amenities: str = None,
-    min_rating: float = None,
+    city: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    guests: Optional[int] = None,
+    property_type: Optional[str] = None,
+    room_type: Optional[str] = None,
+    amenities: Optional[str] = None,
+    min_rating: Optional[float] = None,
 ) -> str:
     """Filter listings using specific criteria like city, price range, number of guests,
     property type, and amenities. Use this tool when the user provides structured
@@ -31,7 +32,7 @@ def filter_listings(
     - 'listings with WiFi and kitchen in Cape Town'
 
     Args:
-        city: City name (e.g., 'Bangkok', 'London', 'Cape Town')
+        city: City name (e.g., 'Bangkok', 'London', 'Cape Town', 'Istanbul')
         min_price: Minimum price per night in USD
         max_price: Maximum price per night in USD
         guests: Number of guests the listing should accommodate
@@ -73,7 +74,7 @@ def filter_listings(
         return (
             f"No listings found matching {criteria_str}. "
             "Try relaxing your filters — increase the budget, reduce guest count, "
-            "or try a different city. Available cities: Bangkok, London, Cape Town."
+            "or try a different city. Available cities: Bangkok, London, Cape Town, Istanbul."
         )
 
     # Format results

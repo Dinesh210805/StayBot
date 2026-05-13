@@ -5,12 +5,14 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { Bath, BedDouble, Heart, Users } from "lucide-react";
 import { api, type Listing } from "@/lib/api";
+import { DESTINATIONS } from "@/lib/destinations";
 import { formatPrice } from "@/lib/utils";
 import { Reveal, RevealLines } from "@/components/fx/Reveal";
 import Magnetic from "@/components/fx/Magnetic";
 
-const CITIES = ["Bangkok", "London", "Cape Town"];
+const CITIES = DESTINATIONS.map((d) => d.name);
 const TYPES = ["Apartment", "House", "Villa", "Condo", "Studio", "Loft"];
 const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -18,7 +20,7 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <span className="flex items-center gap-1 font-mono text-[10px] tracking-wider">
       <span className="text-[var(--amber)]">★</span>
-      <span className="text-[var(--text-primary)]">{rating.toFixed(1)}</span>
+      <span className="text-[var(--ink-soft)]">{rating.toFixed(1)}</span>
     </span>
   );
 }
@@ -34,9 +36,9 @@ function ListingCard({ listing, index }: { listing: Listing; index: number }) {
     >
       <Link
         href={`/explore/${listing.id}`}
-        className="group block relative rounded-2xl overflow-hidden border border-[var(--border)] hover:border-[var(--border-bright)] bg-[var(--bg-card)] transition-all duration-500 hover:shadow-[0_0_50px_rgba(233,178,108,0.08)]"
+        className="group block relative overflow-hidden rounded-[28px] border border-black/[0.04] bg-white p-3 shadow-[0_24px_80px_rgba(14,17,16,0.10)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(14,17,16,0.16)]"
       >
-        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--bg-elevated)]">
+        <div className="relative aspect-[1.08/1] overflow-hidden rounded-[22px] bg-[var(--bg-elevated)]">
           <Image
             src={img}
             alt={listing.name}
@@ -44,37 +46,62 @@ function ListingCard({ listing, index }: { listing: Listing; index: number }) {
             className="object-cover transition-transform duration-1000 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/30 to-transparent opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 opacity-70" />
 
           {/* Top metadata */}
-          <div className="absolute top-4 left-4 right-4 flex items-start justify-between font-mono text-[10px] tracking-widest uppercase">
-            <span className="px-2 py-1 rounded-full bg-[var(--bg-void)]/70 backdrop-blur-md text-white/80 border border-white/10">
-              {listing.property_type}
+          <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
+            <span className="rounded-full bg-white/95 px-4 py-2 text-sm font-medium text-[var(--ink)] shadow-[0_10px_28px_rgba(0,0,0,0.10)] backdrop-blur-md">
+              {listing.rating >= 4.8 ? "Guest Favourite" : listing.property_type}
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-[var(--amber)] text-[var(--bg-void)] font-medium">
-              {formatPrice(listing.price_per_night)}<span className="opacity-60"> /n</span>
+            <span className="flex h-10 w-10 items-center justify-center text-white drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-110">
+              <Heart size={30} fill="currentColor" strokeWidth={0} />
             </span>
-          </div>
-
-          {/* Bottom content */}
-          <div className="absolute bottom-0 left-0 right-0 p-5">
-            <p className="font-mono text-[10px] tracking-widest uppercase text-[var(--amber)] mb-2 opacity-80">
-              {listing.neighbourhood ?? listing.city} · {listing.country}
-            </p>
-            <h3 className="font-display text-xl leading-snug mb-3 line-clamp-2 group-hover:translate-y-0 transition-transform">
-              {listing.name}
-            </h3>
-            <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
-              <StarRating rating={listing.rating} />
-              <span className="font-mono tracking-wider">
-                {listing.max_guests} ppl · {listing.bedrooms} bed
-              </span>
-            </div>
           </div>
 
           {/* Hover arrow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-[var(--amber)] text-[var(--bg-void)] flex items-center justify-center text-xl opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-500">
+          <div className="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--amber)] text-[var(--bg-void)] text-xl opacity-0 shadow-[0_14px_30px_rgba(0,0,0,0.18)] scale-75 transition-all duration-500 group-hover:opacity-100 group-hover:scale-100">
             →
+          </div>
+        </div>
+
+        <div className="px-3 pb-3 pt-5">
+          <div className="mb-2 flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--ochre)]">
+                {listing.neighbourhood ?? listing.city} · {listing.country}
+              </p>
+              <h3 className="line-clamp-1 font-display text-[1.65rem] leading-none tracking-tight text-[var(--ink)]">
+                {listing.name}
+              </h3>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="font-display text-2xl leading-none tracking-tight text-[var(--ink)]">
+                {formatPrice(listing.price_per_night)}
+              </p>
+              <p className="mt-1 text-sm text-[var(--ink-muted)]">/night</p>
+            </div>
+          </div>
+
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <p className="line-clamp-1 text-[15px] text-[var(--ink-muted)]">
+              {listing.room_type} · {listing.property_type} · curated stay
+            </p>
+            <StarRating rating={listing.rating} />
+          </div>
+
+          <div className="grid grid-cols-3 items-center border-t border-[var(--border-strong)] pt-4 text-[var(--ink-muted)]">
+            <div className="flex items-center gap-1.5">
+              <BedDouble size={18} strokeWidth={1.7} />
+              <span className="text-sm">Bed: <b className="font-semibold text-[var(--ink)]">{listing.bedrooms}</b></span>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 border-l border-[var(--border-strong)]">
+              <Bath size={18} strokeWidth={1.7} />
+              <span className="text-sm">Bath: <b className="font-semibold text-[var(--ink)]">{listing.bathrooms}</b></span>
+            </div>
+            <div className="flex items-center justify-end gap-1.5 border-l border-[var(--border-strong)]">
+              <Users size={18} strokeWidth={1.7} />
+              <span className="text-sm">Max: <b className="font-semibold text-[var(--ink)]">{listing.max_guests}</b></span>
+            </div>
           </div>
         </div>
       </Link>

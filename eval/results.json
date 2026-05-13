@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-05-12T14:42:45Z",
+  "api_url": "http://localhost:8000",
+  "total_questions": 10,
+  "keyword_accuracy_pct": 20.0,
+  "ragas_scores": {},
+  "samples": [
+    {
+      "question": "I want a cozy apartment in Bangkok under $60 per night",
+      "answer": "",
+      "ground_truth": "I'm looking for listings in Bangkok with a budget-friendly price around $60 per night.",
+      "expected_city": "Bangkok",
+      "keyword_pass": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+    },
+    {
+      "question": "Show me Bangkok villas that can fit 6 guests",
+      "answer": "I'm experiencing high demand across all API keys. Please try again in about 16 seconds.",
+      "ground_truth": "I need a villa in Bangkok for 6 guests.",
+      "expected_city": "Bangkok",
+      "keyword_pass": false
+    },
+    {
+      "question": "Find a luxury apartment near central London with a pool",
+      "answer": "I'm experiencing high demand across all API keys. Please try again in about 7 seconds.",
+      "ground_truth": "I need a luxury apartment near central London with pool access.",
+      "expected_city": "London",
+      "keyword_pass": false
+    },
+    {
+      "question": "What are the cheapest listings in Cape Town for 2 guests?",
+      "answer": "I'm experiencing high demand across all API keys. Please try again in about 7 seconds.",
+      "ground_truth": "I need the most affordable listings in Cape Town for 2 guests.",
+      "expected_city": "Cape Town",
+      "keyword_pass": false
+    },
+    {
+      "question": "I want a place to stay in Istanbul close to historic sites",
+      "answer": "",
+      "ground_truth": "I need accommodation in Istanbul near historical sites.",
+      "expected_city": "Istanbul",
+      "keyword_pass": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+    },
+    {
+      "question": "What is the cancellation policy if I need to cancel my booking?",
+      "answer": "## Your current booking is in Bangkok, Thailand. Would you like to check the cancellation policy for your specific listing?",
+      "ground_truth": "Cancellation policy depends on the listing. Flexible policies allow cancellation with full refund within 24 hours.",
+      "expected_city": null,
+      "keyword_pass": true
+    },
+    {
+      "question": "How do I make a booking on StayBot?",
+      "answer": "I'm experiencing high demand across all API keys. Please try again in about 13 seconds.",
+      "ground_truth": "You can book by finding a listing, checking availability, and confirming with your dates.",
+      "expected_city": null,
+      "keyword_pass": false
+    },
+    {
+      "question": "How much would it cost to stay at listing 1001 for 3 nights?",
+      "answer": "I'm experiencing high demand across all API keys. Please try again in about 4 seconds.",
+      "ground_truth": "The total cost for 3 nights at listing 1001 including fees.",
+      "expected_city": null,
+      "keyword_pass": false
+    },
+    {
+      "question": "Do you have listings in Paris?",
+      "answer": "I currently have listings in Bangkok, London, Cape Town, and Istanbul. Would any of these work?",
+      "ground_truth": "I currently have listings in Bangkok, London, Cape Town, and Istanbul.",
+      "expected_city": null,
+      "keyword_pass": true
+    },
+    {
+      "question": "Find pet-friendly apartments in Bangkok",
+      "answer": "",
+      "ground_truth": "Pet-friendly listings in Bangkok that allow pets.",
+      "expected_city": "Bangkok",
+      "keyword_pass": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+    }
+  ]
+}

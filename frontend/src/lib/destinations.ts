@@ -4,6 +4,7 @@ export interface Destination {
   native: string;
   tagline: string;
   hero: string;
+  video?: string;
   accent: string;
   coordinate: string;
   intro: string;
@@ -165,6 +166,55 @@ export const DESTINATIONS: Destination[] = [
     currency: "ZAR",
     flightHours: "14h from Bangkok · 11h from London",
     listingCount: 105,
+  },
+  {
+    slug: "istanbul",
+    name: "Istanbul",
+    native: "İstanbul",
+    tagline: "Between Continents, After Dark",
+    hero: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=2400&q=85",
+    accent: "#D0834E",
+    coordinate: "41.0082° N · 28.9784° E",
+    intro:
+      "Istanbul is a city of crossings: ferry wake and prayer call, Byzantine stone and neon tea glasses, Europe on one bank and Asia glowing across the water.",
+    story: [
+      "Morning begins with gulls over the Bosphorus and a ferry horn low enough to feel in your ribs. Tea arrives tulip-shaped and scalding.",
+      "By afternoon the city folds into markets, courtyards, steep streets, and tiled domes. Every corner seems to remember another empire.",
+      "At night, the water turns black and silver. Fish restaurants fill, minarets sharpen against the sky, and the city keeps moving in layers.",
+    ],
+    neighborhoods: [
+      {
+        name: "Beyoğlu",
+        vibe: "Apartments above galleries, late cafes, music rooms, and steep streets to the water.",
+        image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1200&q=85",
+      },
+      {
+        name: "Sultanahmet",
+        vibe: "Historic Istanbul. Domes, courtyards, hammams, and quiet mornings near the mosques.",
+        image: "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?w=1200&q=85",
+      },
+      {
+        name: "Kadıköy",
+        vibe: "Asian-side rhythm. Markets, record shops, ferry sunsets, and long neighborhood dinners.",
+        image: "https://images.unsplash.com/photo-1605581810011-c6e87e1fb7cd?w=1200&q=85",
+      },
+    ],
+    rituals: [
+      { time: "08:00", place: "Karaköy pier", note: "Tea before the ferry, gulls already negotiating." },
+      { time: "13:30", place: "Grand Bazaar", note: "A slow wander, then lunch somewhere tiled and loud." },
+      { time: "19:00", place: "Kadıköy waterfront", note: "Cross at sunset. Let the city turn gold behind you." },
+    ],
+    gallery: [
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&q=85",
+      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1200&q=85",
+      "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?w=1200&q=85",
+      "https://images.unsplash.com/photo-1605581810011-c6e87e1fb7cd?w=1200&q=85",
+    ],
+    bestTime: "Apr – Jun · Sep – Nov",
+    language: "Turkish · English",
+    currency: "TRY",
+    flightHours: "4h from London · 10h from Bangkok",
+    listingCount: 150,
   },
 ];
 

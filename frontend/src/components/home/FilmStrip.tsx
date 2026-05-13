@@ -49,8 +49,8 @@ export default function FilmStrip({ destinations }: FilmStripProps) {
             key={frame.key}
             className="relative flex-shrink-0 overflow-hidden"
             style={{
-              width: frame.index % 3 === 0 ? "340px" : "260px",
-              height: frame.index % 3 === 0 ? "420px" : "320px",
+              width: "280px",
+              height: "360px",
             }}
           >
             <Image
@@ -85,7 +85,7 @@ export default function FilmStrip({ destinations }: FilmStripProps) {
           <div
             key={`d-${frame.key}`}
             className="relative flex-shrink-0 overflow-hidden"
-            style={{ width: "260px", height: "320px" }}
+            style={{ width: "280px", height: "360px" }}
           >
             <Image
               src={frame.url}

@@ -6,12 +6,19 @@ Best for natural language queries like "cozy cabin near the beach".
 """
 
 import os
+import time
 import json
 from langchain_core.tools import tool
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
+from backend.observability import get_request_context
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+# Propagate HF token so sentence-transformers downloads are authenticated
+_hf_token = os.getenv("HF_TOKEN")
+if _hf_token:
+    os.environ.setdefault("HUGGINGFACE_HUB_TOKEN", _hf_token)
 
 # Lazy-loaded globals
 _model = None
@@ -34,7 +41,7 @@ def _get_index():
 
 
 @tool
-def search_listings_semantic(query: str, n_results: int = 5) -> str:
+def search_listings_semantic(query: str) -> str:
     """Search for stay listings using natural language. Use this tool when the user
     describes what kind of place they want in free-form text, mentions vibes, moods,
     or uses descriptive language. Examples: 'cozy apartment near the beach',
@@ -42,29 +49,42 @@ def search_listings_semantic(query: str, n_results: int = 5) -> str:
 
     Args:
         query: Natural language description of the desired stay
-        n_results: Number of results to return (default 5, max 10)
 
     Returns:
         Formatted string with matching listings including name, city, price, rating, and amenities
     """
-    n_results = min(max(n_results, 1), 10)
+    n_results = 5
 
     model = _get_model()
     index = _get_index()
+    ctx = get_request_context()
 
-    # Embed the query
+    # Embed the query — timed for RAG metrics
+    t_embed = time.monotonic()
     query_embedding = model.encode(query).tolist()
+    embed_ms = (time.monotonic() - t_embed) * 1000
+    if ctx is not None:
+        ctx.rag_embedding_ms = embed_ms
 
-    # Search Pinecone
+    # Search Pinecone — timed for RAG metrics
+    t_retr = time.monotonic()
     results = index.query(
         namespace="listings",
         vector=query_embedding,
         top_k=n_results,
         include_metadata=True,
     )
+    retr_ms = (time.monotonic() - t_retr) * 1000
+    if ctx is not None:
+        ctx.rag_retrieval_ms = retr_ms
 
     if not results or not results.matches:
         return "No matching listings found. Try broadening your search criteria."
+
+    # Record relevance scores into request context
+    if ctx is not None:
+        ctx.rag_scores = [m.score for m in results.matches]
+        ctx.rag_results_count = len(results.matches)
 
     # Format results
     output_lines = [f"Found {len(results.matches)} matching listings:\n"]

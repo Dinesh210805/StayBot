@@ -5,7 +5,7 @@ Downloads detailed listings and reviews from Inside Airbnb for selected cities,
 processes them into a unified format, and enriches with synthetic fields
 that the PRD requires but Inside Airbnb doesn't provide.
 
-Cities: Bangkok, Barcelona, Cape Town
+Cities: Bangkok, London, Cape Town, Istanbul
 """
 
 import os
@@ -35,6 +35,10 @@ CITIES = {
         "listings": "https://data.insideairbnb.com/south-africa/wc/cape-town/2025-09-28/data/listings.csv.gz",
         "reviews": "https://data.insideairbnb.com/south-africa/wc/cape-town/2025-09-28/data/reviews.csv.gz",
     },
+    "Istanbul": {
+        "listings": "https://data.insideairbnb.com/turkey/marmara/istanbul/2025-09-29/data/listings.csv.gz",
+        "reviews": "https://data.insideairbnb.com/turkey/marmara/istanbul/2025-09-29/data/reviews.csv.gz",
+    },
 }
 
 # Currency conversion to USD (approximate rates)
@@ -43,6 +47,7 @@ CURRENCY_TO_USD = {
     "Bangkok": 1 / 35.0,     # THB -> USD  (1 USD ~ 35 THB)
     "London": 1.27,           # GBP -> USD  (1 GBP ~ 1.27 USD)
     "Cape Town": 1 / 18.5,   # ZAR -> USD  (1 USD ~ 18.5 ZAR)
+    "Istanbul": 1 / 40.0,     # TRY -> USD  (1 USD ~ 40 TRY)
 }
 
 # How many listings to sample per city (to keep dataset manageable)
@@ -74,6 +79,41 @@ def download_gz_csv(url: str, city: str, file_type: str) -> pd.DataFrame:
 
     with gzip.open(io.BytesIO(response.content), "rt", encoding="utf-8") as f:
         return pd.read_csv(f, low_memory=False)
+
+
+def download_csv(url: str, city: str, file_type: str) -> pd.DataFrame:
+    """Download a plain CSV and return as DataFrame."""
+    cache_path = os.path.join(RAW_DIR, f"{city.lower().replace(' ', '_')}_{file_type}.csv")
+
+    if os.path.exists(cache_path):
+        print(f"  [CACHE] Using cached {file_type} for {city}")
+        return pd.read_csv(cache_path, low_memory=False)
+
+    print(f"  [DOWNLOAD] Downloading {file_type} for {city}...")
+    response = requests.get(url, timeout=120)
+    response.raise_for_status()
+
+    os.makedirs(RAW_DIR, exist_ok=True)
+    with open(cache_path, "wb") as f:
+        f.write(response.content)
+
+    return pd.read_csv(io.BytesIO(response.content), low_memory=False)
+
+
+def fill_prices_from_summary(df: pd.DataFrame, summary_df: pd.DataFrame, city: str) -> pd.DataFrame:
+    """Use summary listings prices when detailed listings omit price values."""
+    if "price" not in df.columns or df["price"].notna().any():
+        return df
+    if summary_df is None or summary_df.empty or "id" not in summary_df.columns or "price" not in summary_df.columns:
+        return df
+
+    print(f"  [PRICE] Filling missing detailed prices from summary listings for {city}")
+    summary_prices = summary_df[["id", "price"]].dropna(subset=["price"]).drop_duplicates("id")
+    merged = df.merge(summary_prices, on="id", how="left", suffixes=("", "_summary"))
+    if "price_summary" in merged.columns:
+        merged["price"] = merged["price"].fillna(merged["price_summary"])
+        merged.drop(columns=["price_summary"], inplace=True)
+    return merged
 
 
 # ── Processing Functions ───────────────────────────────────────────────────────
@@ -330,6 +370,9 @@ def main():
 
         # Download
         listings_df = download_gz_csv(urls["listings"], city, "listings")
+        if "summary_listings" in urls:
+            summary_df = download_csv(urls["summary_listings"], city, "summary_listings")
+            listings_df = fill_prices_from_summary(listings_df, summary_df, city)
         reviews_df = download_gz_csv(urls["reviews"], city, "reviews")
 
         # Process listings

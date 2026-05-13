@@ -20,9 +20,14 @@ export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const container = document.querySelector("[data-scroll-container]") as HTMLElement | null;
+    const target: HTMLElement | Window = container ?? window;
+    const handleScroll = () => {
+      const top = container ? container.scrollTop : window.scrollY;
+      setScrolled(top > 30);
+    };
+    target.addEventListener("scroll", handleScroll, { passive: true } as AddEventListenerOptions);
+    return () => target.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (

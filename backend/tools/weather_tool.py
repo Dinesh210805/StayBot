@@ -47,6 +47,7 @@ _CITY_COORDS = {
     "bangkok": (13.7563, 100.5018),
     "london": (51.5074, -0.1278),
     "cape town": (-33.9249, 18.4241),
+    "istanbul": (41.0082, 28.9784),
 }
 
 
@@ -57,7 +58,7 @@ def get_weather_forecast(city: str = "", listing_id: int = 0) -> str:
     either a city name or a listing ID to get location-specific weather.
 
     Args:
-        city: City name (supports Bangkok, London, Cape Town)
+        city: City name (supports Bangkok, London, Cape Town, Istanbul)
         listing_id: Optional listing ID to get weather for that listing's exact location
 
     Returns:
@@ -87,7 +88,7 @@ def get_weather_forecast(city: str = "", listing_id: int = 0) -> str:
         else:
             return (
                 f"I don't have coordinates for '{city}'. "
-                f"I can check weather for Bangkok, London, or Cape Town. "
+                f"I can check weather for Bangkok, London, Cape Town, or Istanbul. "
                 f"Or provide a listing ID for exact location weather."
             )
 

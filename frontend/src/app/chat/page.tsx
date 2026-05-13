@@ -119,10 +119,10 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-[var(--paper)]">
-      <div className="pt-24 pb-8 max-w-[1500px] mx-auto px-6 md:px-10">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 h-[calc(100vh-160px)] min-h-[640px]">
+      <div className="pt-24 pb-8 max-w-[1500px] mx-auto px-6 md:px-10 h-screen flex flex-col">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 flex-1 min-h-0">
           {/* ── LEFT: Chat ───────────────────────────────────────── */}
-          <section className="lg:col-span-7 border border-[var(--ink)] bg-[var(--ivory)] rounded-sm flex flex-col overflow-hidden shadow-[6px_6px_0_0_var(--ink)]">
+          <section className="lg:col-span-7 border border-[var(--ink)] bg-[var(--ivory)] rounded-sm flex flex-col min-h-0 shadow-[6px_6px_0_0_var(--ink)] overflow-hidden">
             {/* Header */}
             <div className="border-b border-[var(--ink)] px-6 py-4 flex items-center justify-between bg-[var(--paper)]">
               <div className="flex items-center gap-3">
@@ -236,7 +236,7 @@ export default function ChatPage() {
           </section>
 
           {/* ── RIGHT: Live results panel ────────────────────────── */}
-          <aside className="lg:col-span-5 border border-[var(--ink)] bg-[var(--paper)] rounded-sm flex flex-col overflow-hidden">
+          <aside className="lg:col-span-5 border border-[var(--ink)] bg-[var(--paper)] rounded-sm flex flex-col min-h-0 overflow-hidden">
             <div className="border-b border-[var(--ink)] px-5 py-4 flex items-center justify-between bg-[var(--ink)] text-[var(--paper)]">
               <div>
                 <p className="font-mono text-[9px] tracking-[0.32em] uppercase opacity-60 mb-0.5">Live · Curated for you</p>
@@ -375,28 +375,84 @@ function MessageBubble({ msg }: { msg: Message }) {
             ))}
           </div>
         ) : (
-          <ReactMarkdown
-            components={{
-              strong: ({ children }) => <strong className={isUser ? "text-[var(--ochre-bright)]" : "text-[var(--terra)]"}>{children}</strong>,
-              a: ({ href, children }) => (
-                <a href={href} className="underline underline-offset-2 hover:opacity-70" target="_blank" rel="noopener noreferrer">
-                  {children}
-                </a>
-              ),
-              ul: ({ children }) => <ul className="mt-2 space-y-1 list-none">{children}</ul>,
-              li: ({ children }) => (
-                <li className="flex gap-2 before:content-['—'] before:opacity-50 before:flex-shrink-0">
-                  <span>{children}</span>
-                </li>
-              ),
-              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-            }}
-          >
-            {msg.content}
-          </ReactMarkdown>
+          <MessageContentRenderer content={msg.content} isUser={isUser} />
         )}
       </div>
     </motion.div>
+  );
+}
+
+function ListingCard({ s }: { s: Listing }) {
+  return (
+    <Link
+      href={`/explore/${s.id}`}
+      className="group flex gap-3 p-2 rounded-sm hover:bg-[var(--paper-soft)] transition-colors"
+    >
+      <div className="relative w-20 h-20 rounded-sm overflow-hidden flex-shrink-0 bg-[var(--paper-soft)] border border-[var(--border)]">
+        <Image
+          src={s.picture_url ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80"}
+          alt={s.name}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          sizes="80px"
+        />
+      </div>
+      <div className="flex-1 min-w-0 py-0.5">
+        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
+          {s.city} · {s.property_type}
+        </p>
+        <p className="font-display text-base text-[var(--ink)] truncate mt-0.5">{s.name}</p>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-xs text-[var(--terra)]">★ {s.rating?.toFixed(1) ?? "—"}</span>
+          <span className="font-mono text-xs text-[var(--ink)]">
+            {formatPrice(s.price_per_night)} <span className="text-[var(--ink-muted)] text-[10px]">/n</span>
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function MessageContentRenderer({ content, isUser }: { content: string; isUser: boolean }) {
+  // If assistant embeds a JSON payload like { listings: [...] }, render cards inline.
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed && Array.isArray(parsed.listings) && parsed.listings.length > 0) {
+      const listings: Listing[] = parsed.listings;
+      return (
+        <div className="space-y-2">
+          {listings.map((s) => (
+            <motion.div key={s.id} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}>
+              <ListingCard s={s} />
+            </motion.div>
+          ))}
+        </div>
+      );
+    }
+  } catch (e) {
+    // not JSON — fall through to markdown
+  }
+
+  return (
+    <ReactMarkdown
+      components={{
+        strong: ({ children }) => <strong className={isUser ? "text-[var(--ochre-bright)]" : "text-[var(--terra)]"}>{children}</strong>,
+        a: ({ href, children }) => (
+          <a href={href} className="underline underline-offset-2 hover:opacity-70" target="_blank" rel="noopener noreferrer">
+            {children}
+          </a>
+        ),
+        ul: ({ children }) => <ul className="mt-2 space-y-1 list-none">{children}</ul>,
+        li: ({ children }) => (
+          <li className="flex gap-2 before:content-['—'] before:opacity-50 before:flex-shrink-0">
+            <span>{children}</span>
+          </li>
+        ),
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+      }}
+    >
+      {content}
+    </ReactMarkdown>
   );
 }
 

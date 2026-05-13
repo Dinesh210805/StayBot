@@ -11,6 +11,7 @@ import { Reveal, RevealLines } from "@/components/fx/Reveal";
 import Marquee from "@/components/fx/Marquee";
 import FilmStrip from "@/components/home/FilmStrip";
 import ChatPreview from "@/components/home/ChatPreview";
+import ThreadIllustration from "@/components/home/ThreadIllustration";
 import { DESTINATIONS } from "@/lib/destinations";
 
 if (typeof window !== "undefined") {
@@ -31,18 +32,10 @@ const CITIES = DESTINATIONS.map((d) => ({
   coordinate: d.coordinate,
 }));
 
-const TOC = [
-  { no: "01", title: "The Atlas", desc: "Three cities, hand-picked.", href: "/destinations" },
-  { no: "02", title: "The Stays", desc: "450 properties, no algorithm.", href: "/explore" },
-  { no: "03", title: "The Calendar", desc: "Hold your dates.", href: "/booking" },
-  { no: "04", title: "The Concierge", desc: "Speak. It will listen.", href: "/chat" },
-];
-
-const PRINCIPLES = [
-  { no: "I", title: "Conversation, not forms", body: "Tell us what you want in plain language. The concierge handles the rest." },
-  { no: "II", title: "Curated, not crowded", body: "Hand-picked stays. No infinite scroll. Just places worth waking up in." },
-  { no: "III", title: "Memory that travels", body: "Your concierge remembers. The next conversation begins where the last one ended." },
-  { no: "IV", title: "From inquiry to arrival", body: "Calendar, neighborhood, transit, restaurants — handled inside one conversation." },
+const HOW_IT_WORKS = [
+  { step: "01", title: "Describe your stay", body: "Tell the concierge exactly what you want — quiet, walkable, near markets, under £200. Natural language, no forms." },
+  { step: "02", title: "AI curates matches", body: "Our concierge searches hundreds of hand-picked properties. No algorithm noise — only stays worth waking up in." },
+  { step: "03", title: "Arrive fully prepared", body: "Dates held, transit mapped, neighbourhoods briefed, restaurants noted — one conversation handles it all." },
 ];
 
 const MARQUEE_ITEMS = [
@@ -92,7 +85,7 @@ export default function HomePage() {
         pin: inner,
         pinSpacing: true,
         anticipatePin: 1,
-        scrub: 0.4,
+        scrub: 1.5,
         onUpdate: (self) => {
           const idx = Math.min(
             CITIES.length - 1,
@@ -114,14 +107,14 @@ export default function HomePage() {
       <div className="relative bg-[var(--paper)] text-[var(--ink)] overflow-x-hidden">
         {/* ── HERO ─────────────────────────────────────────────────── */}
         <div ref={heroRef} className="relative">
-          <section className="relative min-h-[100svh] flex flex-col bg-[var(--ink)] overflow-hidden">
+          <section className="relative min-h-[100svh] flex flex-col bg-[var(--paper)] overflow-hidden">
 
             {/* Subtle grid texture */}
             <div className="absolute inset-0 grid-lines opacity-[0.04] pointer-events-none z-0" />
 
             {/* Ghost coordinate watermark */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
-              <span className="absolute bottom-[18%] left-[-1%] font-mono text-[9vw] leading-none tracking-[0.04em] text-white opacity-[0.025] rotate-[-90deg] origin-bottom-left whitespace-nowrap">
+              <span className="absolute bottom-[18%] left-[-1%] font-mono text-[9vw] leading-none tracking-[0.04em] text-[var(--ink)] opacity-[0.025] rotate-[-90deg] origin-bottom-left whitespace-nowrap">
                 {CITIES[0]?.coordinate ?? ""}
               </span>
             </div>
@@ -129,43 +122,42 @@ export default function HomePage() {
             {/* Main split grid */}
             <div className="relative z-10 flex-1 grid md:grid-cols-12 min-h-[100svh]">
 
-              {/* ── LEFT: Editorial typography ── */}
+              {/* ── LEFT: Brand + CTAs ── */}
               <motion.div
                 style={{ y: heroY, opacity: heroOpacity }}
-                className="md:col-span-7 flex flex-col justify-between px-6 md:px-12 pt-32 md:pt-36 pb-10 md:pb-16"
+                className="md:col-span-5 flex flex-col justify-between px-6 md:px-12 pt-32 md:pt-36 pb-10 md:pb-16"
               >
                 {/* Top meta row */}
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: loaderDone ? 1 : 0, y: loaderDone ? 0 : 8 }}
                   transition={{ duration: 0.7, delay: 0.2, ease: easeOutExpo }}
-                  className="flex items-center gap-5 font-mono text-[10px] tracking-[0.32em] uppercase text-white/30"
+                  className="flex items-center gap-5 font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--ink-muted)]"
                 >
                   <span>Est · MMXXV</span>
-                  <span className="h-px flex-1 max-w-[60px] bg-white/15" />
+                  <span className="h-px flex-1 max-w-[60px] bg-[var(--ink-muted)]/30" />
                   <span className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--terra)] animate-pulse" />
                     Concierge online
                   </span>
                 </motion.div>
 
-                {/* Staggered mega-headline */}
+                {/* Brand statement */}
                 <div className="py-6 md:py-10">
                   <motion.p
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: loaderDone ? 1 : 0, x: 0 }}
                     transition={{ duration: 0.7, delay: 0.28, ease: easeOutExpo }}
-                    className="font-mono text-[10px] tracking-[0.42em] uppercase text-white/35 mb-7"
+                    className="font-mono text-[10px] tracking-[0.42em] uppercase text-[var(--ink-muted)] mb-7"
                   >
                     / A Living Atlas of Stays
                   </motion.p>
 
-                  <h1 className="leading-[0.84] tracking-[-0.03em] text-white">
+                  <h1 className="leading-[0.88] tracking-[-0.03em] text-[var(--ink)]">
                     {[
-                      <span key="a" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block">Where</span>,
-                      <span key="b" className="font-display text-[clamp(3.6rem,10.5vw,10.5rem)] block pl-[12%]">you <em className="italic-display" style={{ color: "var(--ochre)" }}>sleep</em></span>,
-                      <span key="c" className="font-display text-[clamp(1.1rem,2.8vw,2.8rem)] block opacity-35 tracking-[0.02em]">— is the —</span>,
-                      <span key="d" className="font-display italic-display text-[clamp(4rem,11.5vw,11.5rem)] block" style={{ color: "var(--terra)" }}>story.</span>,
+                      <span key="a" className="font-display text-[clamp(3rem,7vw,7rem)] block">Find your</span>,
+                      <span key="b" className="font-display text-[clamp(3.2rem,7.5vw,7.5rem)] block pl-[8%]"><em className="italic-display" style={{ color: "var(--ochre)" }}>perfect</em></span>,
+                      <span key="c" className="font-display text-[clamp(3rem,7vw,7rem)] block">place to stay.</span>,
                     ].map((line, i) => (
                       <span key={i} className="block overflow-hidden" style={{ paddingBottom: "0.05em" }}>
                         <motion.span
@@ -181,13 +173,13 @@ export default function HomePage() {
                   </h1>
                 </div>
 
-                {/* Bottom: desc + CTAs + scroll hint */}
+                {/* Desc + CTAs + scroll hint */}
                 <div className="space-y-7">
                   <motion.p
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: loaderDone ? 1 : 0, y: loaderDone ? 0 : 12 }}
                     transition={{ duration: 1, delay: 0.55, ease: easeOutExpo }}
-                    className="text-white/40 text-base leading-relaxed max-w-xs"
+                    className="text-[var(--ink-soft)] text-base leading-relaxed max-w-xs"
                   >
                     Describe what you want.<br />We curate where you sleep.
                   </motion.p>
@@ -200,7 +192,7 @@ export default function HomePage() {
                   >
                     <Link
                       href="/chat"
-                      className="group inline-flex items-center gap-2 pl-7 pr-1.5 py-1.5 rounded-full bg-white text-[var(--ink)] text-sm font-medium hover:bg-white/90 transition-all"
+                      className="group inline-flex items-center gap-2 pl-7 pr-1.5 py-1.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-all"
                     >
                       Begin a conversation
                       <span className="w-9 h-9 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center group-hover:rotate-[-45deg] transition-transform duration-300">
@@ -209,7 +201,7 @@ export default function HomePage() {
                     </Link>
                     <Link
                       href="/destinations"
-                      className="text-sm text-white/30 hover:text-white/70 underline-offset-4 hover:underline decoration-white/20 transition-colors"
+                      className="text-sm text-[var(--ink-muted)] hover:text-[var(--ink)] underline-offset-4 hover:underline transition-colors"
                     >
                       See destinations
                     </Link>
@@ -222,13 +214,13 @@ export default function HomePage() {
                     <motion.div
                       animate={{ opacity: loaderDone ? 1 : 0 }}
                       transition={{ delay: 1.1, duration: 0.8 }}
-                      className="flex items-center gap-3"
+                      className="flex items-center gap-3 text-[var(--ink-muted)]"
                     >
-                      <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-white/18">Scroll</span>
+                      <span className="font-mono text-[9px] tracking-[0.4em] uppercase opacity-60">Scroll</span>
                       <motion.span
                         animate={{ x: [0, 6, 0] }}
                         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                        className="font-mono text-xs text-white/18"
+                        className="font-mono text-xs opacity-60"
                       >
                         →
                       </motion.span>
@@ -237,102 +229,34 @@ export default function HomePage() {
                 </div>
               </motion.div>
 
-              {/* ── RIGHT: Stacked city cards ── */}
-              <div className="hidden md:flex md:col-span-5 flex-col border-l border-white/[0.06]">
-                {CITIES.map((city, i) => (
-                  <motion.div
-                    key={city.slug}
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: loaderDone ? 1 : 0, x: 0 }}
-                    transition={{ duration: 1.1, delay: 0.3 + i * 0.18, ease: easeOutExpo }}
-                    className="relative flex-1 group overflow-hidden"
-                  >
-                    <Link href={`/destinations/${city.slug}`} className="absolute inset-0 block">
-                      <Image
-                        src={city.image}
-                        alt={city.name}
-                        fill
-                        sizes="40vw"
-                        priority={i === 0}
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                      />
-                      {/* Layered overlays */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[var(--ink)]/75 via-[var(--ink)]/25 to-transparent" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/15" />
-
-                      {/* Top meta */}
-                      <div className="absolute top-5 left-5 right-5 flex justify-between font-mono text-[9px] tracking-[0.3em] uppercase">
-                        <span className="text-white/28">{String(i + 1).padStart(2, "0")}</span>
-                        <span className="text-white/18">{city.coordinate}</span>
-                      </div>
-
-                      {/* Bottom info */}
-                      <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-                        <div>
-                          <p className="font-mono text-[9px] tracking-[0.35em] uppercase mb-2 opacity-90" style={{ color: city.accentHex }}>
-                            {city.tagline}
-                          </p>
-                          <h3 className="font-display text-2xl lg:text-[1.9rem] text-white leading-none tracking-tight">
-                            {city.name}
-                          </h3>
-                          <p className="font-display italic text-sm mt-1 opacity-50" style={{ color: city.accentHex }}>
-                            {city.native}
-                          </p>
-                        </div>
-                        <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/20 text-white/40 text-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                          →
-                        </span>
-                      </div>
-
-                      {/* Ghost listing count */}
-                      <div className="absolute bottom-2 right-4 font-display text-[5.5rem] leading-none text-white/[0.035] select-none pointer-events-none tabular-nums">
-                        {city.listings}
-                      </div>
-                    </Link>
-                    {i < CITIES.length - 1 && (
-                      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/[0.05]" />
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* ── TOC STRIP ─────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: loaderDone ? 1 : 0 }}
-          transition={{ duration: 1, delay: 0.9 }}
-          className="border-b border-[var(--ink)] bg-[var(--paper)]"
-        >
-          <div className="max-w-[1500px] mx-auto px-6 md:px-10 grid grid-cols-2 md:grid-cols-4">
-            {TOC.map((t, i) => (
-              <Link
-                key={t.no}
-                href={t.href}
-                className={`group py-6 md:py-8 px-4 ${i > 0 ? "border-l border-[var(--ink)]" : ""} hover:bg-[var(--ink-soft)] hover:text-[var(--paper)] transition-colors duration-300`}
+              {/* ── RIGHT: Thread illustration ── */}
+              <motion.div
+                className="hidden md:flex md:col-span-7 flex-col items-center justify-center border-l border-[var(--border)] relative"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: loaderDone ? 1 : 0 }}
+                transition={{ duration: 1.2, delay: 0.5, ease: easeOutExpo }}
               >
-                <div className="flex items-baseline gap-3 mb-1">
-                  <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">/{t.no}</span>
-                </div>
-                <h3 className="font-display text-2xl md:text-3xl mb-1 italic-display">{t.title}</h3>
-                <p className="text-xs opacity-70 group-hover:opacity-90">{t.desc}</p>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
+                <ThreadIllustration />
+              </motion.div>
+            </div>
 
-        {/* ── MARQUEE TICKER ──────────────────────────────────────── */}
-        <div className="border-y border-[var(--ink)] bg-[var(--paper-soft)] py-4 overflow-hidden">
-          <Marquee duration={35} className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]">
-            {MARQUEE_ITEMS.map((item, i) => (
-              <span key={i} className="flex items-center gap-6 shrink-0">
-                <span>{item}</span>
-                <span className="text-[var(--ochre)] text-lg leading-none">·</span>
-              </span>
-            ))}
-          </Marquee>
+            {/* Marquee inside hero at the bottom */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: loaderDone ? 1 : 0 }}
+              transition={{ duration: 1, delay: 0.9 }}
+              className="relative z-10 border-t border-[var(--border)] py-4 overflow-hidden"
+            >
+              <Marquee duration={35} className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]">
+                {MARQUEE_ITEMS.map((item, i) => (
+                  <span key={i} className="flex items-center gap-6 shrink-0">
+                    <span>{item}</span>
+                    <span className="text-[var(--ochre)] text-lg leading-none">·</span>
+                  </span>
+                ))}
+              </Marquee>
+            </motion.div>
+          </section>
         </div>
 
         {/* ── STATS STRIP ─────────────────────────────────────────── */}
@@ -399,7 +323,7 @@ export default function HomePage() {
                   opacity: activeCity === i ? 1 : 0,
                   scale: activeCity === i ? 1 : 1.06,
                 }}
-                transition={{ duration: 1.0, ease: easeOutExpo }}
+                transition={{ duration: 1.4, ease: easeOutExpo }}
               >
                 <Image
                   src={city.image}
@@ -513,13 +437,13 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── PRINCIPLES ──────────────────────────────────────────── */}
+        {/* ── HOW IT WORKS ────────────────────────────────────────── */}
         <section className="bg-[var(--paper-soft)] border-y border-[var(--ink)]">
           <div className="max-w-[1500px] mx-auto px-6 md:px-10 py-32 md:py-44">
-            <div className="grid md:grid-cols-12 gap-8 mb-16">
+            <div className="grid md:grid-cols-12 gap-8 mb-20">
               <div className="md:col-span-3">
                 <Reveal>
-                  <p className="eyebrow">/02 · Principles</p>
+                  <p className="eyebrow">/02 · How It Works</p>
                 </Reveal>
               </div>
               <div className="md:col-span-9">
@@ -527,26 +451,27 @@ export default function HomePage() {
                   as="h2"
                   className="font-display text-[clamp(2.4rem,5.5vw,6rem)] leading-[0.92] tracking-[-0.025em]"
                   lines={[
-                    <span key="1">Four ideas</span>,
-                    <span key="2">we keep <em className="italic-display text-[var(--forest)]">close</em>.</span>,
+                    <span key="1">Three steps to your</span>,
+                    <span key="2"><em className="italic-display text-[var(--forest)]">perfect</em> stay.</span>,
                   ]}
                 />
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 border-t border-l border-[var(--ink)]">
-              {PRINCIPLES.map((p, i) => (
-                <Reveal key={p.no} delay={i * 0.07}>
-                  <div className="group p-10 md:p-14 border-r border-b border-[var(--ink)] relative overflow-hidden hover:bg-[var(--ink-soft)] hover:text-[var(--paper)] transition-colors duration-500">
-                    <div className="absolute -right-4 -top-4 font-display text-[10rem] leading-none italic opacity-[0.05] group-hover:opacity-[0.15]">
-                      {p.no}
+            <div className="grid md:grid-cols-3 border-t border-[var(--ink)]">
+              {HOW_IT_WORKS.map((step, i) => (
+                <Reveal key={step.step} delay={i * 0.1}>
+                  <div className={`group p-10 md:p-14 border-b border-[var(--ink)] relative overflow-hidden hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors duration-500 ${i < HOW_IT_WORKS.length - 1 ? "md:border-r" : ""}`}>
+                    <div className="absolute -right-3 -top-3 font-display text-[8rem] leading-none italic opacity-[0.04] group-hover:opacity-[0.12] transition-opacity duration-500 select-none">
+                      {step.step}
                     </div>
-                    <p className="font-mono text-xs tracking-[0.32em] uppercase mb-6">{p.no}</p>
+                    <p className="font-mono text-xs tracking-[0.32em] uppercase mb-8 opacity-40">{step.step}</p>
+                    <div className="w-8 h-px bg-[var(--ochre)] mb-8" />
                     <h3 className="font-display text-2xl md:text-3xl mb-5 leading-snug">
-                      {p.title}
+                      {step.title}
                     </h3>
-                    <p className="leading-relaxed pretty opacity-80 max-w-md">
-                      {p.body}
+                    <p className="leading-relaxed pretty opacity-70 max-w-sm">
+                      {step.body}
                     </p>
                   </div>
                 </Reveal>
