@@ -155,9 +155,14 @@ export default function ListingPage({
                 <span>{listing.property_type}</span>
               </div>
 
-              <p className="text-[var(--ink-soft)] leading-relaxed mb-8">
-                {listing.description}
-              </p>
+              <p
+                className="text-[var(--ink-soft)] leading-relaxed mb-8"
+                dangerouslySetInnerHTML={{
+                  __html: (listing.description ?? "")
+                    .replace(/<br\s*\/?>/gi, "<br/>")
+                    .replace(/<(?!br\/?>)[^>]*>/gi, ""),
+                }}
+              />
 
               {/* Amenities */}
               {listing.amenities?.length > 0 && (

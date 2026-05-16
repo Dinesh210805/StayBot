@@ -11,7 +11,6 @@ import json
 from langchain_core.tools import tool
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
-from backend.observability import get_request_context
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
@@ -57,16 +56,13 @@ def search_listings_semantic(query: str) -> str:
 
     model = _get_model()
     index = _get_index()
-    ctx = get_request_context()
 
-    # Embed the query — timed for RAG metrics
+    # Embed the query
     t_embed = time.monotonic()
     query_embedding = model.encode(query).tolist()
-    embed_ms = (time.monotonic() - t_embed) * 1000
-    if ctx is not None:
-        ctx.rag_embedding_ms = embed_ms
+    embed_ms = round((time.monotonic() - t_embed) * 1000, 2)
 
-    # Search Pinecone — timed for RAG metrics
+    # Search Pinecone
     t_retr = time.monotonic()
     results = index.query(
         namespace="listings",
@@ -74,17 +70,27 @@ def search_listings_semantic(query: str) -> str:
         top_k=n_results,
         include_metadata=True,
     )
-    retr_ms = (time.monotonic() - t_retr) * 1000
-    if ctx is not None:
-        ctx.rag_retrieval_ms = retr_ms
+    retr_ms = round((time.monotonic() - t_retr) * 1000, 2)
 
     if not results or not results.matches:
         return "No matching listings found. Try broadening your search criteria."
 
-    # Record relevance scores into request context
-    if ctx is not None:
-        ctx.rag_scores = [m.score for m in results.matches]
-        ctx.rag_results_count = len(results.matches)
+    scores = [m.score for m in results.matches]
+
+    # Attach RAG timing + scores to the active LangSmith run
+    try:
+        from langsmith.run_helpers import get_current_run_tree
+        rt = get_current_run_tree()
+        if rt:
+            rt.metadata.update({
+                "rag_embedding_ms": embed_ms,
+                "rag_retrieval_ms": retr_ms,
+                "rag_results_count": len(scores),
+                "rag_avg_score": round(sum(scores) / len(scores), 4),
+                "rag_scores": [round(s, 4) for s in scores],
+            })
+    except Exception:
+        pass
 
     # Format results
     output_lines = [f"Found {len(results.matches)} matching listings:\n"]

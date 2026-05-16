@@ -5,8 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { api, type Listing } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+
+const ConciergeMap = dynamic(() => import("@/components/map/ConciergeMap"), { ssr: false });
 
 const STARTERS = [
   { city: "Bangkok", text: "A cozy loft in Bangkok under $80, near temples", color: "var(--terra)" },
@@ -20,6 +23,14 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   loading?: boolean;
+  listingIds?: string[];
+}
+
+type MappedListing = Listing & { latitude: number; longitude: number };
+
+function extractListingIds(text: string): string[] {
+  const matches = [...text.matchAll(/ID:\s*([\d.]+)/g)];
+  return [...new Set(matches.map((m) => m[1].replace(/\.0$/, "")))];
 }
 
 export default function ChatPage() {
@@ -34,8 +45,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | undefined>();
   const [sending, setSending] = useState(false);
-  const [suggestions, setSuggestions] = useState<Listing[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<MappedListing | null>(null);
+  const [loadingListing, setLoadingListing] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -44,22 +55,21 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Refresh sample suggestions on send
-  const refreshSuggestions = useCallback(async () => {
-    setLoadingSuggestions(true);
+  const selectListing = useCallback(async (id: string) => {
+    setLoadingListing(true);
     try {
-      const res = await api.listings.list({ per_page: 6 });
-      setSuggestions(res.listings ?? []);
+      const listing = await api.listings.get(id);
+      if (listing.latitude != null && listing.longitude != null) {
+        setSelectedListing(listing as MappedListing);
+      } else {
+        setSelectedListing(null);
+      }
     } catch {
-      setSuggestions([]);
+      // silently ignore
     } finally {
-      setLoadingSuggestions(false);
+      setLoadingListing(false);
     }
   }, []);
-
-  useEffect(() => {
-    refreshSuggestions();
-  }, [refreshSuggestions]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -82,14 +92,19 @@ export default function ChatPage() {
 
         const res = await api.chat.send(text.trim(), activeSessionId);
         setSessionId(res.session_id);
+        const ids = extractListingIds(res.response);
         setMessages((prev) =>
           prev.map((m) =>
             m.id === "loading"
-              ? { id: crypto.randomUUID(), role: "assistant", content: res.response }
+              ? {
+                  id: crypto.randomUUID(),
+                  role: "assistant",
+                  content: res.response,
+                  listingIds: ids.length > 0 ? ids : undefined,
+                }
               : m
           )
         );
-        refreshSuggestions();
       } catch {
         setMessages((prev) =>
           prev.map((m) =>
@@ -97,7 +112,8 @@ export default function ChatPage() {
               ? {
                   id: crypto.randomUUID(),
                   role: "assistant",
-                  content: "Hmm — I couldn't reach the server. Make sure the backend is running and try again.",
+                  content:
+                    "Hmm — I couldn't reach the server. Make sure the backend is running and try again.",
                 }
               : m
           )
@@ -107,7 +123,7 @@ export default function ChatPage() {
         inputRef.current?.focus();
       }
     },
-    [sessionId, sending, refreshSuggestions]
+    [sessionId, sending]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -118,22 +134,23 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--paper)]">
-      <div className="pt-24 pb-8 max-w-[1500px] mx-auto px-6 md:px-10 h-screen flex flex-col">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 flex-1 min-h-0">
+    <div className="h-screen overflow-hidden bg-[var(--paper)] flex flex-col">
+      <div className="flex-1 min-h-0 pt-20 pb-4 px-4 md:px-8 lg:px-10 max-w-[1500px] mx-auto w-full flex flex-col">
+        <div className="grid lg:grid-cols-12 gap-4 lg:gap-6 flex-1 min-h-0">
+
           {/* ── LEFT: Chat ───────────────────────────────────────── */}
-          <section className="lg:col-span-7 border border-[var(--ink)] bg-[var(--ivory)] rounded-sm flex flex-col min-h-0 shadow-[6px_6px_0_0_var(--ink)] overflow-hidden">
+          <section className="lg:col-span-7 border border-[var(--ink)] bg-[var(--ivory)] rounded-sm flex flex-col min-h-0 shadow-[4px_4px_0_0_var(--ink)] overflow-hidden">
             {/* Header */}
-            <div className="border-b border-[var(--ink)] px-6 py-4 flex items-center justify-between bg-[var(--paper)]">
+            <div className="border-b border-[var(--ink)] px-5 py-3.5 flex items-center justify-between bg-[var(--paper)] flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[var(--ink)] text-[var(--paper)] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-[var(--ink)] text-[var(--paper)] flex items-center justify-center">
                   <span className="font-mono text-xs font-bold">S</span>
                 </div>
                 <div>
-                  <p className="font-display text-lg leading-tight">
+                  <p className="font-display text-base leading-tight">
                     The <em className="italic-display text-[var(--terra)]">Concierge</em>
                   </p>
-                  <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
+                  <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
                     Bangkok · London · Cape Town
                   </p>
                 </div>
@@ -148,6 +165,7 @@ export default function ChatPage() {
                     onClick={async () => {
                       try { await api.sessions.delete(sessionId); } catch {}
                       setSessionId(undefined);
+                      setSelectedListing(null);
                       setMessages([{
                         id: "welcome",
                         role: "assistant",
@@ -162,11 +180,11 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            {/* Messages — this is the scrollable area */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-5 min-h-0">
               <AnimatePresence initial={false}>
                 {messages.map((msg) => (
-                  <MessageBubble key={msg.id} msg={msg} />
+                  <MessageBubble key={msg.id} msg={msg} onSelectListing={selectListing} />
                 ))}
               </AnimatePresence>
               <div ref={bottomRef} />
@@ -179,9 +197,9 @@ export default function ChatPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="px-6 py-4 border-t border-[var(--border)]"
+                  className="px-5 py-3.5 border-t border-[var(--border)] flex-shrink-0"
                 >
-                  <p className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--ink-muted)] mb-3">
+                  <p className="font-mono text-[9px] tracking-[0.32em] uppercase text-[var(--ink-muted)] mb-2.5">
                     Try one of these
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -191,10 +209,10 @@ export default function ChatPage() {
                         onClick={() => sendMessage(s.text)}
                         className="group text-left p-3 rounded-sm border border-[var(--border-strong)] hover:border-[var(--ink)] hover:bg-[var(--paper-soft)] transition-colors"
                       >
-                        <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1.5" style={{ color: s.color }}>
+                        <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: s.color }}>
                           {s.city}
                         </p>
-                        <p className="text-sm text-[var(--ink)] leading-snug">{s.text}</p>
+                        <p className="text-[13px] text-[var(--ink)] leading-snug">{s.text}</p>
                       </button>
                     ))}
                   </div>
@@ -203,252 +221,289 @@ export default function ChatPage() {
             </AnimatePresence>
 
             {/* Input */}
-            <div className="border-t border-[var(--ink)] p-4">
-              <div className="flex items-end gap-3 bg-[var(--paper)] rounded-full border border-[var(--ink)] px-5 py-2 focus-within:shadow-[2px_3px_0_0_var(--ink)] transition-all">
+            <div className="border-t border-[var(--ink)] p-3.5 flex-shrink-0">
+              <div className="flex items-end gap-3 bg-[var(--paper)] rounded-full border border-[var(--ink)] px-4 py-2 focus-within:shadow-[2px_2px_0_0_var(--ink)] transition-all">
                 <textarea
                   ref={inputRef}
                   value={input}
                   onChange={(e) => {
                     setInput(e.target.value);
                     e.target.style.height = "auto";
-                    e.target.style.height = `${Math.min(e.target.scrollHeight, 140)}px`;
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="Describe your perfect stay…"
                   rows={1}
                   disabled={sending}
-                  className="flex-1 bg-transparent text-[var(--ink)] text-sm resize-none outline-none placeholder:text-[var(--ink-muted)] leading-relaxed max-h-32 overflow-y-auto py-2"
+                  className="flex-1 bg-transparent text-[var(--ink)] text-sm resize-none outline-none placeholder:text-[var(--ink-muted)] leading-relaxed max-h-28 overflow-y-auto py-1.5"
                 />
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => sendMessage(input)}
                   disabled={!input.trim() || sending}
-                  className="w-9 h-9 rounded-full bg-[var(--ink)] text-[var(--paper)] flex items-center justify-center flex-shrink-0 hover:bg-[var(--terra)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-full bg-[var(--ink)] text-[var(--paper)] flex items-center justify-center flex-shrink-0 hover:bg-[var(--terra)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   →
                 </motion.button>
               </div>
-              <p className="text-center text-[9px] tracking-[0.3em] uppercase font-mono text-[var(--ink-muted)] mt-2.5">
-                Enter to send · Shift+Enter for new line
+              <p className="text-center text-[9px] tracking-[0.3em] uppercase font-mono text-[var(--ink-muted)] mt-2">
+                Enter · Shift+Enter for new line
               </p>
             </div>
           </section>
 
-          {/* ── RIGHT: Live results panel ────────────────────────── */}
-          <aside className="lg:col-span-5 border border-[var(--ink)] bg-[var(--paper)] rounded-sm flex flex-col min-h-0 overflow-hidden">
-            <div className="border-b border-[var(--ink)] px-5 py-4 flex items-center justify-between bg-[var(--ink)] text-[var(--paper)]">
-              <div>
-                <p className="font-mono text-[9px] tracking-[0.32em] uppercase opacity-60 mb-0.5">Live · Curated for you</p>
-                <p className="font-display text-lg italic-display">As we talk…</p>
-              </div>
-              <Link
-                href="/explore"
-                className="text-[10px] font-mono uppercase tracking-widest border border-[var(--paper)]/40 rounded-full px-3 py-1.5 hover:bg-[var(--paper)] hover:text-[var(--ink)] transition-colors"
-              >
-                See all
-              </Link>
-            </div>
-
-            {/* Mini map illustration */}
-            <div className="border-b border-[var(--ink)] bg-[var(--paper-soft)] h-32 relative overflow-hidden">
-              <MiniMap />
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
-                <span>Sample atlas</span>
-                <span>3 cities</span>
-              </div>
-            </div>
-
-            {/* Suggestions */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {loadingSuggestions ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex gap-3 p-2">
-                    <div className="w-20 h-20 shimmer rounded-sm" />
-                    <div className="flex-1 space-y-2 py-1">
-                      <div className="h-3 w-3/4 shimmer rounded-sm" />
-                      <div className="h-2.5 w-1/2 shimmer rounded-sm" />
-                      <div className="h-2.5 w-2/5 shimmer rounded-sm" />
-                    </div>
-                  </div>
-                ))
-              ) : suggestions.length === 0 ? (
-                <div className="text-center py-12 text-[var(--ink-muted)] text-sm">
-                  <p className="font-display text-2xl italic mb-2">No matches yet</p>
-                  <p className="text-xs">Tell me what you're looking for →</p>
-                </div>
+          {/* ── RIGHT: Map panel (desktop only) ──────────────────── */}
+          <aside className="hidden lg:flex lg:col-span-5 border border-[var(--ink)] bg-[var(--paper)] rounded-sm flex-col min-h-0 overflow-hidden shadow-[4px_4px_0_0_var(--ink)]">
+            <AnimatePresence mode="wait">
+              {loadingListing ? (
+                <MapLoading key="map-loading" />
+              ) : selectedListing ? (
+                <motion.div
+                  key={`map-${selectedListing.id}`}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex-1 min-h-0 overflow-hidden"
+                >
+                  <ConciergeMap listing={selectedListing} />
+                </motion.div>
               ) : (
-                suggestions.map((s, i) => (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06, duration: 0.5 }}
-                  >
-                    <Link
-                      href={`/explore/${s.id}`}
-                      className="group flex gap-3 p-2 rounded-sm hover:bg-[var(--paper-soft)] transition-colors"
-                    >
-                      <div className="relative w-20 h-20 rounded-sm overflow-hidden flex-shrink-0 bg-[var(--paper-soft)] border border-[var(--border)]">
-                        <Image
-                          src={s.picture_url ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80"}
-                          alt={s.name}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          sizes="80px"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 py-0.5">
-                        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
-                          {s.city} · {s.property_type}
-                        </p>
-                        <p className="font-display text-base text-[var(--ink)] truncate mt-0.5">
-                          {s.name}
-                        </p>
-                        <div className="flex items-center justify-between mt-1.5">
-                          <span className="text-xs text-[var(--terra)]">★ {s.rating.toFixed(1)}</span>
-                          <span className="font-mono text-xs text-[var(--ink)]">
-                            {formatPrice(s.price_per_night)} <span className="text-[var(--ink-muted)] text-[10px]">/n</span>
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))
+                <MapPlaceholder key="map-placeholder" />
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-[var(--ink)] p-4 bg-[var(--paper)]">
-              <Link
-                href="/booking"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-colors group"
-              >
-                Open the calendar
-                <span className="w-7 h-7 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center text-xs group-hover:rotate-[-45deg] transition-transform duration-300">
-                  →
-                </span>
-              </Link>
-            </div>
+            </AnimatePresence>
           </aside>
         </div>
       </div>
+
+      {/* ── Mobile bottom sheet (< lg) ────────────────────────────── */}
+      <AnimatePresence>
+        {(selectedListing || loadingListing) && (
+          <motion.div
+            key="mobile-sheet-backdrop"
+            className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+              onClick={() => setSelectedListing(null)}
+            />
+            {/* Sheet */}
+            <motion.div
+              className="relative bg-[var(--paper)] rounded-t-2xl flex flex-col overflow-hidden"
+              style={{ height: "82vh" }}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            >
+              {/* Handle bar */}
+              <div className="flex-shrink-0 pt-3 pb-2.5 flex items-center justify-between px-5 border-b border-[var(--border)]">
+                <div className="w-10 h-1 rounded-full bg-[var(--border-strong)] mx-auto" />
+                <button
+                  onClick={() => setSelectedListing(null)}
+                  className="absolute right-4 font-mono text-[10px] tracking-widest uppercase text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto min-h-0">
+                {loadingListing ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-4 text-[var(--ink-muted)]">
+                    <div className="flex gap-2">
+                      {[0, 0.15, 0.3].map((d) => (
+                        <motion.div
+                          key={d}
+                          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                          transition={{ duration: 1.2, repeat: Infinity, delay: d }}
+                          className="w-2 h-2 rounded-full bg-[var(--ink)]"
+                        />
+                      ))}
+                    </div>
+                    <p className="font-mono text-[10px] tracking-[0.3em] uppercase">Loading stay…</p>
+                  </div>
+                ) : selectedListing ? (
+                  <ConciergeMap listing={selectedListing} />
+                ) : null}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+// ── Sub-components ─────────────────────────────────────────────────────
+
+function MapLoading() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex-1 flex flex-col items-center justify-center gap-4 text-[var(--ink-muted)]"
+    >
+      <div className="flex gap-2">
+        {[0, 0.15, 0.3].map((d) => (
+          <motion.div
+            key={d}
+            animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+            transition={{ duration: 1.2, repeat: Infinity, delay: d }}
+            className="w-2 h-2 rounded-full bg-[var(--ink)]"
+          />
+        ))}
+      </div>
+      <p className="font-mono text-[10px] tracking-[0.3em] uppercase">Loading stay…</p>
+    </motion.div>
+  );
+}
+
+function MapPlaceholder() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex-1 flex flex-col items-center justify-center gap-5 px-8 text-center"
+    >
+      <div className="relative w-20 h-20">
+        <svg viewBox="0 0 96 96" className="w-full h-full opacity-20">
+          <circle cx="48" cy="48" r="38" stroke="var(--ink)" strokeWidth="1.5" fill="none" />
+          <ellipse cx="48" cy="48" rx="18" ry="38" stroke="var(--ink)" strokeWidth="1" fill="none" />
+          <line x1="10" y1="48" x2="86" y2="48" stroke="var(--ink)" strokeWidth="1" />
+          <line x1="18" y1="28" x2="78" y2="28" stroke="var(--ink)" strokeWidth="0.7" />
+          <line x1="18" y1="68" x2="78" y2="68" stroke="var(--ink)" strokeWidth="0.7" />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-3xl">🏡</span>
+        </div>
+      </div>
+      <div>
+        <p className="font-display text-xl italic-display text-[var(--ink)] mb-2">Pick a stay</p>
+        <p className="text-sm text-[var(--ink-muted)] leading-relaxed">
+          Ask me anything and tap a listing card in the chat to explore it on the map with nearby spots.
+        </p>
+      </div>
+      <div className="flex items-center gap-2 font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
+        <span className="w-5 h-px bg-[var(--ink-muted)]" />
+        Bangkok · London · Cape Town
+        <span className="w-5 h-px bg-[var(--ink-muted)]" />
+      </div>
+      <Link
+        href="/explore"
+        className="text-[10px] font-mono uppercase tracking-widest border border-[var(--ink)] rounded-full px-4 py-2 hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors"
+      >
+        Browse all stays
+      </Link>
+    </motion.div>
+  );
+}
+
 // ── Message bubble ─────────────────────────────────────────────────────
-function MessageBubble({ msg }: { msg: Message }) {
+function MessageBubble({
+  msg,
+  onSelectListing,
+}: {
+  msg: Message;
+  onSelectListing: (id: string) => void;
+}) {
   const isUser = msg.role === "user";
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
     >
+      {/* Avatar */}
       <div
-        className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1 font-mono ${
-          isUser
-            ? "bg-[var(--terra)] text-[var(--paper)]"
-            : "bg-[var(--ink)] text-[var(--paper)]"
+        className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-bold mt-1 font-mono ${
+          isUser ? "bg-[var(--terra)] text-[var(--paper)]" : "bg-[var(--ink)] text-[var(--paper)]"
         }`}
       >
         {isUser ? "U" : "S"}
       </div>
-      <div
-        className={`max-w-[78%] px-5 py-3.5 text-[14px] leading-relaxed ${
-          isUser
-            ? "bg-[var(--ink)] text-[var(--paper)] rounded-[18px] rounded-tr-sm"
-            : "bg-[var(--paper-soft)] text-[var(--ink)] rounded-[18px] rounded-tl-sm border border-[var(--border)]"
-        }`}
-      >
+
+      {/* Bubble */}
+      <div className={`${isUser ? "max-w-[86%]" : msg.listingIds && msg.listingIds.length > 0 ? "max-w-[96%] w-full" : "max-w-[86%]"} ${isUser ? "items-end" : "items-start"}`}>
         {msg.loading ? (
-          <div className="flex gap-1.5 items-center h-5">
-            {[0, 0.2, 0.4].map((d) => (
-              <motion.div
-                key={d}
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: d }}
-                className="w-2 h-2 rounded-full bg-[var(--ink)]"
-              />
-            ))}
+          <div className="px-4 py-3.5 bg-[var(--paper-soft)] rounded-[16px] rounded-tl-sm border border-[var(--border)]">
+            <div className="flex gap-1.5 items-center h-5">
+              {[0, 0.2, 0.4].map((d) => (
+                <motion.div
+                  key={d}
+                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 1.2, repeat: Infinity, delay: d }}
+                  className="w-1.5 h-1.5 rounded-full bg-[var(--ink)]"
+                />
+              ))}
+            </div>
+          </div>
+        ) : isUser ? (
+          <div className="px-4 py-3 bg-[var(--ink)] text-[var(--paper)] rounded-[16px] rounded-tr-sm text-[14px] leading-relaxed">
+            {msg.content}
+          </div>
+        ) : msg.listingIds && msg.listingIds.length > 0 ? (
+          /* Assistant: side-by-side — text left, cards right */
+          <div className="bg-[var(--paper-soft)] text-[var(--ink)] rounded-[16px] rounded-tl-sm border border-[var(--border)] overflow-hidden flex flex-col sm:flex-row">
+            {/* Text column */}
+            <div className="px-4 py-3.5 text-[14px] leading-relaxed flex-1 min-w-0 sm:border-r border-b sm:border-b-0 border-[var(--border)]">
+              <MessageText content={msg.content} />
+            </div>
+            {/* Cards column */}
+            <div className="sm:w-64 flex-shrink-0 px-2.5 py-3 bg-[var(--paper)] flex flex-col">
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)] mb-2 px-1">
+                Stays mentioned
+              </p>
+              <InlineListingCards ids={msg.listingIds} onSelect={onSelectListing} />
+            </div>
           </div>
         ) : (
-          <MessageContentRenderer content={msg.content} isUser={isUser} />
+          /* Assistant: text only */
+          <div className="bg-[var(--paper-soft)] text-[var(--ink)] rounded-[16px] rounded-tl-sm border border-[var(--border)] overflow-hidden">
+            <div className="px-4 py-3.5 text-[14px] leading-relaxed">
+              <MessageText content={msg.content} />
+            </div>
+          </div>
         )}
       </div>
     </motion.div>
   );
 }
 
-function ListingCard({ s }: { s: Listing }) {
-  return (
-    <Link
-      href={`/explore/${s.id}`}
-      className="group flex gap-3 p-2 rounded-sm hover:bg-[var(--paper-soft)] transition-colors"
-    >
-      <div className="relative w-20 h-20 rounded-sm overflow-hidden flex-shrink-0 bg-[var(--paper-soft)] border border-[var(--border)]">
-        <Image
-          src={s.picture_url ?? "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80"}
-          alt={s.name}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-          sizes="80px"
-        />
-      </div>
-      <div className="flex-1 min-w-0 py-0.5">
-        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
-          {s.city} · {s.property_type}
-        </p>
-        <p className="font-display text-base text-[var(--ink)] truncate mt-0.5">{s.name}</p>
-        <div className="flex items-center justify-between mt-1.5">
-          <span className="text-xs text-[var(--terra)]">★ {s.rating?.toFixed(1) ?? "—"}</span>
-          <span className="font-mono text-xs text-[var(--ink)]">
-            {formatPrice(s.price_per_night)} <span className="text-[var(--ink-muted)] text-[10px]">/n</span>
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function MessageContentRenderer({ content, isUser }: { content: string; isUser: boolean }) {
-  // If assistant embeds a JSON payload like { listings: [...] }, render cards inline.
-  try {
-    const parsed = JSON.parse(content);
-    if (parsed && Array.isArray(parsed.listings) && parsed.listings.length > 0) {
-      const listings: Listing[] = parsed.listings;
-      return (
-        <div className="space-y-2">
-          {listings.map((s) => (
-            <motion.div key={s.id} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}>
-              <ListingCard s={s} />
-            </motion.div>
-          ))}
-        </div>
-      );
-    }
-  } catch (e) {
-    // not JSON — fall through to markdown
-  }
-
+function MessageText({ content }: { content: string }) {
   return (
     <ReactMarkdown
       components={{
-        strong: ({ children }) => <strong className={isUser ? "text-[var(--ochre-bright)]" : "text-[var(--terra)]"}>{children}</strong>,
+        strong: ({ children }) => (
+          <strong className="font-semibold text-[var(--terra)]">{children}</strong>
+        ),
         a: ({ href, children }) => (
-          <a href={href} className="underline underline-offset-2 hover:opacity-70" target="_blank" rel="noopener noreferrer">
+          <a
+            href={href}
+            className="underline underline-offset-2 hover:opacity-70"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {children}
           </a>
         ),
-        ul: ({ children }) => <ul className="mt-2 space-y-1 list-none">{children}</ul>,
+        ul: ({ children }) => <ul className="mt-2 space-y-1.5 list-none">{children}</ul>,
         li: ({ children }) => (
-          <li className="flex gap-2 before:content-['—'] before:opacity-50 before:flex-shrink-0">
+          <li className="flex gap-2 before:content-['—'] before:opacity-40 before:flex-shrink-0 before:mt-px">
             <span>{children}</span>
           </li>
         ),
         p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        h3: ({ children }) => (
+          <h3 className="font-semibold text-[var(--ink)] mt-3 mb-1 first:mt-0">{children}</h3>
+        ),
       }}
     >
       {content}
@@ -456,40 +511,95 @@ function MessageContentRenderer({ content, isUser }: { content: string; isUser: 
   );
 }
 
-// ── Mini map for sidebar ───────────────────────────────────────────────
-function MiniMap() {
+// Fetches listing cards and renders them inline inside the bot message
+function InlineListingCards({
+  ids,
+  onSelect,
+}: {
+  ids: string[];
+  onSelect: (id: string) => void;
+}) {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(ids.map((id) => api.listings.get(id).catch(() => null))).then((results) => {
+      if (cancelled) return;
+      setListings(results.filter((l): l is Listing => l !== null));
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [ids]);
+
+  if (loading) {
+    return (
+      <div className="flex gap-1.5 py-3 px-1 justify-center">
+        {[0, 0.1, 0.2].map((d) => (
+          <motion.div
+            key={d}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1, repeat: Infinity, delay: d }}
+            className="w-1.5 h-1.5 rounded-full bg-[var(--ink)]"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (listings.length === 0) return null;
+
   return (
-    <svg viewBox="0 0 400 130" className="absolute inset-0 w-full h-full">
-      <defs>
-        <pattern id="mini-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#0E1110" strokeWidth="0.5" opacity="0.05" />
-        </pattern>
-      </defs>
-      <rect width="400" height="130" fill="url(#mini-grid)" />
+    <div className="space-y-2">
+      {listings.map((s, i) => (
+        <motion.div
+          key={s.id}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.06 }}
+        >
+          <button
+            onClick={() => onSelect(s.id)}
+            className="w-full group flex gap-3 p-2.5 rounded-sm border border-[var(--border)] bg-[var(--paper-soft)] hover:border-[var(--ink)] hover:bg-[var(--paper)] hover:shadow-[2px_2px_0_0_var(--ink)] transition-all text-left"
+          >
+            {/* Thumbnail */}
+            <div className="relative w-[72px] h-[72px] rounded-sm overflow-hidden flex-shrink-0 bg-[var(--paper-soft)] border border-[var(--border)]">
+              <Image
+                src={
+                  s.picture_url ??
+                  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80"
+                }
+                alt={s.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="72px"
+              />
+            </div>
 
-      {/* Pseudo-coastline */}
-      <path d="M 0 90 Q 50 70 100 80 T 200 75 T 300 85 T 400 70" fill="none" stroke="#0E1110" strokeWidth="0.7" opacity="0.3" />
-      <path d="M 0 100 Q 50 95 100 100 T 400 95" fill="none" stroke="#0E1110" strokeWidth="0.4" opacity="0.2" />
+            {/* Details */}
+            <div className="flex-1 min-w-0 py-0.5">
+              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
+                {s.city} · {s.property_type}
+              </p>
+              <p className="font-display text-[15px] text-[var(--ink)] truncate mt-0.5 leading-tight">
+                {s.name}
+              </p>
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="text-[12px] text-[var(--terra)]">★ {s.rating?.toFixed(1) ?? "—"}</span>
+                <span className="font-mono text-[12px] text-[var(--ink)]">
+                  {formatPrice(s.price_per_night)}
+                  <span className="text-[var(--ink-muted)] text-[10px]">/n</span>
+                </span>
+              </div>
+            </div>
 
-      {/* City pins — Bangkok / London / Cape Town */}
-      {[
-        { x: 90, y: 50, color: "#1F3A2C", label: "LDN" },   // London top-left
-        { x: 220, y: 40, color: "#C25A38", label: "BKK" },  // Bangkok mid
-        { x: 320, y: 90, color: "#4A8385", label: "CPT" },  // Cape Town bottom-right
-      ].map((p) => (
-        <g key={p.label}>
-          <circle cx={p.x} cy={p.y} r="14" fill={p.color} opacity="0.15" />
-          <circle cx={p.x} cy={p.y} r="7" fill={p.color} opacity="0.30" />
-          <circle cx={p.x} cy={p.y} r="4" fill={p.color} stroke="#F2EBDB" strokeWidth="1.5" />
-          <text x={p.x} y={p.y - 14} textAnchor="middle" fontFamily="monospace" fontSize="9" fill="#0E1110" letterSpacing="1.5">{p.label}</text>
-        </g>
+            {/* Arrow */}
+            <div className="flex items-center pr-0.5">
+              <span className="text-[var(--ink-muted)] group-hover:text-[var(--terra)] text-sm transition-colors">→</span>
+            </div>
+          </button>
+        </motion.div>
       ))}
-
-      {/* Connecting lines */}
-      <g stroke="#0E1110" strokeWidth="0.5" strokeDasharray="2 3" opacity="0.4">
-        <line x1="90" y1="50" x2="220" y2="40" />
-        <line x1="220" y1="40" x2="320" y2="90" />
-      </g>
-    </svg>
+    </div>
   );
 }

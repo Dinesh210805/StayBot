@@ -33,6 +33,12 @@ from backend.schemas import (
 from backend.memory import memory_store
 from backend.database import init_db, search_listings, get_listing_by_id, get_all_cities, SessionLocal
 from backend.database import Listing
+import time
+
+# Simple in-memory cache for nearby queries to reduce Overpass load
+# Keyed by rounded lat/lon + types + radius + limit
+NEARBY_CACHE: dict = {}
+NEARBY_CACHE_TTL = int(os.getenv("NEARBY_CACHE_TTL", "300"))  # seconds
 
 log = get_logger("main")
 
@@ -372,28 +378,62 @@ async def nearby_places(
         "beach": "natural=beach",
     }
 
-    tag = osm_tags.get(type.lower(), f"amenity={type}")
-    tag_key, tag_value = tag.split("=", 1)
+    # Accept comma-separated types (e.g., "restaurant,cafe,museum")
+    types = [t.strip() for t in type.split(",") if t.strip()]
+    if not types:
+        types = ["restaurant"]
 
-    query = f"""
+    # Cache key: rounded coords to reduce overly specific cache misses
+    key = f"{round(lat,4)}:{round(lon,4)}:{','.join(sorted(types))}:{radius}:{limit}"
+    cached = NEARBY_CACHE.get(key)
+    if cached and (time.time() - cached[0]) < NEARBY_CACHE_TTL:
+        return cached[1]
+
+    # Build Overpass query for multiple types in a single request
+    tag_clauses = []
+    for t in types:
+        tag = osm_tags.get(t.lower(), f"amenity={t}")
+        tag_key, tag_value = tag.split("=", 1)
+        tag_clauses.append((t, tag_key, tag_value))
+
+    clauses = []
+    for tag_key, tag_value in tag_clauses:
+        clauses.append(f'node["{tag_key}"="{tag_value}"](around:{radius},{lat},{lon});')
+        clauses.append(f'way["{tag_key}"="{tag_value}"](around:{radius},{lat},{lon});')
+
+    query = """
     [out:json][timeout:10];
     (
-      node["{tag_key}"="{tag_value}"](around:{radius},{lat},{lon});
-      way["{tag_key}"="{tag_value}"](around:{radius},{lat},{lon});
-    );
-    out center body;
-    """
+    """ + "\n      ".join(clauses) + "\n    );\n    out center body;\n    """
 
-    try:
-        resp = _requests.post(
-            "https://overpass-api.de/api/interpreter",
-            data={"data": query},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Places service unavailable: {str(exc)[:100]}")
+    # Try primary Overpass endpoint first, then fall back to mirrors with simple retries
+    import time
+
+    overpass_endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass.openstreetmap.fr/api/interpreter",
+    ]
+
+    data = None
+    last_exc: Exception | None = None
+    for endpoint in overpass_endpoints:
+        for attempt in range(2):
+            try:
+                resp = _requests.post(endpoint, data={"data": query}, timeout=15)
+                resp.raise_for_status()
+                data = resp.json()
+                break
+            except Exception as exc:
+                last_exc = exc
+                # backoff between attempts
+                time.sleep(1 + attempt)
+        if data is not None:
+            break
+
+    if data is None:
+        err_msg = str(last_exc)[:200] if last_exc else "unknown error"
+        raise HTTPException(status_code=503, detail=f"Places service unavailable: {err_msg}")
 
     def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         R = 6_371_000
@@ -411,17 +451,31 @@ async def nearby_places(
         p_lat = el.get("lat") or el.get("center", {}).get("lat")
         p_lon = el.get("lon") or el.get("center", {}).get("lon")
         if p_lat and p_lon:
+            # Determine which requested type this element matches (if any)
+            el_tags = el.get("tags", {})
+            matched_type = None
+            for orig_type, tag_key, tag_value in tag_clauses:
+                if el_tags.get(tag_key) == tag_value:
+                    matched_type = orig_type
+                    break
+
             places.append({
                 "name": el_name,
+                "type": matched_type or types[0],
                 "distance": round(haversine(lat, lon, p_lat, p_lon)),
                 "lat": round(p_lat, 5),
                 "lon": round(p_lon, 5),
-                "cuisine": el.get("tags", {}).get("cuisine", ""),
-                "hours": el.get("tags", {}).get("opening_hours", ""),
+                "cuisine": el_tags.get("cuisine", ""),
+                "hours": el_tags.get("opening_hours", ""),
             })
 
     places.sort(key=lambda x: x["distance"])
-    return {"places": places[:limit], "total": len(places)}
+    result = {"places": places[:limit], "total": len(places)}
+    try:
+        NEARBY_CACHE[key] = (time.time(), result)
+    except Exception:
+        pass
+    return result
 
 
 # ── Run ────────────────────────────────────────────────────────────────────────
