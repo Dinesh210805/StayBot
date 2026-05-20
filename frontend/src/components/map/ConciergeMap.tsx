@@ -55,6 +55,7 @@ type LeafletMap = { map: import("leaflet").Map; L: typeof import("leaflet") };
 
 interface Props {
   listing: Listing & { latitude: number; longitude: number };
+  compact?: boolean;
 }
 
 function stripHtml(html: string): string {
@@ -65,7 +66,7 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-export default function ConciergeMap({ listing }: Props) {
+export default function ConciergeMap({ listing, compact = false }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<LeafletMap | null>(null);
   const placeMarkersRef = useRef<import("leaflet").Marker[]>([]);
@@ -197,20 +198,22 @@ export default function ConciergeMap({ listing }: Props) {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
-      {/* Listing header */}
-      <div className="px-5 py-4 border-b border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
-        <p className="font-mono text-[9px] tracking-[0.3em] uppercase opacity-60 mb-1">
-          {listing.city} · {listing.property_type}
-        </p>
-        <p className="font-display text-lg italic-display leading-tight mb-2">{listing.name}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-sm opacity-80">★ {listing.rating?.toFixed(1)}</span>
-          <span className="font-mono text-sm">{formatPrice(listing.price_per_night)}<span className="opacity-60 text-xs">/night</span></span>
+      {/* Listing header — hidden in compact (accordion) mode, already shown in parent card */}
+      {!compact && (
+        <div className="px-5 py-4 border-b border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
+          <p className="font-mono text-[9px] tracking-[0.3em] uppercase opacity-60 mb-1">
+            {listing.city} · {listing.property_type}
+          </p>
+          <p className="font-display text-lg italic-display leading-tight mb-2">{listing.name}</p>
+          <div className="flex items-center justify-between">
+            <span className="text-sm opacity-80">★ {listing.rating?.toFixed(1)}</span>
+            <span className="font-mono text-sm">{formatPrice(listing.price_per_night)}<span className="opacity-60 text-xs">/night</span></span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Leaflet map */}
-      <div className="relative h-56 w-full flex-shrink-0">
+      <div className={`relative ${compact ? "h-44" : "h-56"} w-full flex-shrink-0`}>
         <div ref={mapContainerRef} className="absolute inset-0 z-0" />
         {!mapReady && (
           <div className="absolute inset-0 bg-[var(--paper-soft)] flex items-center justify-center">

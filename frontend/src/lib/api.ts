@@ -4,7 +4,7 @@ export interface Listing {
   id: string;
   name: string;
   city: string;
-  country: string;
+  country?: string | null;
   price_per_night: number;
   max_guests: number;
   bedrooms: number;
@@ -17,10 +17,10 @@ export interface Listing {
   amenities: string[];
   picture_url: string | null;
   host_name: string;
-  host_since: string;
+  host_since?: string | null;
   cancellation_policy: string;
   min_nights: number;
-  availability: boolean;
+  availability?: boolean | null;
   latitude?: number;
   longitude?: number;
   neighbourhood?: string;
@@ -80,6 +80,24 @@ export interface BookingsResponse {
   bookings: Booking[];
 }
 
+export interface MetricsSummary {
+  overview: { total_requests: number; error_rate: number };
+  latency_ms: { p50: number; p75: number; p95: number; p99: number; avg: number };
+  tokens: { total_input: number; total_output: number; avg_input_per_req: number; avg_output_per_req: number };
+  tool_usage: Record<string, number>;
+  rag: { embedding_latency_ms: number; retrieval_latency_ms: number; avg_relevance: number; min_relevance: number; max_relevance: number };
+  recent_requests: Array<{ request_id: string; latency_ms: number; tools_used: string[]; rag_score?: number }>;
+}
+
+export interface Review {
+  id: number;
+  listing_id: number;
+  reviewer_name: string | null;
+  rating: number | null;
+  comment: string | null;
+  date: string | null;
+}
+
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -115,6 +133,23 @@ export const api = {
     get(id: string): Promise<Listing> {
       return apiFetch<Listing>(`/api/listings/${id}`);
     },
+
+    reviews(id: string, limit = 10): Promise<Review[]> {
+      return apiFetch<Review[]>(`/api/listings/${id}/reviews?limit=${limit}`);
+    },
+  },
+
+  bookings: {
+    create(
+      listingId: number,
+      checkIn: string,
+      checkOut: string,
+      guests: number,
+      sessionId: string,
+    ): Promise<ChatResponse> {
+      const message = `Book listing ${listingId} from ${checkIn} to ${checkOut} for ${guests} guests`;
+      return api.chat.send(message, sessionId);
+    },
   },
 
   chat: {
@@ -141,6 +176,13 @@ export const api = {
     },
     bookings(name: string): Promise<BookingsResponse> {
       return apiFetch<BookingsResponse>(`/api/users/${name}/bookings`);
+    },
+  },
+
+  metrics: {
+    get(): Promise<MetricsSummary> {
+      const token = process.env.NEXT_PUBLIC_METRICS_TOKEN ?? "";
+      return apiFetch<MetricsSummary>(`/api/metrics${token ? `?token=${token}` : ""}`);
     },
   },
 

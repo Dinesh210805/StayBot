@@ -50,6 +50,7 @@ class ListingBrief(BaseModel):
     review_count: Optional[int] = None
     max_guests: Optional[int] = None
     picture_url: Optional[str] = None
+    country: Optional[str] = None
 
 
 class ListingDetail(ListingBrief):
@@ -79,6 +80,17 @@ class ListingDetail(ListingBrief):
     communication_score: Optional[float] = None
     location_score: Optional[float] = None
     listing_url: Optional[str] = None
+    host_since: Optional[str] = None
+    availability: Optional[bool] = None
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    listing_id: int
+    reviewer_name: Optional[str] = None
+    rating: Optional[float] = None
+    comment: Optional[str] = None
+    date: Optional[str] = None
 
 
 class ListingsResponse(BaseModel):

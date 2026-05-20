@@ -28,11 +28,19 @@ from backend.schemas import (
     ListingBrief,
     ListingDetail,
     ListingsResponse,
+    ReviewResponse,
     HealthResponse,
 )
 from backend.memory import memory_store
-from backend.database import init_db, search_listings, get_listing_by_id, get_all_cities, SessionLocal
-from backend.database import Listing
+from backend.database import init_db, search_listings, get_listing_by_id, get_all_cities, get_listing_reviews, SessionLocal
+from backend.database import Listing, BlockedDate
+
+CITY_TO_COUNTRY: dict[str, str] = {
+    "Bangkok": "Thailand",
+    "London": "United Kingdom",
+    "Cape Town": "South Africa",
+    "Istanbul": "Turkey",
+}
 import time
 
 # Simple in-memory cache for nearby queries to reduce Overpass load
@@ -323,6 +331,7 @@ async def list_listings(
             review_count=r.get("review_count"),
             max_guests=r.get("max_guests"),
             picture_url=r.get("picture_url"),
+            country=CITY_TO_COUNTRY.get(r.get("city", ""), None),
         )
         for r in results
     ]
@@ -341,7 +350,32 @@ async def get_listing(listing_id: int):
     listing = get_listing_by_id(listing_id)
     if not listing:
         raise HTTPException(status_code=404, detail=f"Listing {listing_id} not found")
+    listing["country"] = CITY_TO_COUNTRY.get(listing.get("city", ""), None)
+    listing["host_since"] = None
+    db = SessionLocal()
+    try:
+        blocked = db.query(BlockedDate).filter(BlockedDate.listing_id == listing_id).first()
+        listing["availability"] = blocked is None
+    finally:
+        db.close()
     return ListingDetail(**listing)
+
+
+@app.get("/api/listings/{listing_id}/reviews", response_model=list[ReviewResponse], tags=["Listings"])
+async def get_reviews(listing_id: int, limit: int = 10):
+    """Get reviews for a specific listing."""
+    rows = get_listing_reviews(listing_id, limit)
+    return [
+        ReviewResponse(
+            id=r["id"],
+            listing_id=r["listing_id"],
+            reviewer_name=r.get("reviewer_name"),
+            rating=r.get("rating"),
+            comment=r.get("comment_text"),
+            date=str(r["date"]) if r.get("date") else None,
+        )
+        for r in rows
+    ]
 
 
 # ── Nearby Places ─────────────────────────────────────────────────────────────

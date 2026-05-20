@@ -141,7 +141,7 @@ export default function ListingPage({
                 <span>{listing.review_count} reviews</span>
                 <span>·</span>
                 <span>
-                  {listing.neighbourhood ?? listing.city}, {listing.country}
+                  {listing.neighbourhood ?? listing.city}{listing.country ? `, ${listing.country}` : ""}
                 </span>
               </div>
 
@@ -184,7 +184,7 @@ export default function ListingPage({
                   Hosted by {listing.host_name}
                 </h2>
                 <p className="text-xs text-[var(--ink-muted)]">
-                  Host since {listing.host_since} · {listing.cancellation_policy} cancellation
+                  {listing.host_since ? `Host since ${listing.host_since} · ` : ""}{listing.cancellation_policy} cancellation
                 </p>
               </div>
 
@@ -285,15 +285,15 @@ export default function ListingPage({
 
               <div className="mt-5 pt-5 border-t border-[var(--border)] space-y-2">
                 {[
-                  ["City", `${listing.city}, ${listing.country}`],
+                  ["City", `${listing.city}${listing.country ? `, ${listing.country}` : ""}`],
                   ["Type", listing.property_type],
-                  ["Availability", listing.availability ? "Available" : "Unavailable"],
+                  ["Availability", listing.availability !== false ? "Available" : "Unavailable"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs">
                     <span className="text-[var(--ink-muted)]">{k}</span>
                     <span
                       className={`text-[var(--ink-soft)] ${
-                        k === "Availability" && listing.availability
+                        k === "Availability" && listing.availability !== false
                           ? "text-emerald-400"
                           : ""
                       }`}

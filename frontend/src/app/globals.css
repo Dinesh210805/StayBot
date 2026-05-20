@@ -94,6 +94,12 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* `clip` prevents a horizontal scrollbar without creating a new scrolling
+     context (unlike `hidden`), so Lenis can smoothly scroll the html element. */
+  overflow-x: clip;
+  /* Lenis requires the scroll container to have a non-static position so it
+     can accurately calculate scroll offsets. */
+  position: relative;
 }
 
 /* Lenis smooth scroll */
@@ -106,9 +112,11 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
-  overflow-x: hidden;
   line-height: 1.6;
   cursor: none;
+  /* No overflow rule — body must not create its own scroll context,
+     otherwise Lenis cannot smooth-scroll the document. The html element
+     handles horizontal-overflow protection via `overflow-x: clip`. */
 }
 @media (max-width: 768px), (pointer: coarse) {
   body { cursor: auto; }
@@ -296,10 +304,7 @@ a, button, [role="button"], input, textarea, select {
   text-transform: uppercase;
 }
 
-/* Image grain overlay */
-.img-grain {
-  position: relative;
-}
+/* Image grain overlay — no position rule here; callers must set position via their own class */
 .img-grain::after {
   content: '';
   position: absolute;

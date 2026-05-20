@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarPicker, { type DateRange } from "@/components/booking/CalendarPicker";
 import { Reveal, RevealLines } from "@/components/fx/Reveal";
+import { api } from "@/lib/api";
 
 const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -39,11 +40,40 @@ const SHOWCASE_STAYS = [
   },
 ];
 
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
 export default function BookingPage() {
   const [stayIdx, setStayIdx] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange | null>(null);
   const [guests, setGuests] = useState(2);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [booking, setBooking] = useState<{ loading: boolean; error: string | null; success: boolean }>(
+    { loading: false, error: null, success: false },
+  );
   const stay = SHOWCASE_STAYS[stayIdx];
+
+  useEffect(() => {
+    api.sessions.create().then((s) => setSessionId(s.session_id)).catch(() => {});
+  }, []);
+
+  async function handleReserve() {
+    if (!dateRange || !sessionId) return;
+    setBooking({ loading: true, error: null, success: false });
+    try {
+      await api.bookings.create(
+        Number(stay.id),
+        formatDate(dateRange.from),
+        formatDate(dateRange.to),
+        guests,
+        sessionId,
+      );
+      setBooking({ loading: false, error: null, success: true });
+    } catch {
+      setBooking({ loading: false, error: "Booking failed. Please try again.", success: false });
+    }
+  }
 
   const subtotal = dateRange ? stay.price * dateRange.nights : 0;
   const cleaning = dateRange ? 35 : 0;
@@ -241,12 +271,21 @@ export default function BookingPage() {
                 </AnimatePresence>
 
                 <button
-                  disabled={!dateRange}
+                  onClick={handleReserve}
+                  disabled={!dateRange || booking.loading || booking.success}
                   className="w-full mt-2 px-5 py-3.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                 >
-                  Reserve
+                  {booking.loading ? "Booking…" : booking.success ? "Booked!" : "Reserve"}
                   <span className="w-7 h-7 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center text-xs group-enabled:group-hover:rotate-[-45deg] transition-transform duration-300">→</span>
                 </button>
+                {booking.success && (
+                  <p className="text-center text-xs text-emerald-500 mt-2">
+                    Booking request sent! Check the concierge chat for confirmation.
+                  </p>
+                )}
+                {booking.error && (
+                  <p className="text-center text-xs text-red-400 mt-2">{booking.error}</p>
+                )}
 
                 <Link
                   href="/chat"

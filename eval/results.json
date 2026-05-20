@@ -1,64 +1,64 @@
 {
-  "timestamp": "2026-05-12T14:42:45Z",
+  "timestamp": "2026-05-17T03:58:33Z",
   "api_url": "http://localhost:8000",
   "total_questions": 10,
-  "keyword_accuracy_pct": 20.0,
-  "ragas_scores": {},
+  "keyword_accuracy_pct": 70.0,
+  "ragas_scores": {
+    "answer_relevancy": NaN
+  },
   "samples": [
     {
       "question": "I want a cozy apartment in Bangkok under $60 per night",
-      "answer": "",
+      "answer": "I had trouble formatting that tool request. Could you rephrase it with the city, dates, budget, or listing ID?",
       "ground_truth": "I'm looking for listings in Bangkok with a budget-friendly price around $60 per night.",
-      "expected_city": "Bangkok",
-      "keyword_pass": false,
-      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
-    },
-    {
-      "question": "Show me Bangkok villas that can fit 6 guests",
-      "answer": "I'm experiencing high demand across all API keys. Please try again in about 16 seconds.",
-      "ground_truth": "I need a villa in Bangkok for 6 guests.",
       "expected_city": "Bangkok",
       "keyword_pass": false
     },
     {
+      "question": "Show me Bangkok villas that can fit 6 guests",
+      "answer": "## Search Results \n\nHere are some villas in Bangkok that can fit 6 guests:\n\n1. **The Villa Compound**\n   - **City:** Bangkok\n   - **Price:** $120/night\n   - **Rating:** 4.5/5\n   - **Guests:** 6\n   - **Amenities:** Pool, WiFi, Kitchen, Garden\n   - **Description:** This villa compound offers a serene escape from Bangkok's hustle and bustle. The spacious villa includes a private pool and garden, perfect for a family or group of friends. Previous guests rave about the friendly staff and convenient location.\n\n2. **Bangkok Oasis**\n   - **City:** Bangkok\n   - **Price:** $150/night\n   - **Rating:** 4.8/5\n   - **Guests:** 6\n   - **Amenities:** Pool, WiFi, Kitchen, Fitness Center\n   - **Description:** Located in a quiet neighborhood, Bangkok Oasis offers a luxurious villa experience. The property features a large pool, fully equipped kitchen, and fitness center. Guests love the modern decor and peaceful atmosphere.\n\n3. **Tropical Retreat**\n   - **City:** Bangkok\n   - **Price:** $180/night\n   - **Rating:** 4.9/5\n   - **Guests:** 6\n   - **Amenities:** Pool, WiFi, Kitchen, Garden, Private Balcony\n   - **Description:** This tropical retreat is ideal for those seeking a relaxing stay in Bangkok. The villa boasts a private balcony with stunning city views, a large pool, and lush garden. Previous guests praise the attentive service and comfortable accommodations.\n\n## Next Steps \nWould you like to check the availability of these villas for specific dates or compare their features?",
+      "ground_truth": "I need a villa in Bangkok for 6 guests.",
+      "expected_city": "Bangkok",
+      "keyword_pass": true
+    },
+    {
       "question": "Find a luxury apartment near central London with a pool",
-      "answer": "I'm experiencing high demand across all API keys. Please try again in about 7 seconds.",
+      "answer": "I had trouble formatting that tool request. Could you rephrase it with the city, dates, budget, or listing ID?",
       "ground_truth": "I need a luxury apartment near central London with pool access.",
       "expected_city": "London",
       "keyword_pass": false
     },
     {
       "question": "What are the cheapest listings in Cape Town for 2 guests?",
-      "answer": "I'm experiencing high demand across all API keys. Please try again in about 7 seconds.",
+      "answer": "Here are the cheapest listings in Cape Town for 2 guests:\n\n1. **Stylish Apartment Close to Sea Point Promenade** (ID: 15111481)\n   \ud83d\udccd Cape Town, Ward 54\n   \ud83c\udfe0 Entire rental unit \u2014 Entire home/apt\n   \ud83d\udcb0 $72/night | \u2b50 4.99/5\n   \ud83d\udc65 Up to 2 guests | \ud83d\udecf\ufe0f 0 bedrooms\n   \ud83d\udd11 Amenities: Fire extinguisher, Free washer \u2013 In building, Beach essentials, Body soap, Smoke alarm, Carbon monoxide alarm, First aid kit, Lockbox\n\n   This apartment offers a great value for its price. It's located close to the Sea Point Promenade, providing easy access to the beach and other local attractions. The apartment itself is stylish and well-equipped with essential amenities.\n\n2. **FROGGIES - self contained - 2 bedroom - seaview** (ID: 19261513)\n   \ud83d\udccd Cape Town, Ward 61\n   \ud83c\udfe0 Entire guest suite \u2014 Entire home/apt\n   \ud83d\udcb0 $75/night | \u2b50 4.99/5\n   \ud83d\udc65 Up to 4 guests | \ud83d\udecf\ufe0f 2 bedrooms\n   \ud83d\udd11 Amenities: Bathtub, Free washer \u2013 In building, Fire extinguisher, Portable fans, Portable heater, Oven, Beach essentials, Body soap\n\n   This self-contained guest suite offers a sea view and is equipped with a range of amenities, including a bathtub and free washer. It's a great option for those looking for a more spacious and comfortable stay.\n\n3. **Stylish apartment near the beach** (ID: 39285247)\n   \ud83d\udccd Cape Town, Ward 54\n   \ud83c\udfe0 Entire rental unit \u2014 Entire home/apt\n   \ud83d\udcb0 $102/night | \u2b50 4.99/5\n   \ud83d\udc65 Up to 2 guests | \ud83d\udecf\ufe0f 1 bedrooms\n   \ud83d\udd11 Amenities: Bathtub, Wifi, Oven, Body soap, Lockbox, AC - split type ductless system, Essentials, Exterior security cameras on property\n\n   This stylish apartment is located near the beach and offers a range of amenities, including a bathtub and Wifi. It's a great option for those looking for a comfortable and convenient stay.\n\n4. **Oh So Heavenly Guest Suite** (ID: 21534049)\n   \ud83d\udccd Cape Town, Ward 77\n   \ud83c\udfe0 Entire rental unit \u2014 Entire home/apt\n   \ud83d\udcb0 $120/night | \u2b50 4.99/5\n   \ud83d\udc65 Up to 2 guests | \ud83d\udecf\ufe0f 1 bedrooms\n   \ud83d\udd11 Amenities: Fire extinguisher, TV with standard cable, Wifi, Body soap, Smoke alarm, Carbon monoxide alarm, Lockbox, Extra pillows and blankets\n\n   This guest suite offers a range of amenities, including a TV with standard cable and Wifi. It's",
       "ground_truth": "I need the most affordable listings in Cape Town for 2 guests.",
       "expected_city": "Cape Town",
-      "keyword_pass": false
+      "keyword_pass": true
     },
     {
       "question": "I want a place to stay in Istanbul close to historic sites",
-      "answer": "",
+      "answer": "I currently have listings in Bangkok, London, Cape Town, and Istanbul. Would any of these work?",
       "ground_truth": "I need accommodation in Istanbul near historical sites.",
       "expected_city": "Istanbul",
-      "keyword_pass": false,
-      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+      "keyword_pass": true
     },
     {
       "question": "What is the cancellation policy if I need to cancel my booking?",
-      "answer": "## Your current booking is in Bangkok, Thailand. Would you like to check the cancellation policy for your specific listing?",
+      "answer": "I'd be happy to help you with that! The cancellation policies can vary depending on the listing you're interested in. \n\nTo provide more accurate information, could you please tell me which listing you're referring to or would you like me to check the policies for a specific destination?",
       "ground_truth": "Cancellation policy depends on the listing. Flexible policies allow cancellation with full refund within 24 hours.",
       "expected_city": null,
       "keyword_pass": true
     },
     {
       "question": "How do I make a booking on StayBot?",
-      "answer": "I'm experiencing high demand across all API keys. Please try again in about 13 seconds.",
+      "answer": "To make a booking on StayBot, follow these steps:\n\n1. **Find your perfect stay**: Use our search functionality to find a listing that suits your needs. You can describe your ideal stay, and I'll provide you with some options.\n2. **Check availability**: Once you've selected a listing, I'll check its availability for your desired dates.\n3. **Confirm your details**: Please provide me with your name and any other required details.\n4. **Book and pay**: I'll guide you through the booking process and provide you with a clear price breakdown.\n\nReady to get started? What type of stay are you looking for?",
       "ground_truth": "You can book by finding a listing, checking availability, and confirming with your dates.",
       "expected_city": null,
-      "keyword_pass": false
+      "keyword_pass": true
     },
     {
       "question": "How much would it cost to stay at listing 1001 for 3 nights?",
-      "answer": "I'm experiencing high demand across all API keys. Please try again in about 4 seconds.",
+      "answer": "I had trouble formatting that tool request. Could you rephrase it with the city, dates, budget, or listing ID?",
       "ground_truth": "The total cost for 3 nights at listing 1001 including fees.",
       "expected_city": null,
       "keyword_pass": false
@@ -72,11 +72,10 @@
     },
     {
       "question": "Find pet-friendly apartments in Bangkok",
-      "answer": "",
+      "answer": "I currently have listings in Bangkok, London, Cape Town, and Istanbul. Would any of these work?",
       "ground_truth": "Pet-friendly listings in Bangkok that allow pets.",
       "expected_city": "Bangkok",
-      "keyword_pass": false,
-      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+      "keyword_pass": true
     }
   ]
 }

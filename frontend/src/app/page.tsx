@@ -1,636 +1,196 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useInView } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, useInView, useMotionValue, useTransform } from "framer-motion";
 import WelcomeLoader from "@/components/fx/WelcomeLoader";
-import { Reveal, RevealLines } from "@/components/fx/Reveal";
 import Marquee from "@/components/fx/Marquee";
-import FilmStrip from "@/components/home/FilmStrip";
-import ChatPreview from "@/components/home/ChatPreview";
-import ThreadIllustration from "@/components/home/ThreadIllustration";
+import ProgressiveBlur from "@/components/fx/ProgressiveBlur";
+import HeroSequence from "@/components/home/HeroSequence";
+import ManifestoReveal from "@/components/home/ManifestoReveal";
+import AtlasShowcase from "@/components/home/AtlasShowcase";
+import AtlasZoom from "@/components/home/AtlasZoom";
+import DoorCard, { type DoorCardData } from "@/components/home/DoorCard";
+import ConciergeFrame from "@/components/home/ConciergeFrame";
+import Departure from "@/components/home/Departure";
+import { Reveal, RevealLines } from "@/components/fx/Reveal";
 import { DESTINATIONS } from "@/lib/destinations";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-const CITIES = DESTINATIONS.map((d) => ({
-  slug: d.slug,
-  name: d.name,
-  native: d.native,
-  tagline: d.tagline,
-  desc: d.intro,
-  accentHex: d.accent,
-  listings: d.listingCount ?? 100,
-  image: d.hero,
-  coordinate: d.coordinate,
-}));
-
-const HOW_IT_WORKS = [
-  { step: "01", title: "Describe your stay", body: "Tell the concierge exactly what you want — quiet, walkable, near markets, under £200. Natural language, no forms." },
-  { step: "02", title: "AI curates matches", body: "Our concierge searches hundreds of hand-picked properties. No algorithm noise — only stays worth waking up in." },
-  { step: "03", title: "Arrive fully prepared", body: "Dates held, transit mapped, neighbourhoods briefed, restaurants noted — one conversation handles it all." },
-];
 
 const MARQUEE_ITEMS = [
   ...DESTINATIONS.map((d) => `${d.name} · ${d.listingCount ?? 100} Curated Stays`),
-  "AI Concierge · Always On",
-  "Free Cancellation Available",
-  "Describe It · We Curate It",
-  "Hand-Picked. Not Algorithmic.",
-  "From Inquiry to Arrival",
+  "Concierge · Always Online",
+  "Hand-Walked. Not Algorithmic.",
+  "From sentence to sleep",
+  "Slow Travel · Lit Right",
 ];
 
 const STATS = [
-  { value: DESTINATIONS.reduce((acc, d) => acc + (d.listingCount ?? 100), 0), label: "Curated stays", suffix: "+" },
-  { value: DESTINATIONS.length, label: "World cities", suffix: "" },
-  { value: 98, label: "Guest satisfaction", suffix: "%" },
-  { value: 24, label: "Concierge hours", suffix: "/7" },
+  {
+    value: DESTINATIONS.reduce((acc, d) => acc + (d.listingCount ?? 100), 0),
+    label: "Curated stays",
+    suffix: "+",
+  },
+  { value: DESTINATIONS.length, label: "Cities of arrival", suffix: "" },
+  { value: 312, label: "Mornings authored", suffix: "" },
+  { value: 24, label: "Concierge · always", suffix: "/7" },
+];
+
+const DOORS: DoorCardData[] = [
+  {
+    numeral: "I",
+    title: "Tell us.",
+    body: "In one sentence, describe the room you want to wake in. The hour. The light. The street outside.",
+    videoSrc: "/doors/door-1.mp4",
+    accent: "var(--terra)",
+    gradient:
+      "linear-gradient(135deg, var(--terra-soft) 0%, var(--terra) 50%, var(--terra-deep) 100%)",
+  },
+  {
+    numeral: "II",
+    title: "We listen.",
+    body: "The concierge reads between your lines — light, hour, neighbourhood, the sound of the morning you want.",
+    videoSrc: "/doors/door-2.mp4",
+    accent: "var(--forest-bright)",
+    gradient:
+      "linear-gradient(135deg, var(--forest-bright) 0%, var(--forest-soft) 50%, var(--forest) 100%)",
+  },
+  {
+    numeral: "III",
+    title: "You arrive.",
+    body: "Keys in your hand before the kettle's hot. Dates held, transit mapped, the corner café briefed on your usual.",
+    videoSrc: "/doors/door-3.mp4",
+    accent: "var(--ochre-bright)",
+    gradient:
+      "linear-gradient(135deg, var(--ochre-bright) 0%, var(--ochre) 50%, var(--ochre-deep) 100%)",
+  },
 ];
 
 export default function HomePage() {
   const [loaderDone, setLoaderDone] = useState(false);
-  const [activeCity, setActiveCity] = useState(0);
-
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(heroScroll, [0, 1], ["0%", "-12%"]);
-  const heroOpacity = useTransform(heroScroll, [0, 0.7], [1, 0]);
-  const heroImgScale = useTransform(heroScroll, [0, 1], [1, 1.08]);
-  const scrollIndicatorOpacity = useTransform(heroScroll, [0, 0.18], [1, 0]);
-
-  const pinSectionRef = useRef<HTMLDivElement>(null);
-  const pinInnerRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    if (typeof window === "undefined") return;
-    const section = pinSectionRef.current;
-    const inner = pinInnerRef.current;
-    if (!section || !inner) return;
-
-    const ctx = gsap.context(() => {
-      const trigger = ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: `+=${CITIES.length * 110}%`,
-        pin: inner,
-        pinSpacing: true,
-        anticipatePin: 1,
-        scrub: 1.5,
-        onUpdate: (self) => {
-          const idx = Math.min(
-            CITIES.length - 1,
-            Math.max(0, Math.floor(self.progress * CITIES.length * 0.999))
-          );
-          setActiveCity(idx);
-        },
-      });
-      return () => trigger.kill();
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
 
   return (
     <>
       <WelcomeLoader onComplete={() => setLoaderDone(true)} />
 
-      <div className="relative bg-[var(--paper)] text-[var(--ink)] overflow-x-hidden">
-        {/* ── HERO ─────────────────────────────────────────────────── */}
-        <div ref={heroRef} className="relative">
-          <section className="relative min-h-[100svh] flex flex-col bg-[var(--paper)] overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loaderDone ? 1 : 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative bg-[var(--paper)] text-[var(--ink)] overflow-x-clip"
+      >
+        {/* ── HERO — Scroll frame sequence ─────────────────────────── */}
+        <HeroSequence />
 
-            {/* Subtle grid texture */}
-            <div className="absolute inset-0 grid-lines opacity-[0.04] pointer-events-none z-0" />
-
-            {/* Ghost coordinate watermark */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
-              <span className="absolute bottom-[18%] left-[-1%] font-mono text-[9vw] leading-none tracking-[0.04em] text-[var(--ink)] opacity-[0.025] rotate-[-90deg] origin-bottom-left whitespace-nowrap">
-                {CITIES[0]?.coordinate ?? ""}
+        {/* ── MARQUEE — short editorial band ───────────────────────── */}
+        <div className="relative bg-[var(--paper)] border-y border-[var(--ink-line)] py-4 overflow-hidden">
+          <Marquee
+            duration={42}
+            className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]"
+          >
+            {MARQUEE_ITEMS.map((item, i) => (
+              <span key={i} className="flex items-center gap-6 shrink-0">
+                <span>{item}</span>
+                <span className="text-[var(--ochre)] text-lg leading-none">·</span>
               </span>
-            </div>
-
-            {/* Main split grid */}
-            <div className="relative z-10 flex-1 grid md:grid-cols-12 min-h-[100svh]">
-
-              {/* ── LEFT: Brand + CTAs ── */}
-              <motion.div
-                style={{ y: heroY, opacity: heroOpacity }}
-                className="md:col-span-5 flex flex-col justify-between px-6 md:px-12 pt-32 md:pt-36 pb-10 md:pb-16"
-              >
-                {/* Top meta row */}
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: loaderDone ? 1 : 0, y: loaderDone ? 0 : 8 }}
-                  transition={{ duration: 0.7, delay: 0.2, ease: easeOutExpo }}
-                  className="flex items-center gap-5 font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--ink-muted)]"
-                >
-                  <span>Est · MMXXV</span>
-                  <span className="h-px flex-1 max-w-[60px] bg-[var(--ink-muted)]/30" />
-                  <span className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--terra)] animate-pulse" />
-                    Concierge online
-                  </span>
-                </motion.div>
-
-                {/* Brand statement */}
-                <div className="py-6 md:py-10">
-                  <motion.p
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: loaderDone ? 1 : 0, x: 0 }}
-                    transition={{ duration: 0.7, delay: 0.28, ease: easeOutExpo }}
-                    className="font-mono text-[10px] tracking-[0.42em] uppercase text-[var(--ink-muted)] mb-7"
-                  >
-                    / A Living Atlas of Stays
-                  </motion.p>
-
-                  <h1 className="leading-[0.88] tracking-[-0.03em] text-[var(--ink)]">
-                    {[
-                      <span key="a" className="font-display text-[clamp(3rem,7vw,7rem)] block">Find your</span>,
-                      <span key="b" className="font-display text-[clamp(3.2rem,7.5vw,7.5rem)] block pl-[8%]"><em className="italic-display" style={{ color: "var(--ochre)" }}>perfect</em></span>,
-                      <span key="c" className="font-display text-[clamp(3rem,7vw,7rem)] block">place to stay.</span>,
-                    ].map((line, i) => (
-                      <span key={i} className="block overflow-hidden" style={{ paddingBottom: "0.05em" }}>
-                        <motion.span
-                          className="block"
-                          initial={{ y: "110%" }}
-                          animate={{ y: loaderDone ? "0%" : "110%" }}
-                          transition={{ duration: 1.0, ease: easeOutExpo, delay: 0.35 + i * 0.08 }}
-                        >
-                          {line}
-                        </motion.span>
-                      </span>
-                    ))}
-                  </h1>
-                </div>
-
-                {/* Desc + CTAs + scroll hint */}
-                <div className="space-y-7">
-                  <motion.p
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: loaderDone ? 1 : 0, y: loaderDone ? 0 : 12 }}
-                    transition={{ duration: 1, delay: 0.55, ease: easeOutExpo }}
-                    className="text-[var(--ink-soft)] text-base leading-relaxed max-w-xs"
-                  >
-                    Describe what you want.<br />We curate where you sleep.
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: loaderDone ? 1 : 0, y: loaderDone ? 0 : 12 }}
-                    transition={{ duration: 1, delay: 0.7, ease: easeOutExpo }}
-                    className="flex flex-wrap items-center gap-4"
-                  >
-                    <Link
-                      href="/chat"
-                      className="group inline-flex items-center gap-2 pl-7 pr-1.5 py-1.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-all"
-                    >
-                      Begin a conversation
-                      <span className="w-9 h-9 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center group-hover:rotate-[-45deg] transition-transform duration-300">
-                        →
-                      </span>
-                    </Link>
-                    <Link
-                      href="/destinations"
-                      className="text-sm text-[var(--ink-muted)] hover:text-[var(--ink)] underline-offset-4 hover:underline transition-colors"
-                    >
-                      See destinations
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    style={{ opacity: scrollIndicatorOpacity }}
-                    className="flex items-center gap-3 pointer-events-none"
-                  >
-                    <motion.div
-                      animate={{ opacity: loaderDone ? 1 : 0 }}
-                      transition={{ delay: 1.1, duration: 0.8 }}
-                      className="flex items-center gap-3 text-[var(--ink-muted)]"
-                    >
-                      <span className="font-mono text-[9px] tracking-[0.4em] uppercase opacity-60">Scroll</span>
-                      <motion.span
-                        animate={{ x: [0, 6, 0] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                        className="font-mono text-xs opacity-60"
-                      >
-                        →
-                      </motion.span>
-                    </motion.div>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* ── RIGHT: Thread illustration ── */}
-              <motion.div
-                className="hidden md:flex md:col-span-7 flex-col items-center justify-center border-l border-[var(--border)] relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: loaderDone ? 1 : 0 }}
-                transition={{ duration: 1.2, delay: 0.5, ease: easeOutExpo }}
-              >
-                <ThreadIllustration />
-              </motion.div>
-            </div>
-
-            {/* Marquee inside hero at the bottom */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: loaderDone ? 1 : 0 }}
-              transition={{ duration: 1, delay: 0.9 }}
-              className="relative z-10 border-t border-[var(--border)] py-4 overflow-hidden"
-            >
-              <Marquee duration={35} className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]">
-                {MARQUEE_ITEMS.map((item, i) => (
-                  <span key={i} className="flex items-center gap-6 shrink-0">
-                    <span>{item}</span>
-                    <span className="text-[var(--ochre)] text-lg leading-none">·</span>
-                  </span>
-                ))}
-              </Marquee>
-            </motion.div>
-          </section>
+            ))}
+          </Marquee>
         </div>
 
-        {/* ── STATS STRIP ─────────────────────────────────────────── */}
-        <div className="border-b border-[var(--ink)] bg-[var(--paper)]">
+        {/* ── MANIFESTO — per-word scroll reveal ───────────────────── */}
+        <ManifestoReveal />
+
+        {/* ── STATS STRIP ──────────────────────────────────────────── */}
+        <div className="relative border-y border-[var(--ink)] bg-[var(--paper)]">
           <div className="max-w-[1500px] mx-auto grid grid-cols-2 md:grid-cols-4">
             {STATS.map((stat, i) => (
               <StatCounter key={stat.label} stat={stat} index={i} />
             ))}
           </div>
+          <ProgressiveBlur
+            direction="bottom"
+            layers={4}
+            intensity={0.25}
+            className="h-12 top-auto bottom-0 pointer-events-none"
+          />
         </div>
 
-        {/* ── BENTO STATEMENT ─────────────────────────────────────── */}
-        <section className="py-32 md:py-44 px-6 md:px-10 max-w-[1500px] mx-auto bg-[var(--paper)]">
-          <div className="grid md:grid-cols-12 gap-8">
-            <div className="md:col-span-3">
-              <Reveal>
-                <p className="eyebrow">/01 · Approach</p>
-              </Reveal>
-            </div>
-            <div className="md:col-span-9">
-              <RevealLines
-                as="h2"
-                className="font-display text-[clamp(2.4rem,5.5vw,6rem)] leading-[0.92] tracking-[-0.025em] mb-12"
-                lines={[
-                  <span key="1">We don&apos;t sell rooms.</span>,
-                  <span key="2">We compose <em className="italic-display text-[var(--terra)]">arrivals</em>.</span>,
-                ]}
-              />
-              <Reveal delay={0.1}>
-                <p className="text-[var(--ink-soft)] text-lg md:text-xl leading-[1.7] max-w-2xl pretty">
-                  Travel software flattens where you sleep into a search result. We rebuild it as a
-                  conversation — one that knows the difference between a balcony and a view, between
-                  a quiet street and a lonely one.
-                </p>
-              </Reveal>
-            </div>
-          </div>
+        {/* ── ATLAS — horizontal destinations showcase ─────────────── */}
+        <AtlasShowcase destinations={DESTINATIONS} />
 
-          <div className="mt-20 grid md:grid-cols-12 gap-3 md:gap-4 auto-rows-[180px] md:auto-rows-[220px]">
-            <BentoTile city={CITIES[0]} className="md:col-span-7 md:row-span-2" size="lg" index={0} />
-            <BentoTile city={CITIES[1]} className="md:col-span-5" index={1} />
-            <Reveal delay={0.15} className="md:col-span-3 bg-[var(--ink)] text-[var(--paper)] p-6 flex flex-col justify-between">
-              <p className="font-mono text-[10px] tracking-[0.32em] uppercase opacity-60">N° 003</p>
-              <p className="font-display text-2xl leading-tight italic-display">
-                &ldquo;We slept here so you could too.&rdquo;
-              </p>
-              <p className="font-mono text-[10px] tracking-[0.32em] uppercase opacity-60">— The Editors</p>
-            </Reveal>
-            <BentoTile city={CITIES[2]} className="md:col-span-2" index={2} />
-          </div>
-        </section>
+        {/* ── ATLAS ZOOM — immersive interlude ─────────────────────── */}
+        <AtlasZoom />
 
-        {/* ── FILM STRIP ───────────────────────────────────────────── */}
-        <FilmStrip destinations={DESTINATIONS} />
-
-        {/* ── PINNED DESTINATIONS — GSAP-powered ─────────────────── */}
-        <div ref={pinSectionRef} className="relative bg-[var(--ink)]">
-          <div ref={pinInnerRef} className="h-screen w-full overflow-hidden bg-[var(--ink)] relative">
-            {CITIES.map((city, i) => (
-              <motion.div
-                key={city.slug}
-                className="absolute inset-0"
-                animate={{
-                  opacity: activeCity === i ? 1 : 0,
-                  scale: activeCity === i ? 1 : 1.06,
-                }}
-                transition={{ duration: 1.4, ease: easeOutExpo }}
-              >
-                <Image
-                  src={city.image}
-                  alt={city.name}
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/85 via-[var(--ink)]/35 to-[var(--ink)]/40 z-10" />
-              </motion.div>
-            ))}
-
-            <div className="absolute inset-0 flex flex-col text-[var(--paper)] z-20">
-              <div className="px-6 md:px-10 pt-8 md:pt-12 max-w-[1500px] mx-auto w-full flex items-center justify-between font-mono text-[10px] tracking-[0.3em] uppercase opacity-80">
-                <span>Destinations · Vol. I</span>
-                <span>{String(activeCity + 1).padStart(2, "0")} / {String(CITIES.length).padStart(2, "0")}</span>
-              </div>
-
-              <div className="flex-1 flex items-center px-6 md:px-10">
-                <div className="w-full max-w-[1500px] mx-auto grid md:grid-cols-12 gap-8 items-end">
-                  <div className="md:col-span-8 relative min-h-[260px] md:min-h-[420px]">
-                    {CITIES.map((city, i) => (
-                      <motion.div
-                        key={city.slug}
-                        className="absolute inset-0"
-                        animate={{
-                          opacity: activeCity === i ? 1 : 0,
-                          y: activeCity === i ? 0 : 30,
-                        }}
-                        transition={{ duration: 0.7, ease: easeOutExpo }}
-                      >
-                        <p className="font-mono text-[11px] tracking-[0.32em] uppercase mb-6" style={{ color: city.accentHex }}>
-                          {city.tagline}
-                        </p>
-                        <h3 className="font-display text-[clamp(4rem,13vw,13rem)] leading-[0.84] tracking-[-0.03em]">
-                          {city.name.split("").map((c, ci) => (
-                            <motion.span
-                              key={ci}
-                              className="inline-block"
-                              animate={
-                                activeCity === i
-                                  ? { y: 0, opacity: 1 }
-                                  : { y: 30, opacity: 0 }
-                              }
-                              transition={{ duration: 0.6, ease: easeOutExpo, delay: activeCity === i ? ci * 0.04 : 0 }}
-                            >
-                              {c === " " ? " " : c}
-                            </motion.span>
-                          ))}
-                        </h3>
-                        <p className="font-display italic text-2xl md:text-3xl mt-4 opacity-80" style={{ color: city.accentHex }}>
-                          {city.native}
-                        </p>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  <div className="md:col-span-4 relative md:pl-6 md:border-l border-white/15 min-h-[200px]">
-                    {CITIES.map((city, i) => (
-                      <motion.div
-                        key={city.slug}
-                        className="absolute inset-0 space-y-5"
-                        animate={{
-                          opacity: activeCity === i ? 1 : 0,
-                          x: activeCity === i ? 0 : 20,
-                        }}
-                        transition={{ duration: 0.6, ease: easeOutExpo, delay: 0.1 }}
-                      >
-                        <p className="leading-relaxed pretty">{city.desc}</p>
-                        <div className="space-y-2.5 font-mono text-[10px] tracking-widest uppercase opacity-80">
-                          <div className="flex justify-between border-b border-white/15 pb-2">
-                            <span>Coordinate</span><span>{city.coordinate}</span>
-                          </div>
-                          <div className="flex justify-between border-b border-white/15 pb-2">
-                            <span>Stays</span><span>{city.listings} curated</span>
-                          </div>
-                        </div>
-                        <Link
-                          href={`/destinations/${city.slug}`}
-                          className="inline-flex items-center gap-3 group text-sm"
-                          style={{ color: city.accentHex }}
-                        >
-                          <span>Wander {city.name}</span>
-                          <span className="w-7 h-7 rounded-full border flex items-center justify-center transition-transform group-hover:translate-x-1" style={{ borderColor: city.accentHex }}>→</span>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 md:px-10 pb-8 md:pb-12 max-w-[1500px] mx-auto w-full">
-                <div className="flex gap-3">
-                  {CITIES.map((city, i) => (
-                    <div key={city.slug} className="flex-1 h-[2px] relative">
-                      <span className="absolute inset-0 bg-white/15" />
-                      <motion.span
-                        className="absolute inset-0 origin-left"
-                        style={{ background: city.accentHex }}
-                        animate={{ scaleX: i < activeCity ? 1 : i === activeCity ? 0.6 : 0 }}
-                        transition={{ duration: 0.5, ease: easeOutExpo }}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-3 font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 text-center">
-                  Scroll to wander
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── HOW IT WORKS ────────────────────────────────────────── */}
-        <section className="bg-[var(--paper-soft)] border-y border-[var(--ink)]">
-          <div className="max-w-[1500px] mx-auto px-6 md:px-10 py-32 md:py-44">
+        {/* ── THE THREE DOORS — How it works ───────────────────────── */}
+        <section className="relative bg-[var(--paper-soft)] border-y border-[var(--ink)]">
+          <div className="max-w-[1500px] mx-auto px-6 md:px-12 pt-32 md:pt-44 pb-24">
             <div className="grid md:grid-cols-12 gap-8 mb-20">
               <div className="md:col-span-3">
                 <Reveal>
-                  <p className="eyebrow">/02 · How It Works</p>
+                  <p className="eyebrow-muted">/04 · The Three Doors</p>
                 </Reveal>
               </div>
               <div className="md:col-span-9">
                 <RevealLines
                   as="h2"
-                  className="font-display text-[clamp(2.4rem,5.5vw,6rem)] leading-[0.92] tracking-[-0.025em]"
+                  className="font-display text-[clamp(2.4rem,6vw,5.5rem)] leading-[0.95] tracking-[-0.025em]"
                   lines={[
-                    <span key="1">Three steps to your</span>,
-                    <span key="2"><em className="italic-display text-[var(--forest)]">perfect</em> stay.</span>,
+                    <span key="1">From sentence,</span>,
+                    <span key="2">
+                      to <em className="italic-display text-[var(--forest)]">sleep</em>,
+                    </span>,
+                    <span key="3">in three doors.</span>,
                   ]}
                 />
               </div>
             </div>
-
-            <div className="grid md:grid-cols-3 border-t border-[var(--ink)]">
-              {HOW_IT_WORKS.map((step, i) => (
-                <Reveal key={step.step} delay={i * 0.1}>
-                  <div className={`group p-10 md:p-14 border-b border-[var(--ink)] relative overflow-hidden hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors duration-500 ${i < HOW_IT_WORKS.length - 1 ? "md:border-r" : ""}`}>
-                    <div className="absolute -right-3 -top-3 font-display text-[8rem] leading-none italic opacity-[0.04] group-hover:opacity-[0.12] transition-opacity duration-500 select-none">
-                      {step.step}
-                    </div>
-                    <p className="font-mono text-xs tracking-[0.32em] uppercase mb-8 opacity-40">{step.step}</p>
-                    <div className="w-8 h-px bg-[var(--ochre)] mb-8" />
-                    <h3 className="font-display text-2xl md:text-3xl mb-5 leading-snug">
-                      {step.title}
-                    </h3>
-                    <p className="leading-relaxed pretty opacity-70 max-w-sm">
-                      {step.body}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
           </div>
-        </section>
 
-        {/* ── CONCIERGE PREVIEW ──────────────────────────────────── */}
-        <section className="py-32 md:py-44 max-w-[1500px] mx-auto px-6 md:px-10 bg-[var(--paper)]">
-          <div className="grid lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <p className="eyebrow mb-6">/03 · The Concierge</p>
-              </Reveal>
-              <RevealLines
-                as="h2"
-                className="font-display text-[clamp(2.4rem,5.5vw,6rem)] leading-[0.92] tracking-[-0.025em] mb-8"
-                lines={[
-                  <span key="1">Speak. It will</span>,
-                  <span key="2"><em className="italic-display text-[var(--terra)]">listen</em>.</span>,
-                ]}
+          <div className="border-t border-[var(--ink)] grid md:grid-cols-3">
+            {DOORS.map((door, i) => (
+              <DoorCard
+                key={door.numeral}
+                data={door}
+                index={i}
+                isLast={i === DOORS.length - 1}
               />
-              <Reveal delay={0.15}>
-                <p className="text-[var(--ink-soft)] text-lg leading-relaxed mb-10 max-w-md pretty">
-                  No forms. No filters. Tell the concierge exactly what you want — quiet,
-                  walkable, near a temple, under £200 — and it curates from{" "}
-                  {STATS[0].value}+ hand-picked stays.
-                </p>
-              </Reveal>
-              <Reveal delay={0.25}>
-                <Link
-                  href="/chat"
-                  className="group inline-flex items-center gap-2 pl-7 pr-1.5 py-1.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-all"
-                >
-                  Try the concierge
-                  <span className="w-9 h-9 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center group-hover:rotate-[-45deg] transition-transform duration-300">→</span>
-                </Link>
-              </Reveal>
-            </div>
-
-            <Reveal delay={0.2} className="lg:col-span-7">
-              <ChatPreview />
-            </Reveal>
+            ))}
           </div>
         </section>
 
-        {/* ── CTA ─────────────────────────────────────────────────── */}
-        <section className="relative py-32 md:py-56 border-t border-[var(--ink)] overflow-hidden bg-[var(--paper)]">
-          <div className="absolute inset-0 grid-lines opacity-50" />
-          <div className="relative max-w-[1500px] mx-auto px-6 md:px-10 text-center">
-            <Reveal>
-              <p className="eyebrow mb-10">Now boarding · Concierge online</p>
-            </Reveal>
-            <RevealLines
-              as="h2"
-              className="font-display leading-[0.86] tracking-[-0.03em] text-[clamp(3.5rem,12vw,12rem)] mb-14"
-              lines={[
-                <span key="1">Your next</span>,
-                <span key="2"><em className="italic-display text-[var(--terra)]">arrival</em> awaits.</span>,
-              ]}
-            />
-            <Reveal delay={0.3}>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-                <Link
-                  href="/chat"
-                  className="group inline-flex items-center gap-2 pl-8 pr-1.5 py-1.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--ink-soft)] transition-all"
-                >
-                  Begin a conversation
-                  <span className="w-10 h-10 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center group-hover:rotate-[-45deg] transition-transform duration-300">→</span>
-                </Link>
-                <Link
-                  href="/explore"
-                  className="px-8 py-4 rounded-full text-sm font-medium border border-[var(--ink)] hover:bg-[var(--ink-soft)] hover:text-[var(--paper)] transition-all"
-                >
-                  Browse all stays
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+        {/* ── CONCIERGE PREVIEW ────────────────────────────────────── */}
+        <ConciergeFrame />
 
-        {/* ── FOOTER ──────────────────────────────────────────────── */}
+        {/* ── DEPARTURE — final CTA ────────────────────────────────── */}
+        <Departure destinations={DESTINATIONS} />
+
+        {/* ── FOOTER ───────────────────────────────────────────────── */}
         <footer className="border-t border-[var(--ink)] py-12 bg-[var(--paper-soft)]">
-          <div className="max-w-[1500px] mx-auto px-6 md:px-10 grid md:grid-cols-3 gap-8 items-center">
+          <div className="max-w-[1500px] mx-auto px-6 md:px-12 grid md:grid-cols-3 gap-8 items-center">
             <div className="font-display text-2xl">
               Stay<em className="italic-display">Bot</em>
             </div>
             <p className="text-[10px] text-[var(--ink-muted)] text-center font-mono tracking-[0.32em] uppercase">
-              © 2025 · A Living Atlas · Made with care
+              © 2025 · A Living Atlas · Composed with care
             </p>
             <div className="flex items-center justify-end gap-6 text-xs text-[var(--ink-muted)]">
-              <Link href="/destinations" className="hover:text-[var(--ink)] transition-colors">Destinations</Link>
-              <Link href="/explore" className="hover:text-[var(--ink)] transition-colors">Stays</Link>
-              <Link href="/chat" className="hover:text-[var(--ink)] transition-colors">Concierge</Link>
+              <Link href="/destinations" className="hover:text-[var(--ink)] transition-colors">
+                Atlas
+              </Link>
+              <Link href="/explore" className="hover:text-[var(--ink)] transition-colors">
+                Stays
+              </Link>
+              <Link href="/chat" className="hover:text-[var(--ink)] transition-colors">
+                Concierge
+              </Link>
             </div>
           </div>
         </footer>
-      </div>
+      </motion.div>
     </>
   );
 }
 
-function BentoTile({ city, className = "", size = "md", index = 0 }: { city: typeof CITIES[number]; className?: string; size?: "lg" | "md"; index?: number }) {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [7, -7]), { damping: 28, stiffness: 300 });
-  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-7, 7]), { damping: 28, stiffness: 300 });
-
-  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - rect.left) / rect.width - 0.5);
-    my.set((e.clientY - rect.top) / rect.height - 0.5);
-  }
-  function onMouseLeave() { mx.set(0); my.set(0); }
-
-  return (
-    <Reveal delay={index * 0.08} className={className}>
-      <motion.div
-        onMouseMove={onMouseMove}
-        onMouseLeave={onMouseLeave}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 900 }}
-        className="relative w-full h-full"
-      >
-        <Link
-          href={`/destinations/${city.slug}`}
-          className="group relative block w-full h-full overflow-hidden img-grain"
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <Image
-            src={city.image}
-            alt={city.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/75 via-transparent to-[var(--ink)]/10" />
-          <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-soft-light bg-gradient-to-br from-white/20 via-transparent to-transparent" />
-
-          <div className="absolute top-4 left-4 right-4 flex items-start justify-between font-mono text-[10px] tracking-[0.3em] uppercase z-10">
-            <span className="text-white/90 backdrop-blur-sm bg-black/30 border border-white/10 rounded px-2 py-0.5">N° {String(index + 1).padStart(2, "0")}</span>
-            <span className="text-white/90 backdrop-blur-sm bg-black/30 border border-white/10 rounded px-2 py-0.5">{city.coordinate}</span>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 p-5 text-[var(--paper)]" style={{ transform: "translateZ(20px)" }}>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-2 opacity-90" style={{ color: city.accentHex }}>
-              {city.tagline}
-            </p>
-            <h3 className={`font-display ${size === "lg" ? "text-5xl md:text-7xl" : "text-3xl md:text-4xl"} leading-[0.9] tracking-tight`}>
-              {city.name}
-            </h3>
-          </div>
-          <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[var(--paper)] text-[var(--ink)] flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-y-1 group-hover:translate-y-0 transition-all duration-300">
-            →
-          </div>
-        </Link>
-      </motion.div>
-    </Reveal>
-  );
-}
+// ── StatCounter ────────────────────────────────────────────────────────────────
 
 function StatCounter({ stat, index }: { stat: typeof STATS[number]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -662,7 +222,9 @@ function StatCounter({ stat, index }: { stat: typeof STATS[number]; index: numbe
   return (
     <div
       ref={ref}
-      className={`py-10 px-6 md:px-10 ${index > 0 ? "border-l border-[var(--ink)]" : ""} relative group hover:bg-[var(--paper-soft)] transition-colors duration-300`}
+      className={`py-10 px-6 md:px-10 ${
+        index > 0 ? "border-l border-[var(--ink)]" : ""
+      } relative group hover:bg-[var(--paper-soft)] transition-colors duration-300`}
     >
       <div className="flex items-baseline gap-0.5 mb-1">
         <motion.span className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-none tracking-tight tabular-nums">
@@ -672,7 +234,9 @@ function StatCounter({ stat, index }: { stat: typeof STATS[number]; index: numbe
           {stat.suffix}
         </span>
       </div>
-      <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">{stat.label}</p>
+      <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[var(--ink-muted)]">
+        {stat.label}
+      </p>
     </div>
   );
 }

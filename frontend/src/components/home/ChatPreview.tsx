@@ -119,7 +119,6 @@ export default function ChatPreview() {
     run();
 
     return () => { cancelRef.current = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoIndex]);
 
   const showUserMessage = phase !== "idle";
@@ -129,7 +128,7 @@ export default function ChatPreview() {
   return (
     <div className="relative rounded-sm border border-[var(--ink)] bg-[var(--ivory)] overflow-hidden shadow-[8px_12px_0_0_var(--ink)]">
       {/* Chrome bar */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--ink)]">
+      <div className="flex items-center gap-3 px-4 md:px-5 py-3.5 md:py-4 border-b border-[var(--ink)]">
         <div className="flex gap-1.5">
           {["var(--terra)", "var(--ochre)", "var(--tide)"].map((c, i) => (
             <div key={i} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
@@ -145,7 +144,7 @@ export default function ChatPreview() {
       </div>
 
       {/* Messages area */}
-      <div className="p-5 space-y-4 min-h-[420px] flex flex-col justify-end">
+      <div className="p-4 md:p-5 space-y-3.5 md:space-y-4 min-h-[320px] md:min-h-[420px] flex flex-col justify-end">
         <AnimatePresence mode="popLayout">
           {/* User message */}
           {showUserMessage && (
@@ -236,11 +235,11 @@ export default function ChatPreview() {
       </div>
 
       {/* Input bar */}
-      <div className="px-5 py-4 border-t border-[var(--ink)] flex items-center gap-3">
-        <div className="flex-1 bg-[var(--paper)] rounded-full px-4 py-2.5 text-xs text-[var(--ink-muted)] border border-[var(--border)]">
+      <div className="px-4 md:px-5 py-3.5 md:py-4 border-t border-[var(--ink)] flex items-center gap-2.5 md:gap-3">
+        <div className="flex-1 bg-[var(--paper)] rounded-full px-3.5 md:px-4 py-2.5 text-[11px] md:text-xs text-[var(--ink-muted)] border border-[var(--border)]">
           Describe your perfect stay…
         </div>
-        <button className="w-9 h-9 rounded-full bg-[var(--ink)] flex items-center justify-center text-[var(--paper)] hover:bg-[var(--ink-soft)] transition-colors text-sm">
+        <button className="w-9 h-9 rounded-full bg-[var(--ink)] flex items-center justify-center text-[var(--paper)] hover:bg-[var(--ink-soft)] transition-colors text-sm shrink-0">
           →
         </button>
       </div>
