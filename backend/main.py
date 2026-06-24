@@ -170,6 +170,63 @@ async def get_metrics(token: str = Query(..., description="Admin token")):
     return summary
 
 
+@app.get("/api/eval", tags=["System"])
+async def get_eval():
+    """
+    Latest offline evaluation summary (RAGAS answer quality + keyword accuracy)
+    produced by `python -m eval.ragas_eval`.
+
+    Read-only and non-sensitive, so it is intentionally unauthenticated: the
+    concierge live-telemetry pill surfaces answer-quality scores next to the
+    runtime metrics. Returns `available: false` when no eval has been run yet.
+    """
+    import json
+    import math
+    from pathlib import Path
+
+    empty = {
+        "available": False,
+        "timestamp": None,
+        "total_questions": 0,
+        "keyword_accuracy_pct": 0.0,
+        "passed": 0,
+        "failed": 0,
+        "ragas_scores": {},
+    }
+
+    results_path = Path(__file__).resolve().parent.parent / "eval" / "results.json"
+    if not results_path.exists():
+        return empty
+
+    try:
+        raw = json.loads(results_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # corrupt/partial file — fail soft
+        log.warning("eval.read_failed", error=str(exc))
+        return empty
+
+    samples = raw.get("samples") or []
+    passed = sum(1 for s in samples if s.get("keyword_pass"))
+
+    # json.loads parses bare NaN/Infinity tokens, but JSON.parse in the browser
+    # rejects them — coerce any non-finite RAGAS score to null.
+    def _finite(value: object) -> float | None:
+        if isinstance(value, (int, float)) and math.isfinite(value):
+            return round(float(value), 4)
+        return None
+
+    ragas_scores = {k: _finite(v) for k, v in (raw.get("ragas_scores") or {}).items()}
+
+    return {
+        "available": True,
+        "timestamp": raw.get("timestamp"),
+        "total_questions": raw.get("total_questions", len(samples)),
+        "keyword_accuracy_pct": raw.get("keyword_accuracy_pct", 0.0),
+        "passed": passed,
+        "failed": len(samples) - passed,
+        "ragas_scores": ragas_scores,
+    }
+
+
 # ── Session Management ─────────────────────────────────────────────────────────
 
 

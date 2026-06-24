@@ -77,7 +77,23 @@ def search_listings_semantic(query: str) -> str:
 
     scores = [m.score for m in results.matches]
 
-    # Attach RAG timing + scores to the active LangSmith run
+    # Record RAG timing + scores into the per-request observability context so
+    # GET /api/metrics can surface them. This is the primary metrics path —
+    # _finalize_metrics in agent.py reads these fields off the RequestContext.
+    try:
+        from backend.observability import get_request_context
+        ctx = get_request_context()
+        if ctx is not None:
+            # A turn may call search more than once: accumulate scores, sum the
+            # timings, and count total retrieved hits.
+            ctx.rag_embedding_ms = (ctx.rag_embedding_ms or 0.0) + embed_ms
+            ctx.rag_retrieval_ms = (ctx.rag_retrieval_ms or 0.0) + retr_ms
+            ctx.rag_scores.extend(scores)
+            ctx.rag_results_count += len(scores)
+    except Exception:
+        pass
+
+    # Also attach to the active LangSmith run when tracing is enabled (optional).
     try:
         from langsmith.run_helpers import get_current_run_tree
         rt = get_current_run_tree()

@@ -80,13 +80,53 @@ export interface BookingsResponse {
   bookings: Booking[];
 }
 
+/**
+ * Mirrors the nested shape returned by `MetricsStore.summary()` in
+ * backend/observability.py. Keep this in sync with that method — the Rich TUI
+ * (run.py) consumes the same payload, so the backend shape is canonical.
+ *
+ * When no requests have been recorded yet the backend returns only
+ * `{ total_requests: 0, note, model }`, so every analytic block is optional.
+ */
 export interface MetricsSummary {
-  overview: { total_requests: number; error_rate: number };
-  latency_ms: { p50: number; p75: number; p95: number; p99: number; avg: number };
-  tokens: { total_input: number; total_output: number; avg_input_per_req: number; avg_output_per_req: number };
-  tool_usage: Record<string, number>;
-  rag: { embedding_latency_ms: number; retrieval_latency_ms: number; avg_relevance: number; min_relevance: number; max_relevance: number };
-  recent_requests: Array<{ request_id: string; latency_ms: number; tools_used: string[]; rag_score?: number }>;
+  overview?: { total_requests: number; error_rate_pct: number; window: string };
+  latency_ms?: { p50: number; p75: number; p95: number; p99: number; avg: number; min: number; max: number };
+  tokens?: { total_input: number; total_output: number; avg_input_per_req: number; avg_output_per_req: number };
+  tool_usage?: Record<string, number>;
+  rag?: {
+    total_semantic_searches: number;
+    embedding_latency_ms: { avg: number | null; p95: number };
+    retrieval_latency_ms: { avg: number | null; p95: number };
+    relevance_score: { avg: number | null; min: number | null; max: number | null };
+  } | null;
+  recent_requests?: Array<{
+    id: string;
+    latency_ms: number;
+    tools: string[];
+    tokens_in: number;
+    tokens_out: number;
+    rag: boolean;
+    retries: number;
+    error: boolean;
+  }>;
+  model?: string;
+  /** Present only in the empty state (no requests recorded yet). */
+  total_requests?: number;
+  note?: string;
+}
+
+/**
+ * Offline RAGAS / keyword-accuracy evaluation summary, served by GET /api/eval
+ * from the latest eval/results.json. `available` is false when no eval has run.
+ */
+export interface EvalSummary {
+  available: boolean;
+  timestamp: string | null;
+  total_questions: number;
+  keyword_accuracy_pct: number;
+  passed: number;
+  failed: number;
+  ragas_scores: Record<string, number | null>;
 }
 
 export interface Review {
@@ -183,6 +223,12 @@ export const api = {
     get(): Promise<MetricsSummary> {
       const token = process.env.NEXT_PUBLIC_METRICS_TOKEN ?? "";
       return apiFetch<MetricsSummary>(`/api/metrics${token ? `?token=${token}` : ""}`);
+    },
+  },
+
+  eval: {
+    get(): Promise<EvalSummary> {
+      return apiFetch<EvalSummary>("/api/eval");
     },
   },
 

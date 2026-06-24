@@ -43,7 +43,10 @@ load_dotenv()
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# gpt-oss-* are Groq's reference models for native tool calling. Llama-3.3-70b
+# and Llama-4-Scout fail to emit valid tool calls for our schemas even at
+# temperature 0 (verified empirically), so they are NOT a safe default here.
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # Collect all API keys from env (GROQ_API_KEY_1, _2, _3, ...)
 _API_KEYS = []
@@ -281,9 +284,12 @@ def _get_agent(api_key: str, tool_names: tuple[str, ...], strict_tool_mode: bool
     """Get or build a cached LangGraph agent for the given API key."""
     cache_key = (api_key, strict_tool_mode, tool_names)
     if cache_key not in _agent_cache:
+        # Groq recommends temperature 0.0-0.5 for reliable tool calling; 0.7 is
+        # above that range and increases malformed-tool-call rates. Strict-retry
+        # drops near-deterministic to recover from a generation failure.
         llm = ChatGroq(
             model=GROQ_MODEL,
-            temperature=0.2 if strict_tool_mode else 0.7,
+            temperature=0.1 if strict_tool_mode else 0.4,
             max_tokens=600,
             api_key=api_key,
         )
@@ -521,6 +527,9 @@ async def chat(session_id: str, message: str) -> str:
                 # Bad tool call format — retry with a stricter low-temperature agent.
                 tool_generation_failures += 1
                 if tool_generation_failures > 2:
+                    req_ctx.error = True
+                    req_ctx.retries = attempt
+                    _finalize_metrics(req_ctx)
                     return (
                         "I had trouble formatting that tool request. "
                         "Could you rephrase it with the city, dates, budget, or listing ID?"
@@ -533,6 +542,9 @@ async def chat(session_id: str, message: str) -> str:
             else:
                 # Unknown error — return immediately
                 log.error("agent.unhandled_error", session_id=session_id, error=error_msg)
+                req_ctx.error = True
+                req_ctx.retries = attempt
+                _finalize_metrics(req_ctx)
                 return (
                     "I encountered an unexpected issue. "
                     "Could you try rephrasing or asking something else?"
