@@ -1,0 +1,198 @@
+- generic [active]:
+  - navigation [ref=e1]:
+    - generic [ref=e2]:
+      - link "StayBot N° 001 · Vol. I" [ref=e3]:
+        - /url: /
+        - generic [ref=e4]:
+          - text: Stay
+          - emphasis [ref=e5]: Bot
+        - generic [ref=e6]: N° 001 · Vol. I
+      - generic [ref=e7]:
+        - link "Index" [ref=e8]:
+          - /url: /
+        - link "Destinations" [ref=e9]:
+          - /url: /destinations
+        - link "Stays" [ref=e10]:
+          - /url: /explore
+        - link "Booking" [ref=e11]:
+          - /url: /booking
+        - link "Concierge" [ref=e12]:
+          - /url: /chat
+          - text: Concierge
+      - link "Begin →" [ref=e14]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e15]: →
+  - main:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - link "S" [ref=e20]:
+              - /url: /
+              - generic [ref=e21]: S
+            - generic [ref=e22]:
+              - paragraph [ref=e23]:
+                - text: The
+                - emphasis [ref=e24]: Concierge
+              - paragraph [ref=e25]: Bangkok · London · Cape Town · Istanbul
+          - generic [ref=e26]:
+            - generic [ref=e27]: Live
+            - button "New chat" [ref=e165]
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: S
+            - generic [ref=e51]:
+              - paragraph [ref=e166]:
+                - text: I'm your StayBot concierge. I curate stays in
+                - strong [ref=e167]: Bangkok
+                - text: ","
+                - strong [ref=e168]: London
+                - text: ","
+                - strong [ref=e169]: Cape Town
+                - text: ", and"
+                - strong [ref=e170]: Istanbul
+                - text: .
+              - paragraph [ref=e171]: Tell me what you're looking for — vibe, dates, budget, neighborhood — and I'll surface the right matches.
+          - generic [ref=e172]:
+            - generic [ref=e173]: U
+            - generic [ref=e175]: A cozy loft in Bangkok under $80, near temples
+          - generic [ref=e176]:
+            - generic [ref=e177]: S
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - paragraph [ref=e181]:
+                  - strong [ref=e182]: 1. Stunning Loft in City of Life
+                  - text: Nestled in the historic heart of Bangkok, this airy loft puts the city’s famous temples just a short tuk‑tuk ride away. The high ceilings and large windows flood the space with natural light, while the sleek, minimalist décor creates a cozy retreat after a day of exploring Wat Pho or the Grand Palace. Ideal for up to five guests who want a stylish base without breaking the bank.
+                - paragraph [ref=e183]:
+                  - strong [ref=e184]: 2. Hidden Oasis Bangkok 2 | Near ICONSIAM
+                  - text: Tucked in a quiet riverside neighborhood, this private‑room loft feels like a secret hideaway just steps from the modern ICONSIAM complex and a pleasant walk to Wat Arun across the water. The compact yet thoughtfully designed space features a comfy queen‑size bed, a small
+              - generic [ref=e185]:
+                - button "Stunning Loft in City of Life Bangkok Entire rental unit $23 /night Stunning Loft in City of Life ★ 4.9 Furnished roomy studio apartment with kitchen and beautiful bathroom. Located in a relaxed, creative and trendy neighborhood. Public transportation within walki… 5 guests 2 beds View on map →" [ref=e200]:
+                  - generic [ref=e201]:
+                    - img "Stunning Loft in City of Life" [ref=e202]
+                    - generic [ref=e204]:
+                      - generic [ref=e205]: Bangkok
+                      - generic [ref=e206]: Entire rental unit
+                    - generic [ref=e208]:
+                      - generic [ref=e209]: $23
+                      - generic [ref=e210]: /night
+                  - generic [ref=e211]:
+                    - generic [ref=e212]:
+                      - heading "Stunning Loft in City of Life" [level=3] [ref=e213]
+                      - generic [ref=e214]:
+                        - generic [ref=e215]: ★
+                        - generic [ref=e216]: "4.9"
+                    - paragraph [ref=e217]: Furnished roomy studio apartment with kitchen and beautiful bathroom. Located in a relaxed, creative and trendy neighborhood. Public transportation within walki…
+                    - generic [ref=e218]:
+                      - generic [ref=e219]:
+                        - generic [ref=e220]: 5 guests
+                        - generic [ref=e221]: 2 beds
+                      - generic [ref=e222]:
+                        - text: View on map
+                        - generic [ref=e223]: →
+                - button "*Hidden Oasis Bangkok 2 | Near ICONSIAM Bangkok Private room in home $28 /night *Hidden Oasis Bangkok 2 | Near ICONSIAM ★ 4.8 5mins walk to ICONSIAM • Authentic Homemade Thai Breakfast • Great location! Easy to access transportation! Close to Bangkok attractions such as Iconsiam, Wat A… 2 guests 1 bed View on map →" [ref=e224]:
+                  - generic [ref=e225]:
+                    - img "*Hidden Oasis Bangkok 2 | Near ICONSIAM" [ref=e226]
+                    - generic [ref=e228]:
+                      - generic [ref=e229]: Bangkok
+                      - generic [ref=e230]: Private room in home
+                    - generic [ref=e232]:
+                      - generic [ref=e233]: $28
+                      - generic [ref=e234]: /night
+                  - generic [ref=e235]:
+                    - generic [ref=e236]:
+                      - heading "*Hidden Oasis Bangkok 2 | Near ICONSIAM" [level=3] [ref=e237]
+                      - generic [ref=e238]:
+                        - generic [ref=e239]: ★
+                        - generic [ref=e240]: "4.8"
+                    - paragraph [ref=e241]: 5mins walk to ICONSIAM • Authentic Homemade Thai Breakfast • Great location! Easy to access transportation! Close to Bangkok attractions such as Iconsiam, Wat A…
+                    - generic [ref=e242]:
+                      - generic [ref=e243]:
+                        - generic [ref=e244]: 2 guests
+                        - generic [ref=e245]: 1 bed
+                      - generic [ref=e246]:
+                        - text: View on map
+                        - generic [ref=e247]: →
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - textbox "Describe your perfect stay…" [ref=e62]
+            - button "↑" [disabled] [ref=e63]
+          - paragraph [ref=e64]: Enter · Shift+Enter for new line
+      - generic [ref=e66]:
+        - generic [ref=e69]: Property Detail
+        - button "Close detail panel" [ref=e70]: ×
+      - generic [ref=e72]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - paragraph [ref=e88]: Live Telemetry
+              - paragraph [ref=e89]: Backend Metrics
+            - generic [ref=e90]: Live
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Overview
+              - generic [ref=e95]:
+                - generic [ref=e96]:
+                  - paragraph [ref=e97]: Requests
+                  - paragraph [ref=e98]: "2"
+                - generic [ref=e99]:
+                  - paragraph [ref=e100]: Error rate
+                  - paragraph [ref=e101]: 0.0%
+            - generic [ref=e102]:
+              - paragraph [ref=e103]: Latency
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - generic [ref=e106]: p50
+                  - generic [ref=e109]: 5625ms
+                - generic [ref=e110]:
+                  - generic [ref=e111]: p95
+                  - generic [ref=e114]: 5625ms
+                - generic [ref=e115]:
+                  - generic [ref=e116]: p99
+                  - generic [ref=e119]: 5625ms
+              - paragraph [ref=e120]: avg 5164ms
+            - generic [ref=e121]:
+              - paragraph [ref=e122]: RAG Relevance
+              - generic [ref=e123]:
+                - generic [ref=e124]: "71"
+                - generic [ref=e125]: / 100 avg score
+              - paragraph [ref=e126]: min 68 · max 73
+              - paragraph [ref=e127]: embed 31ms · retrieve 930ms
+            - generic [ref=e128]:
+              - paragraph [ref=e129]: Tokens / request
+              - generic [ref=e130]:
+                - generic [ref=e131]:
+                  - paragraph [ref=e132]: Input
+                  - paragraph [ref=e133]: "4877"
+                - generic [ref=e134]:
+                  - paragraph [ref=e135]: Output
+                  - paragraph [ref=e136]: "666"
+              - paragraph [ref=e137]: total 11,085 tokens
+            - generic [ref=e138]:
+              - paragraph [ref=e139]: Tool calls
+              - generic [ref=e141]:
+                - generic [ref=e142]: search_listings_semantic
+                - generic [ref=e145]: "2"
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - paragraph [ref=e148]: Evaluation
+                - generic [ref=e149]: RAGAS · May 17, 2026
+              - generic [ref=e150]:
+                - generic [ref=e151]:
+                  - generic [ref=e152]: "70"
+                  - generic [ref=e153]: / 100 keyword acc.
+                - generic [ref=e154]: 7/10 passed
+              - generic [ref=e156]:
+                - generic [ref=e157]: answer relevancy
+                - generic [ref=e159]: —
+              - paragraph [ref=e160]: Offline · python -m eval.ragas_eval
+          - paragraph [ref=e162]: Refreshes every 15s · Real backend data
+        - button "⚡ Dev ×" [ref=e163]:
+          - generic [ref=e74]: ⚡
+          - text: Dev
+          - generic [ref=e164]: ×
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e80] [cursor=pointer]:
+    - img [ref=e81]
+  - alert [ref=e84]

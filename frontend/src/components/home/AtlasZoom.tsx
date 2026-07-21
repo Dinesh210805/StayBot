@@ -13,7 +13,7 @@ import {
 /**
  * Immersive zoom-out gallery interlude — "Slept Here".
  *
- * Sticky 200vh section. Six small destination interiors are arranged on
+ * Sticky 200svh section. Six small destination interiors are arranged on
  * screen; each zooms out at a different rate as the user scrolls. At ~70%
  * progress they fade and a centered italic line resolves with an --ochre
  * underline draw-on.
@@ -22,32 +22,32 @@ import {
 const TILES = [
   {
     src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1400&q=85",
-    pos: "left-[5%] top-[8%] w-[26vw] h-[28vh] -rotate-[3deg]",
+    pos: "left-[5%] top-[8%] w-[26vw] h-[28svh] -rotate-[3deg]",
     scale: [1, 1.9] as [number, number],
   },
   {
     src: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1400&q=85",
-    pos: "right-[6%] top-[4%] w-[22vw] h-[34vh] rotate-[4deg]",
+    pos: "right-[6%] top-[4%] w-[22vw] h-[34svh] rotate-[4deg]",
     scale: [1, 2.2] as [number, number],
   },
   {
     src: "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1400&q=85",
-    pos: "left-[28%] top-[40%] w-[20vw] h-[26vh] rotate-[1deg]",
+    pos: "left-[28%] top-[40%] w-[20vw] h-[26svh] rotate-[1deg]",
     scale: [1, 2.5] as [number, number],
   },
   {
     src: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1400&q=85",
-    pos: "right-[24%] top-[44%] w-[24vw] h-[30vh] -rotate-[6deg]",
+    pos: "right-[24%] top-[44%] w-[24vw] h-[30svh] -rotate-[6deg]",
     scale: [1, 2.0] as [number, number],
   },
   {
     src: "https://images.unsplash.com/photo-1551776235-dde6d482980b?w=1400&q=85",
-    pos: "left-[12%] bottom-[6%] w-[22vw] h-[24vh] -rotate-[2deg]",
+    pos: "left-[12%] bottom-[6%] w-[22vw] h-[24svh] -rotate-[2deg]",
     scale: [1, 2.4] as [number, number],
   },
   {
     src: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1400&q=85",
-    pos: "right-[10%] bottom-[8%] w-[26vw] h-[26vh] rotate-[5deg]",
+    pos: "right-[10%] bottom-[8%] w-[26vw] h-[26svh] rotate-[5deg]",
     scale: [1, 1.8] as [number, number],
   },
 ];
@@ -87,7 +87,7 @@ export default function AtlasZoom() {
 
   if (prefersReducedMotion) {
     return (
-      <section className="relative bg-[var(--paper)] py-32 px-6 md:px-12 text-center">
+      <section className="relative min-h-[100svh] flex items-center bg-[var(--paper)] py-32 px-6 md:px-12 text-center">
         <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] leading-tight max-w-3xl mx-auto">
           <em className="italic-display">We slept here so you wouldn&apos;t have to guess.</em>
         </h2>
@@ -97,7 +97,7 @@ export default function AtlasZoom() {
   }
 
   return (
-    <section ref={sectionRef} className="relative h-[220vh] bg-[var(--paper)]">
+    <section ref={sectionRef} className="relative h-[220svh] bg-[var(--paper)]">
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
         {/* Zoom tiles */}
         {TILES.map((t, i) => (

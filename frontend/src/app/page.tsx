@@ -68,6 +68,10 @@ const DOORS: DoorCardData[] = [
 export default function HomePage() {
   const [loaderDone, setLoaderDone] = useState(false);
 
+  useEffect(() => {
+    // Scroll snapping removed for smooth transition UX
+  }, []);
+
   return (
     <>
       <WelcomeLoader onComplete={() => setLoaderDone(true)} />
@@ -82,37 +86,41 @@ export default function HomePage() {
         <HeroSequence />
 
         {/* ── MARQUEE — short editorial band ───────────────────────── */}
-        <div className="relative bg-[var(--paper)] border-y border-[var(--ink-line)] py-4 overflow-hidden">
-          <Marquee
-            duration={42}
-            className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]"
-          >
-            {MARQUEE_ITEMS.map((item, i) => (
-              <span key={i} className="flex items-center gap-6 shrink-0">
-                <span>{item}</span>
-                <span className="text-[var(--ochre)] text-lg leading-none">·</span>
-              </span>
-            ))}
-          </Marquee>
-        </div>
+        <section className="relative w-full bg-[var(--paper)] py-8 z-20">
+          <div className="w-full relative">
+            <Marquee
+              duration={42}
+              className="text-[11px] font-mono tracking-[0.28em] uppercase text-[var(--ink-muted)]"
+            >
+              {MARQUEE_ITEMS.map((item, i) => (
+                <span key={i} className="flex items-center gap-6 shrink-0">
+                  <span>{item}</span>
+                  <span className="text-[var(--ochre)] text-lg leading-none">·</span>
+                </span>
+              ))}
+            </Marquee>
+          </div>
+        </section>
 
         {/* ── MANIFESTO — per-word scroll reveal ───────────────────── */}
         <ManifestoReveal />
 
         {/* ── STATS STRIP ──────────────────────────────────────────── */}
-        <div className="relative border-y border-[var(--ink)] bg-[var(--paper)]">
-          <div className="max-w-[1500px] mx-auto grid grid-cols-2 md:grid-cols-4">
-            {STATS.map((stat, i) => (
-              <StatCounter key={stat.label} stat={stat} index={i} />
-            ))}
+        <section className="relative w-full bg-[var(--paper)] py-12 md:py-24 z-20">
+          <div className="w-full relative">
+            <div className="max-w-[1500px] mx-auto grid grid-cols-2 md:grid-cols-4">
+              {STATS.map((stat, i) => (
+                <StatCounter key={stat.label} stat={stat} index={i} />
+              ))}
+            </div>
+            <ProgressiveBlur
+              direction="bottom"
+              layers={4}
+              intensity={0.25}
+              className="h-12 top-auto bottom-0 pointer-events-none"
+            />
           </div>
-          <ProgressiveBlur
-            direction="bottom"
-            layers={4}
-            intensity={0.25}
-            className="h-12 top-auto bottom-0 pointer-events-none"
-          />
-        </div>
+        </section>
 
         {/* ── ATLAS — horizontal destinations showcase ─────────────── */}
         <AtlasShowcase destinations={DESTINATIONS} />
@@ -121,7 +129,7 @@ export default function HomePage() {
         <AtlasZoom />
 
         {/* ── THE THREE DOORS — How it works ───────────────────────── */}
-        <section className="relative bg-[var(--paper-soft)] border-y border-[var(--ink)]">
+        <section className="relative min-h-[100svh] bg-[var(--paper-soft)]">
           <div className="max-w-[1500px] mx-auto px-6 md:px-12 pt-32 md:pt-44 pb-24">
             <div className="grid md:grid-cols-12 gap-8 mb-20">
               <div className="md:col-span-3">

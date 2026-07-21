@@ -25,9 +25,9 @@ interface NearbyPlaces {
 }
 
 const PLACE_CATEGORIES = [
-  { key: "restaurants" as const, type: "restaurant", emoji: "🍽", label: "Restaurants" },
-  { key: "cafes" as const, type: "cafe", emoji: "☕", label: "Cafes" },
-  { key: "attractions" as const, type: "museum", emoji: "🏛", label: "Attractions" },
+  { key: "restaurants" as const, type: "restaurant", emoji: "🍽", label: "Restaurants", color: "#C25A38" },
+  { key: "cafes" as const, type: "cafe", emoji: "☕", label: "Cafes", color: "#B58231" },
+  { key: "attractions" as const, type: "museum", emoji: "🏛", label: "Attractions", color: "#4A8385" },
 ];
 
 const FALLBACK: Record<string, Omit<PlaceResult, "lat" | "lon">[]> = {
@@ -70,13 +70,14 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<LeafletMap | null>(null);
   const placeMarkersRef = useRef<import("leaflet").Marker[]>([]);
+  const polylinesRef = useRef<import("leaflet").Polyline[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [places, setPlaces] = useState<NearbyPlaces>({ restaurants: [], cafes: [], attractions: [] });
   const [activeTab, setActiveTab] = useState(0);
   const [loadingPlaces, setLoadingPlaces] = useState(true);
   const [usingFallback, setUsingFallback] = useState(false);
 
-  // Init Leaflet map
+  // Init Leaflet map with satellite tiles
   useEffect(() => {
     if (!mapContainerRef.current || leafletRef.current) return;
     let cancelled = false;
@@ -97,29 +98,41 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
       const map = L.map(mapContainerRef.current, {
         center: [listing.latitude, listing.longitude],
         zoom: 15,
-        zoomControl: true,
-        attributionControl: true,
+        zoomControl: false,
+        attributionControl: false,
       });
 
+      // Satellite base layer (Esri WorldImagery)
       L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: "abcd",
           maxZoom: 19,
+          attribution: "Tiles &copy; Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         }
       ).addTo(map);
 
+      // Label overlay for street names / POI names
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, opacity: 0.8 }
+      ).addTo(map);
+
+      // Zoom control bottom-right
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+
+      // Attribution bottom-left, small
+      L.control.attribution({ position: "bottomleft", prefix: false }).addTo(map);
+
+      // Hotel / listing marker
       const homeIcon = L.divIcon({
-        html: `<div style="width:18px;height:18px;background:#0E1110;border:3px solid #F2EBDB;border-radius:50%;box-shadow:0 2px 8px rgba(14,17,16,0.45);"></div>`,
+        html: `<div style="width:22px;height:22px;background:#F2EBDB;border:3px solid #0E1110;border-radius:50%;box-shadow:0 2px 12px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;line-height:1">🏠</span></div>`,
         className: "",
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
       });
-      L.marker([listing.latitude, listing.longitude], { icon: homeIcon })
+      L.marker([listing.latitude, listing.longitude], { icon: homeIcon, zIndexOffset: 1000 })
         .addTo(map)
-        .bindPopup(`<b>${listing.name}</b>`)
+        .bindPopup(`<b style="font-size:13px">${listing.name}</b><br><span style="font-size:11px;color:#666">${listing.city}</span>`)
         .openPopup();
 
       leafletRef.current = { map, L };
@@ -134,9 +147,9 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
         setMapReady(false);
       }
     };
-  }, [listing.latitude, listing.longitude, listing.name]);
+  }, [listing.latitude, listing.longitude, listing.name, listing.city]);
 
-  // Fetch restaurants, cafes and attractions in a single request
+  // Fetch nearby places
   useEffect(() => {
     setLoadingPlaces(true);
     const { latitude, longitude } = listing;
@@ -165,40 +178,55 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
       .finally(() => setLoadingPlaces(false));
   }, [listing.latitude, listing.longitude]);
 
-  // Sync place markers when tab changes
+  // Sync place markers + polylines when tab or places change
   useEffect(() => {
     if (!mapReady || !leafletRef.current) return;
     const { map, L } = leafletRef.current;
 
+    // Clear old markers and lines
     placeMarkersRef.current.forEach((m) => map.removeLayer(m));
     placeMarkersRef.current = [];
+    polylinesRef.current.forEach((l) => map.removeLayer(l));
+    polylinesRef.current = [];
+
+    if (usingFallback) return;
 
     const cat = PLACE_CATEGORIES[activeTab];
     const currentPlaces = places[cat.key];
 
     currentPlaces.forEach((place) => {
-      if (!place.lat || !place.lon || usingFallback) return;
+      if (!place.lat || !place.lon) return;
+
+      // Dashed polyline from hotel to place
+      const line = L.polyline(
+        [[listing.latitude, listing.longitude], [place.lat, place.lon]],
+        { color: cat.color, weight: 1.5, dashArray: "5 5", opacity: 0.65 }
+      ).addTo(map);
+      polylinesRef.current.push(line);
+
+      // Place marker
       const icon = L.divIcon({
-        html: `<div style="font-size:16px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3))">${cat.emoji}</div>`,
+        html: `<div style="background:${cat.color};border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.45)">${cat.emoji}</div>`,
         className: "",
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
       });
       const marker = L.marker([place.lat, place.lon], { icon })
         .addTo(map)
         .bindPopup(
-          `<b>${place.name}</b><br><span style="font-size:11px;color:#666">${place.distance}m away</span>`
+          `<b style="font-size:13px">${place.name}</b><br><span style="font-size:11px;color:#888">${place.distance}m away</span>${place.cuisine ? `<br><span style="font-size:11px;color:#999">${place.cuisine}</span>` : ""}`
         );
       placeMarkersRef.current.push(marker);
     });
-  }, [places, activeTab, mapReady, usingFallback]);
+  }, [places, activeTab, mapReady, usingFallback, listing.latitude, listing.longitude]);
 
   const activePlaces = places[PLACE_CATEGORIES[activeTab].key];
   const cleanDescription = stripHtml(listing.description ?? "");
+  const mapHeight = compact ? "h-56" : "h-72";
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
-      {/* Listing header — hidden in compact (accordion) mode, already shown in parent card */}
+    <div className="flex flex-col bg-[var(--paper-soft)]">
+      {/* Listing header — only in non-compact mode */}
       {!compact && (
         <div className="px-5 py-4 border-b border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
           <p className="font-mono text-[9px] tracking-[0.3em] uppercase opacity-60 mb-1">
@@ -212,36 +240,45 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
         </div>
       )}
 
-      {/* Leaflet map */}
-      <div className={`relative ${compact ? "h-44" : "h-56"} w-full flex-shrink-0`}>
+      {/* Satellite map */}
+      <div className={`relative ${mapHeight} w-full flex-shrink-0`}>
         <div ref={mapContainerRef} className="absolute inset-0 z-0" />
         {!mapReady && (
-          <div className="absolute inset-0 bg-[var(--paper-soft)] flex items-center justify-center">
+          <div className="absolute inset-0 bg-[var(--ink)]/80 flex items-center justify-center">
             <div className="flex gap-1.5">
               {[0, 0.1, 0.2].map((d) => (
                 <motion.div
                   key={d}
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1, repeat: Infinity, delay: d }}
-                  className="w-1.5 h-1.5 rounded-full bg-[var(--ink)]"
+                  className="w-1.5 h-1.5 rounded-full bg-white"
                 />
               ))}
             </div>
           </div>
         )}
+        {/* Satellite badge */}
+        {mapReady && (
+          <div className="absolute top-2 left-2 z-[1000] pointer-events-none">
+            <span className="font-mono text-[8px] tracking-[0.2em] uppercase bg-black/50 text-white/80 px-2 py-0.5 rounded-full backdrop-blur-sm">
+              Satellite
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Nearby places tabs */}
-      <div className="flex border-b border-[var(--ink)] bg-[var(--paper)] flex-shrink-0">
+      {/* Category tabs */}
+      <div className="flex border-b border-[var(--border)] bg-[var(--ivory)] flex-shrink-0">
         {PLACE_CATEGORIES.map((cat, i) => (
           <button
             key={cat.key}
             onClick={() => setActiveTab(i)}
-            className={`flex-1 py-3 text-[10px] font-mono tracking-[0.18em] uppercase transition-colors ${
+            className={`flex-1 py-2.5 text-[9px] font-mono tracking-[0.18em] uppercase transition-colors ${
               activeTab === i
-                ? "bg-[var(--ink)] text-[var(--paper)]"
-                : "text-[var(--ink)] hover:bg-[var(--paper-soft)]"
+                ? "text-[var(--paper)] font-semibold"
+                : "text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--paper-soft)]"
             }`}
+            style={activeTab === i ? { background: cat.color } : {}}
           >
             <span className="mr-1">{cat.emoji}</span>
             {cat.label}
@@ -250,10 +287,10 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
       </div>
 
       {/* Place list */}
-      <div className="px-4 py-3 border-b border-[var(--border)] flex-shrink-0 min-h-[100px]">
+      <div className="flex-shrink-0 min-h-[100px] bg-[var(--ivory)]">
         {usingFallback && (
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="font-mono text-[8px] tracking-[0.25em] uppercase bg-[var(--ochre)] text-[var(--ink)] px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-1.5 px-4 pt-2.5">
+            <span className="font-mono text-[8px] tracking-[0.25em] uppercase bg-[var(--ochre)]/20 text-[var(--ochre-deep)] px-2 py-0.5 rounded-full">
               Sample data
             </span>
             <span className="text-[10px] text-[var(--ink-muted)]">Live data unavailable</span>
@@ -261,33 +298,52 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
         )}
         <AnimatePresence mode="wait">
           {loadingPlaces ? (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1.5 py-4 justify-center">
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1.5 py-6 justify-center">
               {[0, 0.1, 0.2].map((d) => (
                 <motion.div key={d} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: d }} className="w-1.5 h-1.5 rounded-full bg-[var(--ink)]" />
               ))}
             </motion.div>
           ) : activePlaces.length === 0 ? (
-            <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-[var(--ink-muted)] py-4 text-center">
+            <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-[var(--ink-muted)] py-6 text-center">
               No {PLACE_CATEGORIES[activeTab].label.toLowerCase()} found nearby
             </motion.p>
           ) : (
-            <motion.div key={`tab-${activeTab}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-0 divide-y divide-[var(--border)]">
+            <motion.div
+              key={`tab-${activeTab}`}
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.22 }}
+              className="divide-y divide-[var(--border)]"
+            >
               {activePlaces.slice(0, 4).map((place, i) => (
                 <motion.div
                   key={place.name + i}
                   initial={{ opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex items-center gap-3 py-2"
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-3 px-4 py-2.5"
                 >
-                  <span className="text-base">{PLACE_CATEGORIES[activeTab].emoji}</span>
+                  <span
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0"
+                    style={{ background: `${PLACE_CATEGORIES[activeTab].color}18` }}
+                  >
+                    {PLACE_CATEGORIES[activeTab].emoji}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--ink)] font-medium truncate">{place.name}</p>
+                    <p className="text-[13px] text-[var(--ink)] font-medium truncate leading-tight">{place.name}</p>
                     {place.cuisine && (
-                      <p className="text-[11px] text-[var(--ink-muted)] truncate">{place.cuisine}</p>
+                      <p className="text-[11px] text-[var(--ink-muted)] truncate leading-tight mt-0.5">{place.cuisine}</p>
                     )}
                   </div>
-                  <span className="font-mono text-[11px] text-[var(--terra)] shrink-0">{place.distance}m</span>
+                  <div className="flex flex-col items-end shrink-0">
+                    <span
+                      className="font-mono text-[11px] font-semibold"
+                      style={{ color: PLACE_CATEGORIES[activeTab].color }}
+                    >
+                      {place.distance}m
+                    </span>
+                    <span className="text-[9px] text-[var(--ink-faint)] font-mono tracking-wide">away</span>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -297,20 +353,20 @@ export default function ConciergeMap({ listing, compact = false }: Props) {
 
       {/* Description */}
       {cleanDescription && (
-        <div className="px-5 py-4 border-b border-[var(--border)]">
-          <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[var(--ink-muted)] mb-2">About this stay</p>
-          <p className="text-[13px] text-[var(--ink-soft)] leading-relaxed line-clamp-4">{cleanDescription}</p>
+        <div className="px-4 py-3.5 border-t border-[var(--border)] bg-[var(--paper)]">
+          <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-[var(--ink-muted)] mb-2">About this stay</p>
+          <p className="text-[13px] text-[var(--ink-soft)] leading-relaxed line-clamp-3">{cleanDescription}</p>
         </div>
       )}
 
       {/* CTA */}
-      <div className="px-5 py-4 mt-auto">
+      <div className="px-4 py-3.5 border-t border-[var(--border)] bg-[var(--paper)]">
         <Link
           href={`/explore/${listing.id}`}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--terra)] transition-colors group"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[var(--ink)] text-[var(--paper)] text-[13px] font-medium hover:bg-[var(--terra)] transition-colors group"
         >
           View full details
-          <span className="w-6 h-6 rounded-full bg-[var(--ochre)] text-[var(--ink)] flex items-center justify-center text-xs group-hover:rotate-[-45deg] transition-transform duration-300">
+          <span className="w-5 h-5 rounded-full bg-[var(--paper)]/15 flex items-center justify-center text-xs group-hover:translate-x-0.5 transition-transform">
             →
           </span>
         </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
@@ -18,7 +18,7 @@ const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 // curve = [fadeInStart, holdStart, holdEnd, fadeOutEnd] — overlapping crossfades
 const COPY_STOPS = [
-  { curve: [0, 0.04, 0.27, 0.36] as const, lines: ["Find", "your", "threshold."] },
+  { curve: [0, 0, 0.27, 0.36] as const, lines: ["Find", "your", "threshold."] },
   { curve: [0.28, 0.36, 0.60, 0.68] as const, lines: ["Every door", "opens", "a story."] },
   { curve: [0.62, 0.70, 1.0, 1.0] as const, lines: ["We curate", "the ones worth", "waking up in."] },
 ];
@@ -39,18 +39,77 @@ function stopOpacity(p: number, curve: readonly [number, number, number, number]
 }
 
 function paintFallback(ctx: CanvasRenderingContext2D, w: number, h: number, progress: number) {
-  const g = ctx.createLinearGradient(0, 0, w, h);
   const t = clamp01(progress);
-  g.addColorStop(0, `rgba(242,235,219,${0.95 - t * 0.4})`);
-  g.addColorStop(0.5, `rgba(228,206,162,${0.9 - t * 0.3})`);
-  g.addColorStop(1, `rgba(194,90,56,${0.55 + t * 0.25})`);
-  ctx.fillStyle = g;
+
+  // Deep ink base
+  ctx.fillStyle = "rgb(14,17,16)";
   ctx.fillRect(0, 0, w, h);
-  const rg = ctx.createRadialGradient(w * 0.5, h * 0.55, w * 0.2, w * 0.5, h * 0.55, w * 0.8);
-  rg.addColorStop(0, "rgba(0,0,0,0)");
-  rg.addColorStop(1, "rgba(14,17,16,0.35)");
-  ctx.fillStyle = rg;
+
+  // Primary warm glow — golden-hour light from lower-left (doorway / window)
+  const warmGlow = ctx.createRadialGradient(w * 0.28, h * 0.78, 0, w * 0.28, h * 0.78, w * 0.85);
+  warmGlow.addColorStop(0,   `rgba(220,150,50,${0.62 + t * 0.12})`);
+  warmGlow.addColorStop(0.25,`rgba(194,90,56,${0.40 + t * 0.08})`);
+  warmGlow.addColorStop(0.55,`rgba(100,50,28,${0.22})`);
+  warmGlow.addColorStop(1,   "rgba(14,17,16,0)");
+  ctx.fillStyle = warmGlow;
   ctx.fillRect(0, 0, w, h);
+
+  // Secondary cool ambient — upper-right corner (reflected sky)
+  const coolGlow = ctx.createRadialGradient(w * 0.82, h * 0.08, 0, w * 0.82, h * 0.08, w * 0.55);
+  coolGlow.addColorStop(0,   `rgba(242,235,219,${0.10 - t * 0.04})`);
+  coolGlow.addColorStop(0.45,`rgba(200,175,130,${0.05})`);
+  coolGlow.addColorStop(1,   "rgba(14,17,16,0)");
+  ctx.fillStyle = coolGlow;
+  ctx.fillRect(0, 0, w, h);
+
+  // Vertical light shaft — raking sunlight through an arched doorway
+  const shaftL = w * 0.24;
+  const shaftR = w * 0.40;
+  const shaft = ctx.createLinearGradient(shaftL, 0, shaftR, 0);
+  shaft.addColorStop(0,   "rgba(228,175,70,0)");
+  shaft.addColorStop(0.35,`rgba(228,175,70,${0.06 + t * 0.03})`);
+  shaft.addColorStop(0.65,`rgba(228,175,70,${0.06 + t * 0.03})`);
+  shaft.addColorStop(1,   "rgba(228,175,70,0)");
+  ctx.fillStyle = shaft;
+  ctx.fillRect(0, 0, w, h);
+
+  // Diagonal dust-mote streak across the shaft
+  ctx.save();
+  ctx.globalAlpha = 0.04 + t * 0.02;
+  ctx.strokeStyle = "rgba(242,220,140,1)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(shaftL + (shaftR - shaftL) * 0.3, 0);
+  ctx.lineTo(shaftL + (shaftR - shaftL) * 0.55, h);
+  ctx.stroke();
+  ctx.restore();
+
+  // Bottom scrim — deep ink for text legibility
+  const bottomScrim = ctx.createLinearGradient(0, h * 0.48, 0, h);
+  bottomScrim.addColorStop(0, "rgba(14,17,16,0)");
+  bottomScrim.addColorStop(1, `rgba(14,17,16,${0.88 + t * 0.06})`);
+  ctx.fillStyle = bottomScrim;
+  ctx.fillRect(0, 0, w, h);
+
+  // Top scrim — soften the top so text is readable
+  const topScrim = ctx.createLinearGradient(0, 0, 0, h * 0.22);
+  topScrim.addColorStop(0, `rgba(14,17,16,${0.55 - t * 0.1})`);
+  topScrim.addColorStop(1, "rgba(14,17,16,0)");
+  ctx.fillStyle = topScrim;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === "undefined") return () => {};
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", onStoreChange);
+      return () => mql.removeEventListener("change", onStoreChange);
+    },
+    () => typeof window !== "undefined" && window.matchMedia(query).matches,
+    () => false,
+  );
 }
 
 export default function HeroSequence() {
@@ -70,16 +129,8 @@ export default function HeroSequence() {
   const copyRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [stopIdx, setStopIdx] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    const mql = window.matchMedia("(max-width: 768px), (pointer: coarse)");
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
+  const isMobile = useMediaQuery("(max-width: 768px), (pointer: coarse)");
 
   useEffect(() => {
     if (isMobile || prefersReducedMotion) return;
@@ -111,7 +162,6 @@ export default function HeroSequence() {
         }
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, prefersReducedMotion]);
 
   function drawFrame(p: number) {
@@ -245,7 +295,6 @@ export default function HeroSequence() {
           loop
           muted
           playsInline
-          poster="/hero-frames/frame_001.jpg"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--ink)]/30 via-transparent to-[var(--ink)]/70" />
         <div className="relative z-10 h-full flex flex-col justify-end p-6 pb-16 text-[var(--paper)]">
@@ -357,7 +406,8 @@ export default function HeroSequence() {
                               isItalic ? "italic-display pl-[6%]" : ""
                             }`}
                             style={isItalic ? { color: "var(--ochre-bright)" } : undefined}
-                            initial={{ y: "110%" }}
+                            // i===0 starts visible so the hero is never empty on load.
+                            initial={{ y: i === 0 ? "0%" : "110%" }}
                             animate={{ y: stopIdx === i ? "0%" : "110%" }}
                             transition={{
                               duration: 0.9,

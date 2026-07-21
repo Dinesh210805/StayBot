@@ -66,7 +66,7 @@ export default function Departure({ destinations, videoSrc = "/departure.mp4" }:
   return (
     <section
       ref={containerRef}
-      className="relative bg-[var(--paper)] border-t border-[var(--ink)] py-32 md:py-56 overflow-hidden"
+      className="relative min-h-[100svh] flex items-center bg-[var(--paper)] border-t border-[var(--ink)] py-32 md:py-56 overflow-hidden"
     >
       {/* Ambient video background */}
       {!videoFailed && videoSrc && !prefersReducedMotion && (

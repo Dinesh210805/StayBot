@@ -1,0 +1,83 @@
+- generic [active]:
+  - navigation [ref=e1]:
+    - generic [ref=e2]:
+      - link "StayBot N° 001 · Vol. I" [ref=e3]:
+        - /url: /
+        - generic [ref=e4]:
+          - text: Stay
+          - emphasis [ref=e5]: Bot
+        - generic [ref=e6]: N° 001 · Vol. I
+      - generic [ref=e7]:
+        - link "Index" [ref=e8]:
+          - /url: /
+        - link "Destinations" [ref=e9]:
+          - /url: /destinations
+        - link "Stays" [ref=e10]:
+          - /url: /explore
+        - link "Booking" [ref=e11]:
+          - /url: /booking
+        - link "Concierge" [ref=e12]:
+          - /url: /chat
+          - text: Concierge
+      - link "Begin →" [ref=e14]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e15]: →
+  - main:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - link "S" [ref=e20]:
+              - /url: /
+              - generic [ref=e21]: S
+            - generic [ref=e22]:
+              - paragraph [ref=e23]:
+                - text: The
+                - emphasis [ref=e24]: Concierge
+              - paragraph [ref=e25]: Bangkok · London · Cape Town · Istanbul
+          - generic [ref=e27]: Live
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - paragraph [ref=e32]: Try one of these
+            - generic [ref=e33]:
+              - button "Bangkok A cozy loft in Bangkok under $80, near temples" [ref=e34]:
+                - paragraph [ref=e35]: Bangkok
+                - paragraph [ref=e36]: A cozy loft in Bangkok under $80, near temples
+              - button "Cape Town Ocean-view villa in Cape Town for 4 guests" [ref=e37]:
+                - paragraph [ref=e38]: Cape Town
+                - paragraph [ref=e39]: Ocean-view villa in Cape Town for 4 guests
+              - button "London Quiet studio in Marylebone near the tube" [ref=e40]:
+                - paragraph [ref=e41]: London
+                - paragraph [ref=e42]: Quiet studio in Marylebone near the tube
+              - button "Top picks Most-loved stays with a pool" [ref=e43]:
+                - paragraph [ref=e44]: Top picks
+                - paragraph [ref=e45]: Most-loved stays with a pool
+          - generic [ref=e47]:
+            - generic [ref=e48]: S
+            - generic [ref=e51]:
+              - paragraph [ref=e52]:
+                - text: I'm your StayBot concierge. I curate stays in
+                - strong [ref=e53]: Bangkok
+                - text: ","
+                - strong [ref=e54]: London
+                - text: ","
+                - strong [ref=e55]: Cape Town
+                - text: ", and"
+                - strong [ref=e56]: Istanbul
+                - text: .
+              - paragraph [ref=e57]: Tell me what you're looking for — vibe, dates, budget, neighborhood — and I'll surface the right matches.
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - textbox "Describe your perfect stay…" [ref=e62]
+            - button "↑" [disabled] [ref=e63]
+          - paragraph [ref=e64]: Enter · Shift+Enter for new line
+      - generic [ref=e66]:
+        - generic [ref=e69]: Property Detail
+        - button "Close detail panel" [ref=e70]: ×
+      - button "⚡ Dev" [ref=e73]:
+        - generic [ref=e74]: ⚡
+        - text: Dev
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e80] [cursor=pointer]:
+    - img [ref=e81]

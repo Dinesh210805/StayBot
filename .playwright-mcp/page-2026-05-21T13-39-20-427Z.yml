@@ -1,0 +1,376 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "StayBot N° 001 · Vol. I" [ref=e4]:
+        - /url: /
+        - generic [ref=e5]:
+          - text: Stay
+          - emphasis [ref=e6]: Bot
+        - generic [ref=e7]: N° 001 · Vol. I
+      - generic [ref=e8]:
+        - link "Index" [ref=e9]:
+          - /url: /
+          - text: Index
+        - link "Destinations" [ref=e11]:
+          - /url: /destinations
+        - link "Stays" [ref=e12]:
+          - /url: /explore
+        - link "Booking" [ref=e13]:
+          - /url: /booking
+        - link "Concierge" [ref=e14]:
+          - /url: /chat
+      - link "Begin →" [ref=e15]:
+        - /url: /chat
+        - text: Begin
+        - generic [ref=e16]: →
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - text: Stay
+          - emphasis [ref=e22]: Bot
+        - generic [ref=e23]: 000 / 100
+      - generic [ref=e24]:
+        - paragraph [ref=e25]: A Living Atlas · Vol. I · 2025
+        - img [ref=e27]
+        - generic [ref=e32]:
+          - paragraph [ref=e33]: ยินดีต้อนรับ
+          - paragraph [ref=e34]: from Bangkok
+      - generic [ref=e37]: Curating
+    - generic [ref=e38]:
+      - generic [ref=e40]:
+        - generic [ref=e42]:
+          - generic [ref=e43]: Est · MMXXV
+          - generic [ref=e45]: Concierge online
+        - generic [ref=e49]:
+          - generic:
+            - paragraph: / Chapter 01
+            - heading "Find your threshold." [level=1]:
+              - generic:
+                - generic: Find
+              - generic:
+                - generic: your
+              - generic:
+                - generic: threshold.
+          - generic:
+            - paragraph: / Chapter 02
+            - heading "Every door opens a story." [level=1]:
+              - generic:
+                - generic: Every door
+              - generic:
+                - generic: opens
+              - generic:
+                - generic: a story.
+          - generic:
+            - paragraph: / Chapter 03
+            - heading "We curate the ones worth waking up in." [level=1]:
+              - generic:
+                - generic: We curate
+              - generic:
+                - generic: the ones worth
+              - generic:
+                - generic: waking up in.
+        - link "Begin a conversation →" [ref=e51]:
+          - /url: /chat
+          - text: Begin a conversation
+          - generic [ref=e52]: →
+        - generic [ref=e54]: 01 / 03
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]: Bangkok · 180 Curated Stays
+            - generic [ref=e66]: ·
+          - generic [ref=e67]:
+            - generic [ref=e68]: London · 165 Curated Stays
+            - generic [ref=e69]: ·
+          - generic [ref=e70]:
+            - generic [ref=e71]: Cape Town · 105 Curated Stays
+            - generic [ref=e72]: ·
+          - generic [ref=e73]:
+            - generic [ref=e74]: Istanbul · 150 Curated Stays
+            - generic [ref=e75]: ·
+          - generic [ref=e76]:
+            - generic [ref=e77]: Concierge · Always Online
+            - generic [ref=e78]: ·
+          - generic [ref=e79]:
+            - generic [ref=e80]: Hand-Walked. Not Algorithmic.
+            - generic [ref=e81]: ·
+          - generic [ref=e82]:
+            - generic [ref=e83]: From sentence to sleep
+            - generic [ref=e84]: ·
+          - generic [ref=e85]:
+            - generic [ref=e86]: Slow Travel · Lit Right
+            - generic [ref=e87]: ·
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]: Bangkok · 180 Curated Stays
+            - generic [ref=e91]: ·
+          - generic [ref=e92]:
+            - generic [ref=e93]: London · 165 Curated Stays
+            - generic [ref=e94]: ·
+          - generic [ref=e95]:
+            - generic [ref=e96]: Cape Town · 105 Curated Stays
+            - generic [ref=e97]: ·
+          - generic [ref=e98]:
+            - generic [ref=e99]: Istanbul · 150 Curated Stays
+            - generic [ref=e100]: ·
+          - generic [ref=e101]:
+            - generic [ref=e102]: Concierge · Always Online
+            - generic [ref=e103]: ·
+          - generic [ref=e104]:
+            - generic [ref=e105]: Hand-Walked. Not Algorithmic.
+            - generic [ref=e106]: ·
+          - generic [ref=e107]:
+            - generic [ref=e108]: From sentence to sleep
+            - generic [ref=e109]: ·
+          - generic [ref=e110]:
+            - generic [ref=e111]: Slow Travel · Lit Right
+            - generic [ref=e112]: ·
+      - generic [ref=e113]:
+        - generic: I.
+        - generic [ref=e114]:
+          - generic [ref=e115]:
+            - paragraph [ref=e116]: /01 · Manifesto
+            - paragraph [ref=e117]: Chapter I
+          - paragraph [ref=e118]:
+            - generic [ref=e119]:
+              - text: We
+              - generic [ref=e120]: We
+            - generic [ref=e121]:
+              - text: don't
+              - generic [ref=e122]: don't
+            - generic [ref=e123]:
+              - text: list
+              - generic [ref=e124]: list
+            - generic [ref=e125]:
+              - text: rooms.
+              - generic [ref=e126]: rooms.
+            - generic [ref=e127]:
+              - text: We
+              - generic [ref=e128]: We
+            - generic [ref=e129]:
+              - text: compose
+              - generic [ref=e130]: compose
+            - generic [ref=e131]:
+              - text: arrivals
+              - generic [ref=e132]: arrivals
+            - generic [ref=e133]:
+              - text: —
+              - generic [ref=e134]: —
+            - generic [ref=e135]:
+              - text: slow,
+              - generic [ref=e136]: slow,
+            - generic [ref=e137]:
+              - text: lit,
+              - generic [ref=e138]: lit,
+            - generic [ref=e139]:
+              - text: and
+              - generic [ref=e140]: and
+            - generic [ref=e141]:
+              - text: yours
+              - generic [ref=e142]: yours
+            - generic [ref=e143]:
+              - text: before
+              - generic [ref=e144]: before
+            - generic [ref=e145]:
+              - text: you
+              - generic [ref=e146]: you
+            - generic [ref=e147]:
+              - text: knock.
+              - generic [ref=e148]: knock.
+          - paragraph [ref=e151]: — The Editors
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - generic [ref=e156]:
+            - generic [ref=e157]: "0"
+            - generic [ref=e158]: +
+          - paragraph [ref=e159]: Curated stays
+        - generic [ref=e160]:
+          - generic [ref=e162]: "0"
+          - paragraph [ref=e163]: Cities of arrival
+        - generic [ref=e164]:
+          - generic [ref=e166]: "0"
+          - paragraph [ref=e167]: Mornings authored
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - generic [ref=e170]: "0"
+            - generic [ref=e171]: /7
+          - paragraph [ref=e172]: Concierge · always
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - img "Bangkok" [ref=e177]
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - generic [ref=e183]: City of Angels, City of Light
+              - generic [ref=e184]: ·
+              - generic [ref=e185]: 13.7563° N · 100.5018° E
+            - heading "Bangkok" [level=2] [ref=e186]
+            - paragraph [ref=e187]: กรุงเทพมหานคร
+            - generic [ref=e188]:
+              - link "→ Explore stays" [ref=e189]:
+                - /url: /destinations/bangkok
+                - generic [ref=e190]: →
+                - text: Explore stays
+              - generic [ref=e191]: 180 curated
+              - generic [ref=e192]: Nov – Feb
+        - generic [ref=e193]:
+          - img "London" [ref=e195]
+          - generic [ref=e199]:
+            - generic [ref=e200]:
+              - generic [ref=e201]: The Great Metropolis
+              - generic [ref=e202]: ·
+              - generic [ref=e203]: 51.5074° N · 0.1278° W
+            - heading "London" [level=2] [ref=e204]
+            - paragraph [ref=e205]: Lundúnir
+            - generic [ref=e206]:
+              - link "→ Explore stays" [ref=e207]:
+                - /url: /destinations/london
+                - generic [ref=e208]: →
+                - text: Explore stays
+              - generic [ref=e209]: 165 curated
+              - generic [ref=e210]: May – Sep
+        - generic [ref=e211]:
+          - img "Cape Town" [ref=e213]
+          - generic [ref=e217]:
+            - generic [ref=e218]:
+              - generic [ref=e219]: Where Two Oceans Meet
+              - generic [ref=e220]: ·
+              - generic [ref=e221]: 33.9249° S · 18.4241° E
+            - heading "Cape Town" [level=2] [ref=e222]
+            - paragraph [ref=e223]: Kaapstad · iKapa
+            - generic [ref=e224]:
+              - link "→ Explore stays" [ref=e225]:
+                - /url: /destinations/cape-town
+                - generic [ref=e226]: →
+                - text: Explore stays
+              - generic [ref=e227]: 105 curated
+              - generic [ref=e228]: Oct – Apr
+        - generic [ref=e229]:
+          - img "Istanbul" [ref=e231]
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - generic [ref=e237]: Between Continents, After Dark
+              - generic [ref=e238]: ·
+              - generic [ref=e239]: 41.0082° N · 28.9784° E
+            - heading "Istanbul" [level=2] [ref=e240]
+            - paragraph [ref=e241]: İstanbul
+            - generic [ref=e242]:
+              - link "→ Explore stays" [ref=e243]:
+                - /url: /destinations/istanbul
+                - generic [ref=e244]: →
+                - text: Explore stays
+              - generic [ref=e245]: 150 curated
+              - generic [ref=e246]: Apr – Jun · Sep – Nov
+        - generic:
+          - generic:
+            - paragraph: /02 · The Atlas
+            - generic:
+              - generic: "01"
+              - generic: /
+              - generic: "04"
+      - generic [ref=e256]:
+        - paragraph [ref=e257]: /03 · The Field Notes
+        - heading "We slept here so you wouldn't have to guess." [level=2] [ref=e258]:
+          - text: We slept here so you
+          - emphasis [ref=e259]: wouldn't have to guess.
+        - paragraph [ref=e260]: Every listing has been walked, woken in, and stress-tested at 3am by someone we trust.
+      - generic [ref=e261]:
+        - generic [ref=e263]:
+          - paragraph [ref=e266]: /04 · The Three Doors
+          - heading "From sentence, to sleep, in three doors." [level=2] [ref=e268]:
+            - generic [ref=e270]: From sentence,
+            - generic [ref=e273]:
+              - text: to
+              - emphasis [ref=e274]: sleep
+              - text: ","
+            - generic [ref=e276]: in three doors.
+        - generic [ref=e277]:
+          - article [ref=e278]:
+            - generic [ref=e282]:
+              - generic: I
+              - generic [ref=e284]: I
+              - heading "Tell us." [level=3] [ref=e286]
+              - paragraph [ref=e287]: In one sentence, describe the room you want to wake in. The hour. The light. The street outside.
+          - article [ref=e288]:
+            - generic [ref=e292]:
+              - generic: II
+              - generic [ref=e294]: II
+              - heading "We listen." [level=3] [ref=e296]
+              - paragraph [ref=e297]: The concierge reads between your lines — light, hour, neighbourhood, the sound of the morning you want.
+          - article [ref=e298]:
+            - generic [ref=e302]:
+              - generic: III
+              - generic [ref=e304]: III
+              - heading "You arrive." [level=3] [ref=e306]
+              - paragraph [ref=e307]: Keys in your hand before the kettle's hot. Dates held, transit mapped, the corner café briefed on your usual.
+      - generic [ref=e310]:
+        - generic [ref=e311]:
+          - paragraph [ref=e313]: /04 · The Conversation
+          - heading "Speak in plain language. We answer in places." [level=2] [ref=e314]:
+            - generic [ref=e316]: Speak in plain
+            - generic [ref=e318]: language. We answer
+            - generic [ref=e321]:
+              - text: in
+              - emphasis [ref=e322]: places
+              - text: .
+          - paragraph [ref=e324]: No filters. No checkboxes. Tell the concierge exactly what you want — a balcony, a Tuesday, walking distance to bread — and you'll get places, not pages of results.
+          - link "Open the conversation →" [ref=e326]:
+            - /url: /chat
+            - text: Open the conversation
+            - generic [ref=e327]: →
+        - generic [ref=e333]:
+          - generic [ref=e334]:
+            - generic [ref=e339]: StayBot · Concierge
+            - generic [ref=e342]: Live
+          - generic [ref=e344]:
+            - generic [ref=e345]: Describe your perfect stay…
+            - button "→" [ref=e346]
+      - generic [ref=e347]:
+        - generic:
+          - img "Bangkok"
+          - generic:
+            - paragraph: N° 180
+            - paragraph: Bangkok
+        - generic:
+          - img "London"
+          - generic:
+            - paragraph: N° 165
+            - paragraph: London
+        - generic:
+          - img "Cape Town"
+          - generic:
+            - paragraph: N° 105
+            - paragraph: Cape Town
+        - generic:
+          - img "Istanbul"
+          - generic:
+            - paragraph: N° 150
+            - paragraph: Istanbul
+        - generic [ref=e349]:
+          - paragraph [ref=e350]: /05 · Boarding
+          - heading "Your next arrival is one sentence away." [level=2] [ref=e351]:
+            - generic [ref=e352]: Your next
+            - emphasis [ref=e353]: arrival
+            - generic [ref=e354]: is one sentence away.
+          - generic [ref=e355]:
+            - link "Begin a conversation →" [ref=e357]:
+              - /url: /chat
+              - text: Begin a conversation
+              - generic [ref=e358]: →
+            - link "Walk the atlas" [ref=e359]:
+              - /url: /destinations
+      - generic [ref=e361]:
+        - generic [ref=e362]:
+          - text: Stay
+          - emphasis [ref=e363]: Bot
+        - paragraph [ref=e364]: © 2025 · A Living Atlas · Composed with care
+        - generic [ref=e365]:
+          - link "Atlas" [ref=e366]:
+            - /url: /destinations
+          - link "Stays" [ref=e367]:
+            - /url: /explore
+          - link "Concierge" [ref=e368]:
+            - /url: /chat
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e374] [cursor=pointer]:
+    - img [ref=e375]

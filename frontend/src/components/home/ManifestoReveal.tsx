@@ -51,7 +51,7 @@ export default function ManifestoReveal() {
   return (
     <section
       ref={ref}
-      className="relative w-full bg-[var(--paper)] py-32 md:py-44 px-6 md:px-12 overflow-hidden"
+      className="relative w-full min-h-[100svh] flex items-center bg-[var(--paper)] py-32 md:py-44 px-6 md:px-12 overflow-hidden"
     >
       <div className="absolute inset-0 grid-lines opacity-[0.05] pointer-events-none" />
 

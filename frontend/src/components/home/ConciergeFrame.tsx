@@ -14,7 +14,7 @@ import { Reveal, RevealLines } from "@/components/fx/Reveal";
  */
 export default function ConciergeFrame() {
   return (
-    <section className="relative bg-[var(--paper)] py-32 md:py-44 px-6 md:px-12 overflow-visible">
+    <section className="relative min-h-[100svh] flex items-center bg-[var(--paper)] py-32 md:py-44 px-6 md:px-12 overflow-visible">
       <div className="absolute inset-0 grid-lines opacity-[0.05] pointer-events-none" />
 
       <div className="relative max-w-[1500px] mx-auto">

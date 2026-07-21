@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -19,20 +19,47 @@ interface AtlasShowcaseProps {
 
 export default function AtlasShowcase({ destinations }: AtlasShowcaseProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const boundsRef = useRef({ top: 0, height: 0 });
   const prefersReducedMotion = useReducedMotion();
   const [activeIdx, setActiveIdx] = useState(0);
-
-  const { scrollYProgress } = useScroll({ target: sectionRef });
-
   const n = destinations.length;
 
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const i = Math.min(n - 1, Math.max(0, Math.floor(v * n)));
-    setActiveIdx(i);
+  // Measure section position once on mount (and on resize).
+  // Storing in a ref avoids re-renders; the transform function reads it on each scroll tick.
+  useEffect(() => {
+    const measure = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      boundsRef.current = {
+        top: el.getBoundingClientRect().top + window.scrollY,
+        height: el.offsetHeight,
+      };
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const { scrollY } = useScroll();
+
+  // Derive 0→1 progress directly from live scroll position vs. cached section bounds.
+  // progress=0  → section top just reached viewport top  (sticky activates)
+  // progress=1  → section bottom just reached viewport bottom (sticky releases)
+  const progress = useTransform(scrollY, (y) => {
+    const { top, height } = boundsRef.current;
+    const viewH = typeof window !== "undefined" ? window.innerHeight : 800;
+    const range = height - viewH; // scrollable distance while pinned
+    if (range <= 0) return 0;
+    return Math.max(0, Math.min(1, (y - top) / range));
   });
 
-  const activeAccent = destinations[activeIdx]?.accent ?? "var(--ochre)";
-  const sectionHeight = `${n * 100}vh`;
+  useMotionValueEvent(progress, "change", (v) => {
+    setActiveIdx(Math.min(n - 1, Math.max(0, Math.floor(v * n))));
+  });
+
+  // (n + 1) × 100svh tall section:
+  //   usable sticky scroll = n × 100svh  →  each destination gets exactly 1 viewport of scroll
+  const sectionHeight = `${(n + 1) * 100}svh`;
 
   if (prefersReducedMotion) {
     return (
@@ -40,21 +67,35 @@ export default function AtlasShowcase({ destinations }: AtlasShowcaseProps) {
         <div className="max-w-[1500px] mx-auto mb-16">
           <p className="eyebrow-muted text-[var(--paper)]/50 mb-6">/02 · The Atlas</p>
           <h2 className="font-display text-[clamp(2.4rem,6vw,5rem)] leading-[0.95] tracking-[-0.025em] text-[var(--paper)] max-w-[20ch]">
-            Four cities. One concierge. <em className="italic-display">A thousand mornings</em>.
+            Four cities. One concierge.{" "}
+            <em className="italic-display">A thousand mornings</em>.
           </h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4 max-w-[1500px] mx-auto">
-          {destinations.map((d, i) => (
+          {destinations.map((d) => (
             <Link
               key={d.slug}
               href={`/destinations/${d.slug}`}
               className="group relative aspect-[4/5] rounded-lg overflow-hidden"
             >
-              <Image src={d.hero} alt={d.name} fill className="object-cover" sizes="(max-width:768px) 100vw, 50vw" />
+              <Image
+                src={d.hero}
+                alt={d.name}
+                fill
+                className="object-cover"
+                sizes="(max-width:768px) 100vw, 50vw"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
               <div className="absolute inset-x-6 bottom-6 text-white">
-                <p className="font-mono text-[10px] tracking-[0.32em] uppercase mb-2" style={{ color: d.accent }}>{d.tagline}</p>
-                <h3 className="font-display text-3xl md:text-4xl leading-[0.95]">{d.name}</h3>
+                <p
+                  className="font-mono text-[10px] tracking-[0.32em] uppercase mb-2"
+                  style={{ color: d.accent }}
+                >
+                  {d.tagline}
+                </p>
+                <h3 className="font-display text-3xl md:text-4xl leading-[0.95]">
+                  {d.name}
+                </h3>
               </div>
             </Link>
           ))}
@@ -71,7 +112,6 @@ export default function AtlasShowcase({ destinations }: AtlasShowcaseProps) {
     >
       {/* Sticky fullscreen container */}
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-[var(--ink)]">
-
         {/* Stacked destination layers */}
         {destinations.map((d, i) => (
           <DestinationLayer
@@ -79,15 +119,17 @@ export default function AtlasShowcase({ destinations }: AtlasShowcaseProps) {
             destination={d}
             index={i}
             total={n}
-            progress={scrollYProgress}
+            progress={progress}
           />
         ))}
 
-        {/* HUD overlay — always on top */}
+        {/* HUD — always on top */}
         <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-6 md:p-10">
           {/* Top bar */}
           <div className="flex items-center justify-between">
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/50">/02 · The Atlas</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/50">
+              /02 · The Atlas
+            </p>
             <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase text-white/50">
               <span>{String(activeIdx + 1).padStart(2, "0")}</span>
               <span>/</span>
@@ -95,17 +137,18 @@ export default function AtlasShowcase({ destinations }: AtlasShowcaseProps) {
             </div>
           </div>
 
-          {/* Bottom progress dots */}
+          {/* Progress dots */}
           <div className="flex items-center justify-center gap-3">
             {destinations.map((d, i) => (
               <motion.span
                 key={d.slug}
-                className="block rounded-full transition-all duration-500"
-                style={{
+                className="block rounded-full"
+                animate={{
                   background: i === activeIdx ? d.accent : "rgba(255,255,255,0.25)",
-                  width: i === activeIdx ? "28px" : "6px",
-                  height: "6px",
+                  width: i === activeIdx ? 28 : 6,
+                  height: 6,
                 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
               />
             ))}
           </div>
@@ -122,64 +165,77 @@ interface LayerProps {
   progress: MotionValue<number>;
 }
 
-function DestinationLayer({ destination: d, index, total, progress }: LayerProps) {
-  const n = total;
+function DestinationLayer({ destination: d, index: i, total: n, progress }: LayerProps) {
+  // Each slot occupies progress range [i/n, (i+1)/n]
+  const slotStart = i / n;
+  const slotEnd = (i + 1) / n;
 
-  // Each destination occupies scroll range [index/n, (index+1)/n]
-  // Transition in: [(index - 0.15)/n, index/n]
-  // Fully present: [index/n, (index + 0.85)/n]
-  // Transition out: [(index + 0.85)/n, (index + 1)/n]
+  // Crossfade zone is 15% of one slot on each edge
+  const xfade = 0.15 / n;
 
-  const inStart = Math.max(0, (index - 0.2) / n);
-  const inEnd = index / n;
-  const outStart = (index + 0.8) / n;
-  const outEnd = Math.min(1, (index + 1) / n);
+  const inStart = Math.max(0, slotStart - xfade);
+  const inEnd = Math.min(slotEnd, slotStart + xfade);
+  const outStart = Math.max(slotStart, slotEnd - xfade);
+  const outEnd = Math.min(1, slotEnd + xfade);
 
-  // First card is always visible at start
-  const opacity = useTransform(
-    progress,
-    index === 0
-      ? [0, outStart, outEnd]
-      : [inStart, inEnd, outStart, outEnd],
-    index === 0
-      ? [1, 1, 0]
-      : [0, 1, 1, 0]
-  );
+  const isFirst = i === 0;
+  const isLast = i === n - 1;
 
-  // Subtle zoom: new card starts slightly zoomed in and settles; exits zooming out
-  const scale = useTransform(
-    progress,
-    index === 0
-      ? [0, outStart, outEnd]
-      : [inStart, inEnd, outStart, outEnd],
-    index === 0
-      ? [1, 1.02, 1.06]
-      : [1.06, 1, 1.02, 1.08]
-  );
+  // First card: starts fully opaque, fades out at its slot end.
+  // Last card: fades in at its slot start, stays fully opaque.
+  // Middle cards: fade in then fade out.
+  const opacityKP = isFirst
+    ? ([0, outStart, outEnd] as number[])
+    : isLast
+    ? ([inStart, inEnd, 1] as number[])
+    : ([inStart, inEnd, outStart, outEnd] as number[]);
 
-  // Text slides up on enter
-  const textY = useTransform(
-    progress,
-    [inStart, inEnd, outStart],
-    [24, 0, -16]
-  );
+  const opacityV = isFirst
+    ? ([1, 1, 0] as number[])
+    : isLast
+    ? ([0, 1, 1] as number[])
+    : ([0, 1, 1, 0] as number[]);
 
-  const textOpacity = useTransform(
-    progress,
-    index === 0
-      ? [0, 0.01, outStart, outEnd]
-      : [inStart, inEnd, outStart, outEnd],
-    index === 0
-      ? [1, 1, 1, 0]
-      : [0, 1, 1, 0]
-  );
+  const scaleKP = isFirst
+    ? ([0, outStart, outEnd] as number[])
+    : isLast
+    ? ([inStart, inEnd, 1] as number[])
+    : ([inStart, inEnd, outStart, outEnd] as number[]);
+
+  const scaleV = isFirst
+    ? ([1, 1.02, 1.05] as number[])
+    : isLast
+    ? ([1.05, 1, 1.02] as number[])
+    : ([1.05, 1, 1.02, 1.05] as number[]);
+
+  const opacity = useTransform(progress, opacityKP, opacityV);
+  const scale = useTransform(progress, scaleKP, scaleV);
+
+  // Text slides up on entry, slides up on exit
+  const textYKP = isFirst ? [0, outStart] : [inStart, inEnd, outStart];
+  const textYV = isFirst ? [0, -20] : [20, 0, -20];
+  const textY = useTransform(progress, textYKP, textYV);
+
+  const textOpKP = isFirst
+    ? ([0, 0.01, outStart, outEnd] as number[])
+    : isLast
+    ? ([inStart, inEnd, 1] as number[])
+    : ([inStart, inEnd, outStart, outEnd] as number[]);
+
+  const textOpV = isFirst
+    ? ([1, 1, 1, 0] as number[])
+    : isLast
+    ? ([0, 1, 1] as number[])
+    : ([0, 1, 1, 0] as number[]);
+
+  const textOpacity = useTransform(progress, textOpKP, textOpV);
 
   return (
     <motion.div
       className="absolute inset-0"
-      style={{ opacity, zIndex: index + 1 }}
+      style={{ opacity, zIndex: i + 1 }}
     >
-      {/* Image with subtle scale */}
+      {/* Background image with subtle zoom */}
       <motion.div className="absolute inset-0" style={{ scale }}>
         <Image
           src={d.hero}
@@ -187,11 +243,9 @@ function DestinationLayer({ destination: d, index, total, progress }: LayerProps
           fill
           className="object-cover"
           sizes="100vw"
-          priority={index === 0}
+          priority={i === 0}
         />
-        {/* Gradient for text legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30" />
-        {/* Grain */}
         <div className="absolute inset-0 img-grain opacity-40" />
       </motion.div>
 
